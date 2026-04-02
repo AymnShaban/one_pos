@@ -20,6 +20,8 @@ extension ContextExtensions on BuildContext {
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
   Orientation get orientation => MediaQuery.of(this).orientation;
   bool get isArabic => Localizations.localeOf(this).languageCode == 'ar';
+  bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
+
 
   TextDirection get textDirection =>
       isArabic ? TextDirection.rtl : TextDirection.ltr;

@@ -10,6 +10,7 @@ abstract class AppColors {
   static Color black = const Color(0xff1A1A1A); // Pure Black
   static Color grey = const Color(0xff8A8F99); // Gray Neutral
   static Color white = Colors.white;
+  static Color white4 = const Color(0xffF5F5F5);
 
 
 

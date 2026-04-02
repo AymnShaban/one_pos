@@ -22,7 +22,7 @@ class EndPoints {
   static const String getMainCategory = "/api/Category/GetMainCategory";
   static const String getSubCategory = "/api/Category/GetCategoryByParentId";
 
-  static String subCategoryProducts = "/api/Product/GetBrandsByCatgory?pageNumber=1&pageSize=200";
+  static String subCategoryProducts = "/api/Product";
 
   static String productDetails = "/api/Product/GetProductById";
   static String addToBasket = "/api/Product/AddSalesBasket";
