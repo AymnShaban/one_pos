@@ -1,13 +1,4 @@
-// feature/basket/data_source/basket_data_source.dart (unchanged)
-
-import '../../../../../core/local/hive_service_impl.dart';
-import '../../../../../core/services/service_locator/service_locator.dart';
-
-import '../../../../core/constant/end_points.dart';
-import '../../../../core/datasource/generic_data_source.dart';
-import '../../../../core/http/either.dart';
-import '../../../../core/http/failure.dart';
-import '../models/basket_model.dart';
+part of '../basket_imports.dart';
 
 abstract interface class BasketDataSource {
   Future<Either<Failure, List<BasketItemModel>>> getBasketItems();

@@ -1,9 +1,4 @@
-import '../../../../../core/bloc/paginated_bloc/paginated_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../data_source/delete_basket_data_source.dart';
-import '../../data_source/fetch_basket_items_data_source.dart';
-import '../../models/basket_model.dart';
-import 'basket_event.dart';
+part of '../../basket_imports.dart';
 
 class BasketBloc extends Bloc<BasketEvent, BaseState<BasketItemModel>> {
   final BasketDataSource _basketDataSource;
@@ -39,7 +34,7 @@ class BasketBloc extends Bloc<BasketEvent, BaseState<BasketItemModel>> {
         ),
       ),
           (items) {
-            print("items for basket ${items.map((e)=>e.toJson())}");
+            debugPrint("items for basket ${items.map((e)=>e.toJson())}");
             emit(
         state.copyWith(
           status: Status.success,

@@ -1,12 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
-import '../../../../../core/helper/helper.dart';
-import '../../../../../../../feature/main/favourite/manager/add_to_favorite_bloc/add_to_favorite_bloc.dart';
-
-import '../../../../../core/widgets/custom_snack_bar.dart';
-import '../../../../../core/widgets/flexible_image.dart';
-import '../../manager/add_to_favorite_bloc/add_to_favorite_event.dart';
-import '../../models/add_to_favorite_request.dart';
-import '../../models/favorite_model.dart';
+part of '../../favorite_imports.dart';
 
 class FavouriteItem extends StatefulWidget {
   final FavoriteModel favorite;

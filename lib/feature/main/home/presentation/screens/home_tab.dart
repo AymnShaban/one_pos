@@ -1,16 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../../core/bloc/paginated_bloc/paginated_bloc.dart';
-import '../../manager/home_bloc/home_bloc.dart';
-import '../../models/home_stats_model.dart';
-import '../widgets/action_card.dart';
-import '../widgets/home_app_bar.dart';
-import '../widgets/recent_activity_item.dart';
-import '../widgets/stats_card.dart';
-import '../widgets/welcome_card.dart';
-
+part of '../../home_imports.dart';
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
 
@@ -43,9 +31,9 @@ class HomeTab extends StatelessWidget {
                         children: [
                           Expanded(
                             child: StatsCard(
-                              label: 'products'.tr(),
+                              label: 'home.products'.tr(),
                               value: '${stats.productsCount}',
-                              badge: 'active'.tr(),
+                              badge: 'home.active'.tr(),
                               badgeColor: Colors.green,
                               iconColor: const Color(0xff9B59B6),
                             ),
@@ -53,7 +41,7 @@ class HomeTab extends StatelessWidget {
                           SizedBox(width: 10.w),
                           Expanded(
                             child: StatsCard(
-                              label: 'invoices'.tr(),
+                              label: 'home.invoices'.tr(),
                               value: '${stats.invoicesCount}',
                               badge: '+${stats.invoicesNewCount}',
                               badgeColor: const Color(0xff3B5BDB),
@@ -63,7 +51,7 @@ class HomeTab extends StatelessWidget {
                           SizedBox(width: 10.w),
                           Expanded(
                             child: StatsCard(
-                              label: 'today_sales'.tr(),
+                              label: 'home.today_sales'.tr(),
                               value: '${stats.todaySales.toStringAsFixed(0)}',
                               badge: '+${stats.salesPercentage}%',
                               badgeColor: Colors.green,
@@ -76,13 +64,13 @@ class HomeTab extends StatelessWidget {
                       SizedBox(height: 20.h),
 
                       // ── Sales Section ──
-                      _SectionHeader(title: 'sales'.tr()),
+                      _SectionHeader(title: 'home.sales'.tr()),
                       SizedBox(height: 10.h),
                       Row(
                         children: [
                           Expanded(
                             child: ActionCard(
-                              label: 'new_sales_invoice'.tr(),
+                              label: 'home.new_sales_invoice'.tr(),
                               icon: Icons.shopping_cart_rounded,
                               color: const Color(0xff3B5BDB),
                               onTap: () {},
@@ -91,7 +79,7 @@ class HomeTab extends StatelessWidget {
                           SizedBox(width: 12.w),
                           Expanded(
                             child: ActionCard(
-                              label: 'price_quote'.tr(),
+                              label: 'home.price_quote'.tr(),
                               icon: Icons.receipt_outlined,
                               color: const Color(0xff3B5BDB),
                               onTap: () {},
@@ -102,13 +90,13 @@ class HomeTab extends StatelessWidget {
                       SizedBox(height: 20.h),
 
                       // ── Operations Section ──
-                      _SectionHeader(title: 'operations'.tr()),
+                      _SectionHeader(title: 'home.operations'.tr()),
                       SizedBox(height: 10.h),
                       Row(
                         children: [
                           Expanded(
                             child: ActionCard(
-                              label: 'manage_invoices'.tr(),
+                              label: 'home.manage_invoices'.tr(),
                               icon: Icons.inventory_2_rounded,
                               color: const Color(0xff40C057),
                               onTap: () {},
@@ -117,7 +105,7 @@ class HomeTab extends StatelessWidget {
                           SizedBox(width: 12.w),
                           Expanded(
                             child: ActionCard(
-                              label: 'reports'.tr(),
+                              label: 'home.reports'.tr(),
                               icon: Icons.trending_up_rounded,
                               color: const Color(0xff9B59B6),
                               onTap: () {},
@@ -130,7 +118,7 @@ class HomeTab extends StatelessWidget {
                         children: [
                           Expanded(
                             child: ActionCard(
-                              label: 'customers'.tr(),
+                              label: 'home.customers'.tr(),
                               icon: Icons.people_alt_rounded,
                               color: const Color(0xffE67E22),
                               onTap: () {},
@@ -143,7 +131,7 @@ class HomeTab extends StatelessWidget {
                       SizedBox(height: 20.h),
 
                       // ── Recent Activity ──
-                      _SectionHeader(title: 'recent_activity'.tr()),
+                      _SectionHeader(title: 'home.recent_activity'.tr()),
                       SizedBox(height: 10.h),
                       Container(
                         decoration: BoxDecoration(

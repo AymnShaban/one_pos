@@ -1,16 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
-import '../../../../../core/helper/helper.dart';
-import '../../../invoices/manager/invoices_bloc/invoices_bloc.dart';
-import '../../../invoices/manager/invoices_bloc/invoices_event.dart';
-import '../../../invoices/presentation/screens/invoices_tab.dart';
-import '../../../sales/manager/sales_bloc/sales_bloc.dart';
-import '../../../sales/manager/sales_bloc/sales_event.dart';
-import '../../../sales/presentation/screens/sales_tab.dart';
-import '../../manager/bottom_nav_bloc/bottom_nav_bloc.dart';
-import '../../manager/bottom_nav_bloc/bottom_nav_event.dart';
-import '../../manager/bottom_nav_bloc/bottom_nav_states.dart';
-import 'home_tab.dart';
-import 'invoices_placeholder.dart';
+part of '../../home_imports.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -23,10 +11,11 @@ class MainScreen extends StatelessWidget {
         child: const SalesTab()),
      BlocProvider(
          create: (_) => getIt<InvoicesBloc>()..add(const FetchInvoices()),
-
          child: InvoicesTab()),
 
-    const SalesPlaceholder(),
+     BlocProvider(
+         create: (_) => getIt<ReportsBloc>()..add(const FetchReport()),
+         child: ReportsTab()),
     const SalesPlaceholder(),
   ];
 
@@ -78,27 +67,27 @@ class _BottomNavBar extends StatelessWidget {
           BottomNavigationBarItem(
             icon: const Icon(Icons.home_outlined),
             activeIcon: const Icon(Icons.home_rounded),
-            label: 'home.home'.tr(),
+            label: 'nav_home'.tr(),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.shopping_cart_outlined),
             activeIcon: const Icon(Icons.shopping_cart_rounded),
-            label: 'home.sales'.tr(),
+            label: 'nav_sales'.tr(),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.receipt_long_outlined),
             activeIcon: const Icon(Icons.receipt_long_rounded),
-            label: 'home.invoices'.tr(),
+            label: 'nav_invoices'.tr(),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.bar_chart_outlined),
             activeIcon: const Icon(Icons.bar_chart_rounded),
-            label: 'home.reports'.tr(),
+            label: 'nav_reports'.tr(),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.settings_outlined),
             activeIcon: const Icon(Icons.settings_rounded),
-            label: 'home.settings'.tr(),
+            label: 'nav_settings'.tr(),
           ),
         ],
       ),

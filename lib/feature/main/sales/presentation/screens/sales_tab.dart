@@ -1,14 +1,5 @@
-import 'package:easy_localization/easy_localization.dart';
-import '../../../../../core/helper/helper.dart';
-import '../../../../../core/models/item_model.dart';
-import '../../../../../core/widgets/product_item_selector.dart';
-import '../../../../../core/widgets/product_list_wrapper.dart';
-import '../../manager/sales_bloc/sales_bloc.dart';
-import '../../manager/sales_bloc/sales_event.dart';
-import '../../models/sales_filter_model.dart';
-import '../widgets/category_filter_bar.dart';
-import '../widgets/sales_app_bar.dart';
-import '../widgets/sales_search_bar.dart';
+part of '../../sales_imports.dart';
+
 
 class SalesTab extends StatelessWidget {
   const SalesTab({super.key});
@@ -19,15 +10,6 @@ class SalesTab extends StatelessWidget {
     CategoryFilterModel(id: '2', arName: 'وجبات خفيفة', enName: 'Snacks'),
     CategoryFilterModel(id: '3', arName: 'ألبان', enName: 'Dairy'),
   ];
-
-  @override
-  Widget build(BuildContext context) {
-    return const _SalesTabBody();
-  }
-}
-
-class _SalesTabBody extends StatelessWidget {
-  const _SalesTabBody();
 
   @override
   Widget build(BuildContext context) {

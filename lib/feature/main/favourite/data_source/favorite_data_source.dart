@@ -1,9 +1,4 @@
-import '../../../../../../core/constant/end_points.dart';
-import '../../../../../../core/datasource/generic_data_source.dart';
-import '../../../../../../core/http/either.dart';
-import '../../../../../../core/http/failure.dart';
-import '../models/add_to_favorite_request.dart';
-import '../models/favorite_model.dart';
+part of '../favorite_imports.dart';
 
 abstract interface class FavoriteDataSource {
   Future<Either<Failure, void>> addFavorite(AddAndDeleteFavoriteRequest request);

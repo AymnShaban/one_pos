@@ -1,9 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/bloc/paginated_bloc/paginated_bloc.dart';
-import '../../../../../core/helper/paginatation_helper.dart';
-import '../../data_source/invoices_data_source.dart';
-import '../../models/invoice_model.dart';
-import 'invoices_event.dart';
+part of '../../invoices_imports.dart';
 
 class InvoicesBloc extends Bloc<InvoicesEvent, BaseState<InvoiceModel>> {
   final InvoicesDataSource _dataSource;

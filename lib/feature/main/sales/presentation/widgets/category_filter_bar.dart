@@ -1,10 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../manager/sales_bloc/sales_bloc.dart';
-import '../../manager/sales_bloc/sales_event.dart';
-import '../../models/sales_filter_model.dart';
+part of '../../sales_imports.dart';
 
 class CategoryFilterBar extends StatefulWidget {
   final List<CategoryFilterModel> categories;

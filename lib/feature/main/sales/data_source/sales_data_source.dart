@@ -1,9 +1,4 @@
-import '../../../../../core/datasource/generic_data_source.dart';
-import '../../../../../core/http/either.dart';
-import '../../../../../core/http/failure.dart';
-import '../../../../../core/models/item_model.dart';
-import '../../../../../core/params/pagination_params.dart';
-import '../../../../../core/constant/end_points.dart';
+part of '../sales_imports.dart';
 
 abstract interface class SalesDataSource {
   Future<Either<Failure, List<ItemModel>>> getProducts({

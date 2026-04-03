@@ -1,7 +1,4 @@
-import 'package:get_it/get_it.dart';
-
-import '../../../local/hive_service_impl.dart';
-import '../../../models/item_model.dart';
+part of '../services_imports.dart';
 
 class HiveServiceLocator {
   static Future<void> init({required GetIt getIt}) async {
@@ -9,6 +6,6 @@ class HiveServiceLocator {
       () => HiveServiceImpl.instance,
     );
     getIt.registerLazySingleton<IUserCache>(() => HiveServiceImpl.instance);
-    getIt.registerLazySingleton<IPaginatedCache<ItemModel>>(() => ProductPaginatedCache<ItemModel>(HiveServiceImpl.instance));
+    getIt.registerLazySingleton<IPaginatedCache<ItemModel>>(() => GenericPaginatedCache<ItemModel>(HiveServiceImpl.instance));
   }
 }

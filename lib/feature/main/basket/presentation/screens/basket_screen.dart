@@ -1,18 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
-import '../../../../../core/extension/context_extension.dart';
-import '../../../../../core/widgets/custom_snack_bar.dart';
-import '../../../../../core/widgets/pull_to_refresh.dart';
-
-import '../../../../../core/helper/helper.dart';
-import '../../../../../core/widgets/product_list_wrapper.dart';
-import '../../../../auth/presentation/screens/view/login_screen.dart';
-import '../../manager/basket_bloc/basket_bloc.dart';
-import '../../manager/basket_bloc/basket_event.dart';
-import '../../models/basket_model.dart';
-import '../widgets/order_minimum_widget.dart';
-import '../widgets/payment_button_section.dart';
-import '../widgets/place_details_widget.dart';
-import '../widgets/product_basket_item.dart';
+part of '../../basket_imports.dart';
 
 class BasketScreen extends StatefulWidget {
   const BasketScreen({super.key});

@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:one_pos/feature/splash/splash_screen.dart';
 import 'core/local/hive_service_impl.dart';
 import 'core/services/bloc_observer.dart';
-import 'core/services/service_locator/service_locator.dart';
+import 'core/services/service_locator/services_imports.dart';
 import 'core/theme/light_theme.dart';
 import 'core/widgets/custom_language.dart';
 

@@ -1,24 +1,7 @@
-import 'package:easy_localization/easy_localization.dart';
-import '../../../../../core/helper/helper.dart';
-import '../../../sales/presentation/widgets/sales_app_bar.dart';
-import '../../manager/invoices_bloc/invoices_bloc.dart';
-import '../../manager/invoices_bloc/invoices_event.dart';
-import '../../models/invoice_model.dart';
-import '../widgets/invoice_card.dart';
-import '../widgets/invoice_filter_bar.dart';
-import '../widgets/invoice_stats_row.dart';
+part of '../../invoices_imports.dart';
 
 class InvoicesTab extends StatelessWidget {
   const InvoicesTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const _InvoicesTabBody();
-  }
-}
-
-class _InvoicesTabBody extends StatelessWidget {
-  const _InvoicesTabBody();
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +137,9 @@ class _InvoicesTabBody extends StatelessWidget {
     );
   }
 }
+
+
+
 
 class _InvoiceSearchBar extends StatefulWidget {
   final ValueChanged<String> onChanged;

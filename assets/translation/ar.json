@@ -3,7 +3,7 @@
   "nav_sales": "المبيعات",
   "nav_invoices": "الفواتير",
   "nav_reports": "التقارير",
-  "nav_settings": "الإعدادات",
+"nav_settings": "الإعدادات",
 
   "home": {
     "title": "The One POS",
@@ -67,6 +67,29 @@
     "delete_confirm_body": "هل أنت متأكد من حذف هذه الفاتورة؟",
     "delete_success": "تم حذف الفاتورة بنجاح",
     "delete_error": "فشل حذف الفاتورة"
+  },
+
+  "reports": {
+    "title": "التقارير",
+    "daily_sales": "مبيعات اليومية",
+    "items_report": "تقرير الأصناف",
+    "trends": "الاتجاهات",
+    "period": "الفترة الزمنية",
+    "today": "اليوم",
+    "week": "الأسبوع",
+    "month": "الشهر",
+    "custom": "مخصص",
+    "total_sales": "إجمالي المبيعات",
+    "invoices_count": "عدد الفواتير",
+    "invoice_unit": "فاتورة",
+    "average_invoice": "متوسط الفاتورة",
+    "payment_methods": "طرق الدفع",
+    "cash": "نقدي",
+    "card": "بطاقة",
+    "saudi_riyal": "ريال سعودي",
+    "top_products": "أكثر المنتجات مبيعاً",
+    "units_sold": "{count} وحدة",
+    "export_pdf": "تصدير التقرير (PDF)"
   },
 
   "common": {

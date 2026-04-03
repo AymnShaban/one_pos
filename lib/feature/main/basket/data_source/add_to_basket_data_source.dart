@@ -1,10 +1,4 @@
-// feature/main/details/data_source/add_to_basket_data_source.dart
-import '../../../../../core/datasource/generic_data_source.dart';
-import '../../../../../core/http/either.dart';
-import '../../../../../core/http/failure.dart';
-
-import '../../../../core/constant/end_points.dart';
-import '../models/add_to_basket_model.dart';
+part of '../basket_imports.dart';
 
 abstract interface class AddToBasketDataSource {
   Future<Either<Failure, void>> addToBasket(AddToBasketRequest request);

@@ -1,7 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
-import '../../../../../core/extension/context_extension.dart';
-import '../../../../../core/helper/helper.dart';
-import '../../../../auth/models/customer_model.dart';
+part of '../../basket_imports.dart';
 
 class PlaceDetailsWidget extends StatelessWidget {
   const PlaceDetailsWidget({super.key});

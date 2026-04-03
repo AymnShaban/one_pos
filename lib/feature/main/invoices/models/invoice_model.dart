@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+part of '../invoices_imports.dart';
 
 enum InvoiceStatus { all, completed, pending, cancelled }
 

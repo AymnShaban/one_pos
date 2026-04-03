@@ -1,9 +1,6 @@
 import '../../../../../core/helper/helper.dart';
-import '../main/home/manager/bottom_nav_bloc/bottom_nav_bloc.dart';
-import '../main/home/manager/home_bloc/home_bloc.dart';
-import '../main/home/manager/home_bloc/home_event.dart';
-import '../main/home/presentation/screens/main_screen.dart';
-
+import '../../core/services/service_locator/services_imports.dart';
+import '../main/home/home_imports.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

@@ -1,10 +1,4 @@
-import 'package:get_it/get_it.dart';
-
-import '../../../../feature/auth/bloc/areas_bloc/areas_bloc.dart';
-import '../../../../feature/auth/bloc/governorates_bloc/governorates_bloc.dart';
-import '../../../../feature/auth/bloc/log_in_bloc/log_in_bloc.dart';
-import '../../../../feature/auth/data_source/login_data_source.dart';
-import '../../../datasource/generic_data_source.dart';
+part of '../services_imports.dart';
 
 class AuthServiceLocator {
   static Future<void> execute({required GetIt getIt}) async {

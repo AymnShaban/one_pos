@@ -89,4 +89,6 @@ class EndPoints {
   // Invoices
   static const String getInvoices = "/api/Invoices";
   static const String deleteInvoice = "/api/Invoices/Delete";
+  // Reports
+  static const String getReport = "/api/Reports";
 }

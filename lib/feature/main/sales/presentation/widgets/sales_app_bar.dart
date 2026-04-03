@@ -1,6 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+part of '../../sales_imports.dart';
 
 class SalesAppBar extends StatelessWidget {
   final bool isOnline;

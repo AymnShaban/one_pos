@@ -1,12 +1,4 @@
-import '../../../../../core/helper/helper.dart';
-import '../../../../../core/widgets/custom_snack_bar.dart';
-import '../../../../../core/widgets/failure_widget.dart';
-import '../../../../../core/widgets/pull_to_refresh.dart';
-import 'package:easy_localization/easy_localization.dart';
-import '../../manager/add_to_favorite_bloc/add_to_favorite_bloc.dart';
-import '../../manager/add_to_favorite_bloc/add_to_favorite_event.dart';
-import '../../models/favorite_model.dart';
-import '../widget/favourite_item.dart';
+part of '../../favorite_imports.dart';
 
 class FavouritesScreen extends StatefulWidget {
   const FavouritesScreen({super.key});

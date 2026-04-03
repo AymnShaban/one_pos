@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../models/invoice_model.dart';
+part of '../../invoices_imports.dart';
 
 class InvoiceStatsRow extends StatelessWidget {
   final InvoiceStatsModel stats;

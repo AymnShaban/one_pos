@@ -1,9 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../manager/invoices_bloc/invoices_bloc.dart';
-import '../../manager/invoices_bloc/invoices_event.dart';
-import '../../models/invoice_model.dart';
+part of '../../invoices_imports.dart';
 
 class InvoiceFilterBar extends StatefulWidget {
   const InvoiceFilterBar({super.key});

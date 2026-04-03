@@ -1,18 +1,5 @@
-import 'package:dio/dio.dart';
-import 'package:get_it/get_it.dart';
-import 'package:one_pos/core/services/service_locator/sales_service_locator/sales_service_locator.dart';
-import '../../constant/end_points.dart';
-import '../../datasource/generic_data_source.dart';
-import '../../helper/connectivity_service.dart';
-import '../../helper/sync_manager.dart';
-import '../../http/api_consumer.dart';
-import '../../network/encrupt.dart';
-import 'auth_service_locator/auth_service_locator.dart';
-import 'basket_service_locator/basket_service_locator.dart';
-import 'favorite_service_locator/favorite_service_locator.dart';
-import 'hive_service_locator/hive_service_locator.dart';
-import 'home_service_locator/home_service_locator.dart';
-import 'invoice_service_locator/invoice_service_locator.dart';
+part of 'services_imports.dart';
+
 final getIt = GetIt.instance;
 
 Future<void> setup() async {
@@ -67,4 +54,5 @@ Future<void> setup() async {
   await BasketServiceLocator.init(getIt: getIt);
   await FavoriteServiceLocator.init(getIt: getIt);
   await InvoicesServiceLocator.init(getIt: getIt);
+  await ReportsServiceLocator.init(getIt: getIt);
 }

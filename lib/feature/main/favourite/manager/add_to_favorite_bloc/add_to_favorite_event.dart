@@ -1,4 +1,4 @@
-import '../../models/add_to_favorite_request.dart';
+part of '../../favorite_imports.dart';
 
 abstract class FavoriteEvent {}
 

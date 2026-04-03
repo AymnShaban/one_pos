@@ -1,9 +1,4 @@
-import '../../../../../core/bloc/paginated_bloc/paginated_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../data_source/favorite_data_source.dart';
-import '../../models/favorite_model.dart';
-import 'add_to_favorite_event.dart';
+part of '../../favorite_imports.dart';
 
 class FavoriteBloc extends Bloc<FavoriteEvent, BaseState<FavoriteModel>> {
   final FavoriteDataSource _favoriteDataSource;

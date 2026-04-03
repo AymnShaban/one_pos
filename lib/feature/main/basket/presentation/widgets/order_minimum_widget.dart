@@ -1,9 +1,4 @@
-// order_minimum_widget.dart
-import 'package:easy_localization/easy_localization.dart';
-import '../../../../../core/extension/context_extension.dart';
-import '../../../../../core/helper/helper.dart';
-import '../../manager/basket_bloc/basket_bloc.dart';
-import '../../models/basket_model.dart';
+part of '../../basket_imports.dart';
 
 class OrderMinimumWidget extends StatelessWidget {
   const OrderMinimumWidget({super.key});

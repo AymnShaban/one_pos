@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+part of '../../basket_imports.dart';
 
 abstract class BasketEvent extends Equatable {
 const BasketEvent();

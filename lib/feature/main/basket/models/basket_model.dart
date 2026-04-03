@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+part of '../basket_imports.dart';
 
 class BasketItemModel extends Equatable {
   final int customerID;

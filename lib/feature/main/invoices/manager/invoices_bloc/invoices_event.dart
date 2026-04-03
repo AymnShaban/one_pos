@@ -1,5 +1,4 @@
-import 'package:equatable/equatable.dart';
-import '../../models/invoice_model.dart';
+part of '../../invoices_imports.dart';
 
 abstract class InvoicesEvent extends Equatable {
   const InvoicesEvent();

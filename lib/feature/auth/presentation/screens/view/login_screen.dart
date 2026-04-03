@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../../core/helper/helper.dart';
+import '../../../../../core/services/service_locator/services_imports.dart';
 import '../../../../../core/widgets/custom_snack_bar.dart';
 import '../../../../../../../core/constant/custom_bottom.dart';
 import '../../../../../../../core/widgets/language_toggle_button.dart';

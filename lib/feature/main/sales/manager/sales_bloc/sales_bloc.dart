@@ -1,9 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/bloc/paginated_bloc/paginated_bloc.dart';
-import '../../../../../core/helper/paginatation_helper.dart';
-import '../../../../../core/models/item_model.dart';
-import '../../data_source/sales_data_source.dart';
-import 'sales_event.dart';
+part of '../../sales_imports.dart';
 
 class SalesBloc extends Bloc<SalesEvent, BaseState<ItemModel>> {
   final SalesDataSource _dataSource;

@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+part of '../sales_imports.dart';
 
 class CategoryFilterModel extends Equatable {
   final String id;

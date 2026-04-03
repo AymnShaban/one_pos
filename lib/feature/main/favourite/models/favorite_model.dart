@@ -1,3 +1,5 @@
+part of '../favorite_imports.dart';
+
 class FavoriteModel {
   final int? id;
   final int? productID;

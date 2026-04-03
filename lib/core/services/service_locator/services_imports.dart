@@ -1,0 +1,32 @@
+import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
+
+import '../../../feature/auth/bloc/areas_bloc/areas_bloc.dart';
+import '../../../feature/auth/bloc/governorates_bloc/governorates_bloc.dart';
+import '../../../feature/auth/bloc/log_in_bloc/log_in_bloc.dart';
+import '../../../feature/auth/data_source/login_data_source.dart';
+import '../../../feature/main/basket/basket_imports.dart';
+import '../../../feature/main/favourite/favorite_imports.dart';
+import '../../../feature/main/home/home_imports.dart';
+import '../../../feature/main/invoices/invoices_imports.dart';
+import '../../../feature/main/reports/reports_imports.dart';
+import '../../../feature/main/sales/sales_imports.dart';
+import '../../constant/end_points.dart';
+import '../../datasource/generic_data_source.dart';
+import '../../helper/connectivity_service.dart';
+import '../../helper/sync_manager.dart';
+import '../../http/api_consumer.dart';
+import '../../local/hive_service_impl.dart';
+import '../../models/item_model.dart';
+import '../../network/encrupt.dart';
+
+
+part 'auth_service_locator/auth_service_locator.dart';
+part 'basket_service_locator/basket_service_locator.dart';
+part 'favorite_service_locator/favorite_service_locator.dart';
+part 'hive_service_locator/hive_service_locator.dart';
+part 'home_service_locator/home_service_locator.dart';
+part 'reports_service_locator/reports_service_locator.dart';
+part 'sales_service_locator/sales_service_locator.dart';
+part 'invoice_service_locator/invoice_service_locator.dart';
+part 'service_locator.dart';

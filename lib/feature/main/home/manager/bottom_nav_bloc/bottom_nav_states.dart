@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+part of '../../home_imports.dart';
 
 class NavState extends Equatable {
   final int currentIndex;

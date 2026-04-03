@@ -1,5 +1,4 @@
-
-import 'package:flutter/material.dart';
+part of '../../home_imports.dart';
 class SalesPlaceholder extends StatelessWidget {
   const SalesPlaceholder({super.key});
   @override

@@ -1,5 +1,4 @@
-// feature/main/list/models/add_favorite_request.dart
-import 'package:equatable/equatable.dart';
+part of '../favorite_imports.dart';
 
 class AddAndDeleteFavoriteRequest extends Equatable {
   final int productID;

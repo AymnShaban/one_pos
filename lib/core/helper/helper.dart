@@ -14,7 +14,6 @@ export 'package:flutter_screenutil/flutter_screenutil.dart';
 export '../../../../../core/widgets/info_row.dart';
 export 'package:get_it/get_it.dart';
 export '../datasource/generic_data_source.dart';
-export '../../../../../core/services/service_locator/service_locator.dart';
 export '../../../../../core/constant/custom_text_field.dart';
 export '../../../../../../core/widgets/product_item.dart';
 export '../../../../../core/constant/app_assets.dart';

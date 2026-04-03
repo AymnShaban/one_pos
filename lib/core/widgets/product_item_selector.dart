@@ -1,8 +1,6 @@
 import 'package:collection/collection.dart';
-import '../../feature/main/basket/manager/basket_bloc/basket_bloc.dart';
-import '../../feature/main/basket/models/basket_model.dart';
-import '../../feature/main/favourite/manager/add_to_favorite_bloc/add_to_favorite_bloc.dart';
-import '../../feature/main/favourite/models/favorite_model.dart';
+import '../../feature/main/basket/basket_imports.dart';
+import '../../feature/main/favourite/favorite_imports.dart';
 import '../helper/helper.dart';
 import '../models/item_model.dart';
 

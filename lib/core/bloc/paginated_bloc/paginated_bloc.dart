@@ -6,7 +6,7 @@ import '../../helper/paginatation_helper.dart';
 import '../../helper/sync_manager.dart';
 import '../../http/either.dart';
 import '../../http/failure.dart';
-import '../../services/service_locator/service_locator.dart';
+import '../../services/service_locator/services_imports.dart';
 
 part 'paginated_event.dart';
 part '../base_state/base_state.dart';

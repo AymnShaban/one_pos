@@ -1,13 +1,10 @@
-import '../../feature/main/favourite/manager/add_to_favorite_bloc/add_to_favorite_bloc.dart';
-import '../../feature/main/basket/manager/add_to_basket_bloc/add_to_basket_bloc.dart';
-import '../../feature/main/basket/manager/basket_bloc/basket_bloc.dart';
+
 import 'package:easy_localization/easy_localization.dart';
-import '../../feature/main/basket/manager/basket_bloc/basket_event.dart';
-import '../../feature/main/basket/models/basket_model.dart';
-import '../../feature/main/favourite/manager/add_to_favorite_bloc/add_to_favorite_event.dart';
-import '../../feature/main/favourite/models/add_to_favorite_request.dart';
-import '../../feature/main/favourite/models/favorite_model.dart';
+
+import '../../feature/main/basket/basket_imports.dart';
+import '../../feature/main/favourite/favorite_imports.dart';
 import '../helper/helper.dart';
+import '../services/service_locator/services_imports.dart';
 import 'custom_snack_bar.dart';
 
 class ProductListWrapper extends StatefulWidget {

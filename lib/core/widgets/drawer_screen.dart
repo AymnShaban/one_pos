@@ -1,4 +1,5 @@
 import '../helper/helper.dart';
+import '../services/service_locator/services_imports.dart';
 import 'language_toggle_button.dart';
 
 
@@ -57,21 +58,21 @@ class CustomAppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawerItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required Color iconColor,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      leading: Icon(icon, color: iconColor, size: 24),
-      title: Text(
-        title,
-        style: AppTextTheme.body1.copyWith(color: AppColors.mainAppColor),
-      ),
-      onTap: onTap,
-    );
-  }
+  // Widget _buildDrawerItem(
+  //   BuildContext context, {
+  //   required IconData icon,
+  //   required String title,
+  //   required Color iconColor,
+  //   required VoidCallback onTap,
+  // }) {
+  //   return ListTile(
+  //     contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+  //     leading: Icon(icon, color: iconColor, size: 24),
+  //     title: Text(
+  //       title,
+  //       style: AppTextTheme.body1.copyWith(color: AppColors.mainAppColor),
+  //     ),
+  //     onTap: onTap,
+  //   );
+  // }
 }

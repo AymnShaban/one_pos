@@ -1,7 +1,5 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/bloc/paginated_bloc/paginated_bloc.dart';
-import '../../models/home_stats_model.dart';
-import 'home_event.dart';
+part of '../../home_imports.dart';
+
 
 class HomeBloc extends Bloc<HomeEvent, BaseState<HomeStatsModel>> {
   bool isOnline = true;

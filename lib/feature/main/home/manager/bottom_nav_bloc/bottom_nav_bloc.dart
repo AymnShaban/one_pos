@@ -1,7 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'bottom_nav_event.dart';
-import 'bottom_nav_states.dart';
+part of '../../home_imports.dart';
 
 class NavBloc extends Bloc<NavEvent, NavState> {
   NavBloc() : super(const NavState()) {

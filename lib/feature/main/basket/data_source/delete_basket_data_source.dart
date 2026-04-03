@@ -1,10 +1,4 @@
-import '../../../../../core/constant/end_points.dart';
-import '../../../../../core/datasource/generic_data_source.dart';
-import '../../../../../core/http/either.dart';
-import '../../../../../core/http/failure.dart';
-import '../../../../../core/services/service_locator/service_locator.dart';
-
-import '../../../../core/local/hive_service_impl.dart';
+part of '../basket_imports.dart';
 
 abstract interface class DeleteBasketDataSource {
   Future<Either<Failure, void>> deleteBasketItem(int productId,String barCode);

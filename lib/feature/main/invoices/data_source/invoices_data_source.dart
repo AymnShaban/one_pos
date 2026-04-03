@@ -1,9 +1,4 @@
-import '../../../../../core/constant/end_points.dart';
-import '../../../../../core/datasource/generic_data_source.dart';
-import '../../../../../core/http/either.dart';
-import '../../../../../core/http/failure.dart';
-import '../../../../../core/params/pagination_params.dart';
-import '../models/invoice_model.dart';
+part of '../invoices_imports.dart';
 
 abstract interface class InvoicesDataSource {
   Future<Either<Failure, List<InvoiceModel>>> getInvoices({

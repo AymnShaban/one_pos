@@ -8,7 +8,7 @@ abstract interface class AppTextTheme {
     fontFamily: 'Hacen',
     // letterSpacing: 0.5,
     height: 1.5,
-    color: AppColors.mainAppColor,
+    color: AppColors.black,
   );
 
   static TextStyle heading1 = _baseStyle.copyWith(

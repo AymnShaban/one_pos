@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+part of '../../sales_imports.dart';
 
 abstract class SalesEvent extends Equatable {
   const SalesEvent();

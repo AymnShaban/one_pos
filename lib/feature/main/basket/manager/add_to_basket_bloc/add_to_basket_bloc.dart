@@ -1,8 +1,4 @@
-import '../../../../../core/bloc/paginated_bloc/paginated_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../data_source/add_to_basket_data_source.dart';
-import 'add_to_basket_events.dart';
+part of '../../basket_imports.dart';
 
 
 class AddToBasketBloc extends Bloc<AddToBasketEvent, BaseState<void>> {

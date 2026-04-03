@@ -6,12 +6,12 @@ abstract interface class IPaginatedCache<T> {
   Future<void> clearSavedKeys();
 }
 
-class ProductPaginatedCache<ItemModel> implements IPaginatedCache<ItemModel> {
+class GenericPaginatedCache<T> implements IPaginatedCache<T> {
   final HiveServiceImpl _hiveService;
-  const ProductPaginatedCache(this._hiveService);
+  const GenericPaginatedCache(this._hiveService);
   @override
-  Future<void> cachePage(List<ItemModel> items, {String? cacheKey}) {
-    return _hiveService._cachePage<ItemModel>(items, cacheKey: cacheKey);
+  Future<void> cachePage(List<T> items, {String? cacheKey}) {
+    return _hiveService._cachePage<T>(items, cacheKey: cacheKey);
   }
 
   @override
@@ -20,7 +20,7 @@ class ProductPaginatedCache<ItemModel> implements IPaginatedCache<ItemModel> {
   }
 
   @override
-  Future<List<ItemModel>> getCachedPage({String? cacheKey}) {
-    return _hiveService._getCachedPage<ItemModel>(cacheKey: cacheKey);
+  Future<List<T>> getCachedPage({String? cacheKey}) {
+    return _hiveService._getCachedPage<T>(cacheKey: cacheKey);
   }
 }
