@@ -1,5 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../../core/helper/helper.dart';
+import '../../../invoices/manager/invoices_bloc/invoices_bloc.dart';
+import '../../../invoices/manager/invoices_bloc/invoices_event.dart';
+import '../../../invoices/presentation/screens/invoices_tab.dart';
+import '../../../sales/manager/sales_bloc/sales_bloc.dart';
+import '../../../sales/manager/sales_bloc/sales_event.dart';
 import '../../../sales/presentation/screens/sales_tab.dart';
 import '../../manager/bottom_nav_bloc/bottom_nav_bloc.dart';
 import '../../manager/bottom_nav_bloc/bottom_nav_event.dart';
@@ -10,13 +15,19 @@ import 'invoices_placeholder.dart';
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
-  static const List<Widget> _screens = [
-    HomeTab(),
-    SalesTab(),
-    SalesPlaceholder(),
+  static final List<Widget> _screens = [
+    const HomeTab(),
+    BlocProvider(
+        create: (_) => getIt<SalesBloc>()..add(const FetchProducts()),
 
-    SalesPlaceholder(),
-    SalesPlaceholder(),
+        child: const SalesTab()),
+     BlocProvider(
+         create: (_) => getIt<InvoicesBloc>()..add(const FetchInvoices()),
+
+         child: InvoicesTab()),
+
+    const SalesPlaceholder(),
+    const SalesPlaceholder(),
   ];
 
   @override

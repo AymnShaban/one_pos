@@ -22,10 +22,7 @@ class SalesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<SalesBloc>()..add(const FetchProducts()),
-      child: const _SalesTabBody(),
-    );
+    return const _SalesTabBody();
   }
 }
 

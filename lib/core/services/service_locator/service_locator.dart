@@ -12,6 +12,7 @@ import 'basket_service_locator/basket_service_locator.dart';
 import 'favorite_service_locator/favorite_service_locator.dart';
 import 'hive_service_locator/hive_service_locator.dart';
 import 'home_service_locator/home_service_locator.dart';
+import 'invoice_service_locator/invoice_service_locator.dart';
 final getIt = GetIt.instance;
 
 Future<void> setup() async {
@@ -65,4 +66,5 @@ Future<void> setup() async {
   await SalesServiceLocator.init(getIt: getIt);
   await BasketServiceLocator.init(getIt: getIt);
   await FavoriteServiceLocator.init(getIt: getIt);
+  await InvoicesServiceLocator.init(getIt: getIt);
 }

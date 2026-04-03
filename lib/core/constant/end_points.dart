@@ -85,4 +85,8 @@ class EndPoints {
 
   static String bannerProductByIdImage({required int id}) =>
       "/api/BannerItems1?ImageName=$id&CustomerID=$customerPhone'";
+
+  // Invoices
+  static const String getInvoices = "/api/Invoices";
+  static const String deleteInvoice = "/api/Invoices/Delete";
 }
