@@ -1,6 +1,5 @@
 import '../../../../../core/helper/helper.dart';
-import '../../core/services/service_locator/services_imports.dart';
-import '../main/home/home_imports.dart';
+import '../auth/presentation/screens/view/login_screen.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -15,25 +14,26 @@ class _SplashScreenState extends State<SplashScreen> {
 
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return MultiBlocProvider(
-                providers: [
-                  BlocProvider(
-                    create: (_) => getIt<HomeBloc>()..add(InitHome()),
-                  ),
-                  BlocProvider(
-                    create: (_) => getIt<NavBloc>(),
-                  ),
-                ],
-                child: MainScreen(),
-              );
-            },
-          ),
-          (route) => false,
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>  LoginScreen()));
+        // Navigator.pushAndRemoveUntil(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) {
+        //       return MultiBlocProvider(
+        //         providers: [
+        //           BlocProvider(
+        //             create: (_) => getIt<HomeBloc>()..add(InitHome()),
+        //           ),
+        //           BlocProvider(
+        //             create: (_) => getIt<NavBloc>(),
+        //           ),
+        //         ],
+        //         child: MainScreen(),
+        //       );
+        //     },
+        //   ),
+        //   (route) => false,
+        // );
       }
     });
   }

@@ -5,6 +5,18 @@
   "nav_reports": "Reports",
   "nav_settings": "Settings",
 
+  "auth": {
+    "welcome_back": "Welcome Back",
+    "shop_easily_and_enjoy_special_offers": "Sign in to continue",
+    "phone_number": "Phone Number",
+    "enter_your_phone_number": "Please enter your phone number",
+    "password": "Password",
+    "enter_your_password": "Please enter your password",
+    "log_in": "Log In",
+    "login_success": "Logged in successfully",
+    "please_check_your_phone_number_and_password": "Please check your phone number and password"
+  },
+
   "home": {
     "title": "The One POS",
     "subtitle": "Point of Sale",

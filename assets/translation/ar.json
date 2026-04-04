@@ -5,6 +5,18 @@
   "nav_reports": "التقارير",
 "nav_settings": "الإعدادات",
 
+  "auth": {
+    "welcome_back": "مرحباً بعودتك",
+    "shop_easily_and_enjoy_special_offers": "سجّل دخولك للمتابعة",
+    "phone_number": "رقم الهاتف",
+    "enter_your_phone_number": "يرجى إدخال رقم الهاتف",
+    "password": "كلمة المرور",
+    "enter_your_password": "يرجى إدخال كلمة المرور",
+    "log_in": "تسجيل الدخول",
+    "login_success": "تم تسجيل الدخول بنجاح",
+    "please_check_your_phone_number_and_password": "يرجى التحقق من رقم الهاتف وكلمة المرور"
+  },
+
   "home": {
     "title": "The One POS",
     "subtitle": "نقطة البيع الواحد",
