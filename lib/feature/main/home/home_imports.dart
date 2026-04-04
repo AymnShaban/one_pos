@@ -5,6 +5,7 @@ import 'package:one_pos/feature/main/home/presentation/widgets/home_app_bar.dart
 import 'package:one_pos/feature/main/home/presentation/widgets/recent_activity_item.dart';
 import 'package:one_pos/feature/main/home/presentation/widgets/stats_card.dart';
 import 'package:one_pos/feature/main/home/presentation/widgets/welcome_card.dart';
+import 'package:one_pos/feature/main/settings/settings_imports.dart';
 
 import '../../../core/helper/helper.dart';
 import '../../../core/services/service_locator/services_imports.dart';

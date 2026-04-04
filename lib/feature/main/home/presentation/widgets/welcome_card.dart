@@ -24,6 +24,26 @@ class WelcomeCard extends StatelessWidget {
       ),
       child: Row(
         children: [
+          Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'home.welcome'.tr(),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              dateStr,
+              style: TextStyle(color: Colors.white70, fontSize: 13.sp),
+            ),
+          ],
+        ),
+
+          const Spacer(),
           // Sync badge
           Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
@@ -36,30 +56,11 @@ class WelcomeCard extends StatelessWidget {
                 Icon(Icons.wifi_rounded, color: Colors.white, size: 16.sp),
                 SizedBox(width: 6.w),
                 Text(
-                  isSynced ? 'synced'.tr() : 'offline'.tr(),
+                  isSynced ? 'home.synced'.tr() : 'home.offline'.tr(),
                   style: TextStyle(color: Colors.white, fontSize: 12.sp),
                 ),
               ],
             ),
-          ),
-          const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'welcome'.tr(),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 4.h),
-              Text(
-                dateStr,
-                style: TextStyle(color: Colors.white70, fontSize: 13.sp),
-              ),
-            ],
           ),
         ],
       ),

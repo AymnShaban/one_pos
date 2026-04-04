@@ -86,7 +86,7 @@ class InvoiceCard extends StatelessWidget {
             children: [
               // Product count
               Text(
-                '${invoice.productCount} منتج',
+                'invoices.products_count'.tr(namedArgs: {'count': '${invoice.productCount}'}),
                 style: TextStyle(
                   fontSize: 12.sp,
                   color: const Color(0xff8A8F99),
@@ -131,7 +131,7 @@ class InvoiceCard extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: Text(
-                'متبقي: ${invoice.remainingAmount!.toStringAsFixed(2)} ر.س',
+                '${'invoices.remaining'.tr()}: ${invoice.remainingAmount!.toStringAsFixed(2)} ${'sales.SAR'.tr()}',
                 style: TextStyle(
                   fontSize: 12.sp,
                   color: const Color(0xffFA5252),
@@ -147,7 +147,7 @@ class InvoiceCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              '${invoice.totalAmount.toStringAsFixed(2)} ر.س',
+              '${invoice.totalAmount.toStringAsFixed(2)} ${'sales.SAR'.tr()}',
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.bold,

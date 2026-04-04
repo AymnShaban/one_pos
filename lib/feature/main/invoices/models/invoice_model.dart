@@ -5,10 +5,10 @@ enum InvoiceStatus { all, completed, pending, cancelled }
 extension InvoiceStatusExtension on InvoiceStatus {
   String get arLabel {
     switch (this) {
-      case InvoiceStatus.all:       return 'الكل';
-      case InvoiceStatus.completed: return 'مكتمل';
-      case InvoiceStatus.pending:   return 'معلق';
-      case InvoiceStatus.cancelled: return 'ملغي';
+      case InvoiceStatus.all:       return 'invoices.all'.tr();
+      case InvoiceStatus.completed: return 'invoices.completed'.tr();
+      case InvoiceStatus.pending:   return 'invoices.pending'.tr();
+      case InvoiceStatus.cancelled: return 'invoices.cancelled'.tr();
     }
   }
 

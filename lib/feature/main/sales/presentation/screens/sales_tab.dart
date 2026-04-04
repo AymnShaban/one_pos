@@ -1,7 +1,7 @@
 part of '../../sales_imports.dart';
 
 
-class SalesTab extends StatelessWidget {
+class SalesTab extends StatefulWidget {
   const SalesTab({super.key});
 
   // Hardcoded until categories API is wired — replace with bloc later
@@ -12,6 +12,16 @@ class SalesTab extends StatelessWidget {
   ];
 
   @override
+  State<SalesTab> createState() => _SalesTabState();
+}
+
+class _SalesTabState extends State<SalesTab> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<SalesBloc>().add(const FetchProducts());
+  }
+  @override
   Widget build(BuildContext context) {
     return ProductListWrapper(
       child: Scaffold(
@@ -20,7 +30,7 @@ class SalesTab extends StatelessWidget {
           builder: (context, state) {
             return CustomScrollView(
               slivers: [
-                const SalesAppBar(isOnline: true),
+                HomeAppBar(isOnline: context.read<HomeBloc>().isOnline),
 
                 // Search bar
                 SliverToBoxAdapter(

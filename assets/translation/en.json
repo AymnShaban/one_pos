@@ -58,7 +58,7 @@
     "completed": "Completed",
     "pending": "Pending",
     "cancelled": "Cancelled",
-    "total_invoices": "Total\nInvoices",
+    "total_invoices": "Total Invoices",
     "total_completed": "Completed",
     "total_pending": "Pending",
     "products_count": "{count} products",
@@ -90,6 +90,34 @@
     "top_products": "Top Selling Products",
     "units_sold": "{count} units",
     "export_pdf": "Export Report (PDF)"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage application settings",
+    "account": "Account",
+    "system": "System",
+    "information": "Information",
+    "user_info": "User Information",
+    "branch": "Branch",
+    "update_database": "Update Database",
+    "notifications": "Notifications",
+    "notifications_enabled": "Enabled",
+    "notifications_disabled": "Disabled",
+    "print_settings": "Print Settings",
+    "about_app": "About App",
+    "system_info": "System Information",
+    "app_version": "App Version",
+    "build_number": "Build Number",
+    "last_sync": "Last Sync",
+    "few_minutes_ago": "5 minutes ago",
+    "connection_status": "Connection Status",
+    "online": "Connected",
+    "offline": "Disconnected",
+    "last_login": "Last Login",
+    "app_description": "Modern retail management system",
+    "copyright": "© 2026 All Rights Reserved",
+    "logout": "Logout"
   },
 
   "common": {

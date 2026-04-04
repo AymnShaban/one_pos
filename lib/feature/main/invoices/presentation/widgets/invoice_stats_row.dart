@@ -10,19 +10,19 @@ class InvoiceStatsRow extends StatelessWidget {
     return Row(
       children: [
         _StatCard(
-          label: 'إجمالي\nالفواتير',
+          label: 'invoices.total_invoices'.tr(),
           value: '${stats.total}',
           valueColor: const Color(0xff1A1A1A),
         ),
         SizedBox(width: 8.w),
         _StatCard(
-          label: 'المكتملة',
+          label: 'invoices.total_completed'.tr(),
           value: '${stats.completed}',
           valueColor: const Color(0xff40C057),
         ),
         SizedBox(width: 8.w),
         _StatCard(
-          label: 'المعلقة',
+          label: 'invoices.total_pending'.tr(),
           value: '${stats.pending}',
           valueColor: const Color(0xffF59F00),
         ),
@@ -59,7 +59,7 @@ class _StatCard extends StatelessWidget {
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               label,

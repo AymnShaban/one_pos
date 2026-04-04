@@ -20,7 +20,7 @@ class _CategoryFilterBarState extends State<CategoryFilterBar> {
       height: 42.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        reverse: true, // RTL order
+
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         itemCount: widget.categories.length + 1, // +1 for "All"
         separatorBuilder: (_, __) => SizedBox(width: 8.w),
@@ -29,7 +29,7 @@ class _CategoryFilterBarState extends State<CategoryFilterBar> {
           if (index == 0) {
             final isSelected = _selectedId == null;
             return _FilterChip(
-              label: 'all'.tr(),
+              label: 'sales.all'.tr(),
               isSelected: isSelected,
               onTap: () {
                 setState(() => _selectedId = null);

@@ -7,12 +7,13 @@ import '../../../core/models/item_model.dart';
 import '../../../core/params/pagination_params.dart';
 import '../../../core/widgets/product_item_selector.dart';
 import '../../../core/widgets/product_list_wrapper.dart';
+import '../home/home_imports.dart';
+import '../home/presentation/widgets/home_app_bar.dart';
 
 part 'manager/sales_bloc/sales_bloc.dart';
 part 'manager/sales_bloc/sales_event.dart';
 part 'models/sales_filter_model.dart';
 part 'presentation/screens/sales_tab.dart';
 part 'presentation/widgets/category_filter_bar.dart';
-part 'presentation/widgets/sales_app_bar.dart';
 part 'presentation/widgets/sales_search_bar.dart';
 part 'data_source/sales_data_source.dart';

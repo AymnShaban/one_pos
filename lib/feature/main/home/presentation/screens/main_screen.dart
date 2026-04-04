@@ -6,17 +6,21 @@ class MainScreen extends StatelessWidget {
   static final List<Widget> _screens = [
     const HomeTab(),
     BlocProvider(
-        create: (_) => getIt<SalesBloc>()..add(const FetchProducts()),
-
-        child: const SalesTab()),
-     BlocProvider(
-         create: (_) => getIt<InvoicesBloc>()..add(const FetchInvoices()),
-         child: InvoicesTab()),
-
-     BlocProvider(
-         create: (_) => getIt<ReportsBloc>()..add(const FetchReport()),
-         child: ReportsTab()),
-    const SalesPlaceholder(),
+      create: (_) => getIt<SalesBloc>(),
+      child: const SalesTab(),
+    ),
+    BlocProvider(
+      create: (_) => getIt<InvoicesBloc>(),
+      child: InvoicesTab(),
+    ),
+    BlocProvider(
+      create: (_) => getIt<ReportsBloc>(),
+      child: ReportsTab(),
+    ),
+    BlocProvider(
+      create: (_) => getIt<SettingsBloc>()..add(const LoadSettings()),
+      child: const SettingsTab(),
+    ),
   ];
 
   @override
@@ -24,10 +28,7 @@ class MainScreen extends StatelessWidget {
     return BlocBuilder<NavBloc, NavState>(
       builder: (context, state) {
         return Scaffold(
-          body: IndexedStack(
-            index: state.currentIndex,
-            children: _screens,
-          ),
+          body: IndexedStack(index: state.currentIndex, children: _screens),
           bottomNavigationBar: _BottomNavBar(currentIndex: state.currentIndex),
         );
       },

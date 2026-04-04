@@ -51,7 +51,7 @@ class PeriodFilterBar extends StatelessWidget {
           ),
           SizedBox(height: 12.h),
           Row(
-            children: _periods.reversed.map((period) {
+            children: _periods.map((period) {
               final isSelected = selected == period;
               return Expanded(
                 child: GestureDetector(

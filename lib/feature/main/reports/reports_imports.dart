@@ -3,7 +3,8 @@ import 'package:equatable/equatable.dart';
 
 import '../../../core/constant/end_points.dart';
 import '../../../core/helper/helper.dart';
-import '../sales/sales_imports.dart';
+import '../home/home_imports.dart';
+import '../home/presentation/widgets/home_app_bar.dart';
 part 'data_source/reports_data_source.dart';
 part 'presentation/widgets/period_filter_bar.dart';
 part 'presentation/widgets/report_main_stats.dart';

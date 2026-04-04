@@ -1,8 +1,18 @@
 part of '../../invoices_imports.dart';
 
-class InvoicesTab extends StatelessWidget {
+class InvoicesTab extends StatefulWidget {
   const InvoicesTab({super.key});
 
+  @override
+  State<InvoicesTab> createState() => _InvoicesTabState();
+}
+
+class _InvoicesTabState extends State<InvoicesTab> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<InvoicesBloc>().add(const FetchInvoices());
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,17 +23,18 @@ class InvoicesTab extends StatelessWidget {
 
           return CustomScrollView(
             slivers: [
-              const SalesAppBar(isOnline: true),
+              HomeAppBar(isOnline: context.read<HomeBloc>().isOnline),
+
 
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Title
                       Text(
-                        'إدارة الفواتير',
+                        'invoices.title'.tr(),
                         style: TextStyle(
                           fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
@@ -32,7 +43,7 @@ class InvoicesTab extends StatelessWidget {
                       ),
                       SizedBox(height: 4.h),
                       Text(
-                        'عرض وإدارة جميع الفواتير',
+                        'invoices.subtitle'.tr(),
                         style: TextStyle(
                           fontSize: 13.sp,
                           color: const Color(0xff8A8F99),
@@ -83,7 +94,7 @@ class InvoicesTab extends StatelessWidget {
                   SliverFillRemaining(
                     child: Center(
                       child: Text(
-                        'لا توجد فواتير',
+                        'invoices.no_invoices'.tr(),
                         style: TextStyle(
                           color: const Color(0xff8A8F99),
                           fontSize: 14.sp,
@@ -179,7 +190,7 @@ class _InvoiceSearchBarState extends State<_InvoiceSearchBar> {
         textAlign: TextAlign.right,
         onChanged: widget.onChanged,
         decoration: InputDecoration(
-          hintText: 'بحث برقم الفاتورة أو اسم العميل...',
+          hintText: 'invoices.search_hint'.tr(),
           hintStyle: TextStyle(
             color: const Color(0xff8A8F99),
             fontSize: 13.sp,

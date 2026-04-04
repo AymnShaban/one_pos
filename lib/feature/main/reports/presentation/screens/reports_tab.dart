@@ -1,8 +1,18 @@
 part of '../../reports_imports.dart';
 
-class ReportsTab extends StatelessWidget {
+class ReportsTab extends StatefulWidget {
   const ReportsTab({super.key});
 
+  @override
+  State<ReportsTab> createState() => _ReportsTabState();
+}
+
+class _ReportsTabState extends State<ReportsTab> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<ReportsBloc>().add(const FetchReport());
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,7 +26,7 @@ class ReportsTab extends StatelessWidget {
 
           return CustomScrollView(
             slivers: [
-              const SalesAppBar(isOnline: true),
+              HomeAppBar(isOnline: context.read<HomeBloc>().isOnline),
 
               SliverToBoxAdapter(
                 child: Padding(

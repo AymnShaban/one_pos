@@ -58,7 +58,7 @@
     "completed": "مكتمل",
     "pending": "معلق",
     "cancelled": "ملغي",
-    "total_invoices": "إجمالي\nالفواتير",
+    "total_invoices": "إجمالي الفواتير",
     "total_completed": "المكتملة",
     "total_pending": "المعلقة",
     "products_count": "{count} منتج",
@@ -90,6 +90,34 @@
     "top_products": "أكثر المنتجات مبيعاً",
     "units_sold": "{count} وحدة",
     "export_pdf": "تصدير التقرير (PDF)"
+  },
+
+  "settings": {
+    "title": "الإعدادات",
+    "subtitle": "إدارة إعدادات التطبيق",
+    "account": "الحساب",
+    "system": "النظام",
+    "information": "معلومات",
+    "user_info": "معلومات المستخدم",
+    "branch": "الفرع",
+    "update_database": "تحديث قاعدة البيانات",
+    "notifications": "الإشعارات",
+    "notifications_enabled": "مفعّلة",
+    "notifications_disabled": "معطّلة",
+    "print_settings": "إعدادات الطباعة",
+    "about_app": "عن التطبيق",
+    "system_info": "معلومات النظام",
+    "app_version": "إصدار التطبيق",
+    "build_number": "رقم البناء",
+    "last_sync": "آخر مزامنة",
+    "few_minutes_ago": "منذ ٥ دقائق",
+    "connection_status": "حالة الاتصال",
+    "online": "متصل",
+    "offline": "غير متصل",
+    "last_login": "آخر تسجيل دخول",
+    "app_description": "نظام إدارة البيع بالتجزئة الحديث",
+    "copyright": "© ٢٠٢٦ جميع الحقوق محفوظة",
+    "logout": "تسجيل الخروج"
   },
 
   "common": {

@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:one_pos/core/constant/app_assets.dart';
 
 class HomeAppBar extends StatelessWidget {
   final bool isOnline;
@@ -20,11 +21,13 @@ class HomeAppBar extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Row(
               children: [
-                _buildConnectivityIndicator(),
-                const Spacer(),
-                _buildTitle(),
-                SizedBox(width: 12.w),
                 _buildGridIcon(),
+                SizedBox(width: 12.w),
+                _buildTitle(),
+
+                const Spacer(),
+
+                _buildConnectivityIndicator(),
               ],
             ),
           ),
@@ -36,20 +39,18 @@ class HomeAppBar extends StatelessWidget {
   Widget _buildConnectivityIndicator() {
     return Row(
       children: [
+        Text(
+          isOnline ? 'home.connected'.tr() : 'home.disconnected'.tr(),
+          style: TextStyle(color: Colors.white70, fontSize: 11.sp),
+        ),
+        SizedBox(width: 6.w),
+
         Container(
           width: 10.w,
           height: 10.w,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: isOnline ? Colors.greenAccent : Colors.redAccent,
-          ),
-        ),
-        SizedBox(width: 6.w),
-        Text(
-          isOnline ? 'connected'.tr() : 'disconnected'.tr(),
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 11.sp,
           ),
         ),
       ],
@@ -59,7 +60,7 @@ class HomeAppBar extends StatelessWidget {
   Widget _buildTitle() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'The One POS',
@@ -70,11 +71,8 @@ class HomeAppBar extends StatelessWidget {
           ),
         ),
         Text(
-          'pos_subtitle'.tr(),
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 11.sp,
-          ),
+          'home.pos_subtitle'.tr(),
+          style: TextStyle(color: Colors.white70, fontSize: 11.sp),
         ),
       ],
     );
@@ -82,16 +80,16 @@ class HomeAppBar extends StatelessWidget {
 
   Widget _buildGridIcon() {
     return Container(
-      width: 42.w,
-      height: 42.w,
+      width: 52.w,
+      height: 52.w,
       decoration: BoxDecoration(
+        color: Colors.white,
+        image: DecorationImage(
+          image: AssetImage(AppAssets.appLogo),
+          fit: BoxFit.contain,
+        ),
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white, width: 2),
-      ),
-      child: Icon(
-        Icons.apps_rounded,
-        color: Colors.white,
-        size: 22.sp,
       ),
     );
   }

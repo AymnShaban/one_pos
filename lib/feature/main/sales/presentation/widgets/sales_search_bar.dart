@@ -38,7 +38,7 @@ class _SalesSearchBarState extends State<SalesSearchBar> {
         textAlign: TextAlign.right,
         onChanged: widget.onChanged,
         decoration: InputDecoration(
-          hintText: 'search_product'.tr(),
+          hintText: 'sales.search_product'.tr(),
           hintStyle: TextStyle(
             color: const Color(0xff8A8F99),
             fontSize: 14.sp,
