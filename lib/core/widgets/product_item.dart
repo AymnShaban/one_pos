@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:one_pos/feature/auth/presentation/screens/view/login_screen.dart';
 import '../../core/helper/helper.dart';
+import '../../feature/auth/presentation/screens/login_screen.dart';
 import '../models/item_model.dart';
 import '../services/service_locator/services_imports.dart';
 import 'custom_snack_bar.dart';

@@ -1,5 +1,12 @@
-import '../../../../../core/helper/helper.dart';
-import '../auth/presentation/screens/view/login_screen.dart';
+import '../../../core/helper/helper.dart';
+import '../../core/services/service_locator/services_imports.dart';
+import '../auth/bloc/activation_bloc/activation_bloc.dart';
+import '../auth/bloc/activation_bloc/activation_event.dart';
+import '../auth/bloc/log_in_bloc/log_in_bloc.dart';
+import '../auth/presentation/screens/activation_screen.dart';
+import '../auth/presentation/screens/login_screen.dart';
+import '../main/home/home_imports.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -9,33 +16,91 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
-  initState() {
-    super.initState;
+  void initState() {
+    super.initState();
+    _navigate();
+  }
 
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>  LoginScreen()));
-        // Navigator.pushAndRemoveUntil(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) {
-        //       return MultiBlocProvider(
-        //         providers: [
-        //           BlocProvider(
-        //             create: (_) => getIt<HomeBloc>()..add(InitHome()),
-        //           ),
-        //           BlocProvider(
-        //             create: (_) => getIt<NavBloc>(),
-        //           ),
-        //         ],
-        //         child: MainScreen(),
-        //       );
-        //     },
-        //   ),
-        //   (route) => false,
-        // );
+  Future<void> _navigate() async {
+    // Wait for splash animation
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+
+    final hive   = HiveServiceImpl.instance;
+    final config = hive.getAppConfig();
+    final userId = hive.getUserId();
+
+    // ── Case 1: Never activated ──────────────────────────────────────────────
+    if (config == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => getIt<ActivationBloc>(),
+            child: const ActivationScreen(),
+          ),
+        ),
+      );
+      return;
+    }
+
+    // ── Case 2: Activated but not logged in ──────────────────────────────────
+    if (userId == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => getIt<LoginBloc>(),
+            child: const LoginScreen(),
+          ),
+        ),
+      );
+      return;
+    }
+
+    // ── Case 3: Activated + logged in → check device still active ───────────
+    final activationBloc = getIt<ActivationBloc>();
+    await activationBloc.initDevice(context);
+    activationBloc.add(const CheckDeviceActivation());
+
+    // Listen for the result once
+    await for (final state in activationBloc.stream.take(1)) {
+      if (!mounted) return;
+
+      final isActive = state.metadata['isActive'] == true;
+
+      if (!isActive) {
+        // Device deactivated remotely — go to activation
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BlocProvider.value(
+              value: activationBloc,
+              child: const ActivationScreen(),
+            ),
+          ),
+        );
+        return;
       }
-    });
+
+      // All good — go to main screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => getIt<HomeBloc>()..add(const InitHome()),
+              ),
+              BlocProvider(
+                create: (_) => getIt<NavBloc>(),
+              ),
+            ],
+            child: const MainScreen(),
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -45,7 +110,7 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: TweenAnimationBuilder<double>(
           tween: Tween(begin: 0.0, end: 1.0),
-          duration: const Duration(seconds: 4),
+          duration: const Duration(seconds: 2),
           curve: Curves.easeOutBack,
           builder: (context, value, child) {
             return Opacity(

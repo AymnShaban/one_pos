@@ -73,7 +73,7 @@ class HomeTab extends StatelessWidget {
                               label: 'home.new_sales_invoice'.tr(),
                               icon: Icons.shopping_cart_rounded,
                               color: const Color(0xff3B5BDB),
-                              onTap: () {},
+                              onTap: () => _navigateToNewInvoice(context),
                             ),
                           ),
                           SizedBox(width: 12.w),
@@ -169,6 +169,37 @@ class HomeTab extends StatelessWidget {
       ),
     );
   }
+  void _navigateToNewInvoice(
+      BuildContext context, {
+        bool isPriceQuote = false,
+        Map<String, dynamic>? editInvoice,
+      }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => getIt<CategoryBloc>(),
+            ),
+            BlocProvider(
+              create: (_) => getIt<CartBloc>(),
+            ),
+            BlocProvider(
+              create: (_) => getIt<NewInvoiceBloc>(),
+            ),
+            BlocProvider(
+              create: (_) => getIt<ProductBloc>(),
+            ),
+          ],
+          child: NewInvoiceScreen(
+            isPriceQuote: isPriceQuote,
+            editInvoice:  editInvoice,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -189,4 +220,5 @@ class _SectionHeader extends StatelessWidget {
       ),
     );
   }
+
 }

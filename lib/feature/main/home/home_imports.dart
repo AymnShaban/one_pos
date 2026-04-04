@@ -10,6 +10,7 @@ import 'package:one_pos/feature/main/settings/settings_imports.dart';
 import '../../../core/helper/helper.dart';
 import '../../../core/services/service_locator/services_imports.dart';
 import '../invoices/invoices_imports.dart';
+import '../new_invoice/new_invoice_imports.dart';
 import '../reports/reports_imports.dart';
 import '../sales/sales_imports.dart';
 

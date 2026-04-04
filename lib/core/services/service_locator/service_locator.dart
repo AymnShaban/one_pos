@@ -56,4 +56,5 @@ Future<void> setup() async {
   await InvoicesServiceLocator.init(getIt: getIt);
   await ReportsServiceLocator.init(getIt: getIt);
   await SettingsServiceLocator.init(getIt: getIt);
+  await NewInvoiceServiceLocator.init(getIt: getIt);
 }

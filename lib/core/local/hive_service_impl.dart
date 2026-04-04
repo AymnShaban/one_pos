@@ -19,6 +19,12 @@ class HiveServiceImpl implements IUserCache {
   static const String selectedLocationKey = 'selected_location';
   static const String settingsBoxName = 'settings_box';
   static Box? _settingsBox;
+  static const String _activationCodeKey = 'activation_code';
+  static const String _appConfigKey      = 'app_config';
+  static const String _loggedInUserKey   = 'logged_in_user';
+  static const String _userIdKey         = 'user_id';
+  static const String _sellerNameKey     = 'seller_name';
+  static const String _haveDiscountKey   = 'have_discount';
   HiveServiceImpl._();
 
   static final HiveServiceImpl instance = HiveServiceImpl._();
@@ -137,4 +143,50 @@ class HiveServiceImpl implements IUserCache {
     });
     logger('Saved location to cache: $districtName, $regionName');
   }
+
+  Future<void> saveActivationCode(String code) async =>
+      await _settingsBox?.put(_activationCodeKey, code);
+
+  String? getActivationCode() =>
+      _settingsBox?.get(_activationCodeKey);
+
+  Future<void> saveAppConfig(Map<String, dynamic> config) async =>
+      await _settingsBox?.put(_appConfigKey, config);
+
+  Map<String, dynamic>? getAppConfig() {
+    final data = _settingsBox?.get(_appConfigKey);
+    return data != null ? Map<String, dynamic>.from(data) : null;
+  }
+
+  Future<void> clearAppConfig() async {
+    await _settingsBox?.delete(_activationCodeKey);
+    await _settingsBox?.delete(_appConfigKey);
+    await _settingsBox?.delete(_loggedInUserKey);
+    await _settingsBox?.delete(_userIdKey);
+    await _settingsBox?.delete(_sellerNameKey);
+    await _settingsBox?.delete(_haveDiscountKey);
+  }
+
+  Future<void> saveLoggedInUser(Map<String, dynamic> user) async =>
+      await _settingsBox?.put(_loggedInUserKey, user);
+
+  Map<String, dynamic>? getLoggedInUser() {
+    final data = _settingsBox?.get(_loggedInUserKey);
+    return data != null ? Map<String, dynamic>.from(data) : null;
+  }
+
+  Future<void> saveUserId(int id) async =>
+      await _settingsBox?.put(_userIdKey, id);
+
+  int? getUserId() => _settingsBox?.get(_userIdKey);
+
+  Future<void> saveSellerName(String name) async =>
+      await _settingsBox?.put(_sellerNameKey, name);
+
+  String? getSellerName() => _settingsBox?.get(_sellerNameKey);
+
+  Future<void> saveHaveDiscount(int value) async =>
+      await _settingsBox?.put(_haveDiscountKey, value);
+
+  int getHaveDiscount() => _settingsBox?.get(_haveDiscountKey) ?? 1;
 }

@@ -9,7 +9,7 @@ import '../../../core/widgets/flexible_image.dart';
 import '../../../core/widgets/product_list_wrapper.dart';
 import '../../../core/widgets/pull_to_refresh.dart';
 import '../../auth/models/customer_model.dart';
-import '../../auth/presentation/screens/view/login_screen.dart';
+import '../../auth/presentation/screens/login_screen.dart';
 
 part 'presentation/screens/basket_screen.dart';
 part 'presentation/widgets/order_minimum_widget.dart';

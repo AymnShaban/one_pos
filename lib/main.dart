@@ -28,14 +28,11 @@ void main() async {
 
   runApp(
     EasyLocalization(
-      supportedLocales: const [
-        Locale('en'),
-        Locale('ar'),
-        Locale('fr'),
-      ],
+      supportedLocales: const [Locale('en'), Locale('ar'), Locale('fr')],
       path: 'assets/translation',
       fallbackLocale: const Locale('ar'),
-      startLocale: const Locale('ar'), // Optional: set initial language
+      startLocale: const Locale('ar'),
+      // Optional: set initial language
       child: const MyApp(),
     ),
   );
@@ -52,15 +49,14 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            locale: context.locale,
-            supportedLocales: context.supportedLocales,
-            localizationsDelegates: context.localizationDelegates,
-            theme: AppThemeData.light(context),
-            navigatorKey: NavigationService.navigatorKey,
-            scaffoldMessengerKey: NavigationService.scaffoldMessengerKey,
-            home: SplashScreen(),
-
+          debugShowCheckedModeBanner: false,
+          locale: context.locale,
+          supportedLocales: context.supportedLocales,
+          localizationsDelegates: context.localizationDelegates,
+          theme: AppThemeData.light(context),
+          navigatorKey: NavigationService.navigatorKey,
+          scaffoldMessengerKey: NavigationService.scaffoldMessengerKey,
+          home: const SplashScreen(),
         );
       },
     );
@@ -69,4 +65,4 @@ class MyApp extends StatelessWidget {
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
-GlobalKey<ScaffoldMessengerState>();
+    GlobalKey<ScaffoldMessengerState>();

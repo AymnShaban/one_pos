@@ -5,23 +5,32 @@ class EndPoints {
   //   static const String baseUrl = "http://15.235.51.177/TheOneAPI";
 
   // mazyad
- // static const String baseUrl = "http://78.89.159.126:9393/TheOneAPIMazyad";
-
- // alharamayn
- static const String baseUrl = "http://78.89.159.126:9494/TheOneAPIElhrmeen";
+ static const String baseUrl = "http://78.89.159.126:9393/TheOneAPIMazyad";
+ //
+ // // alharamayn
+ // static const String baseUrl = "http://78.89.159.126:9494/TheOneAPIElhrmeen";
 
   static String logIn(String customerPhone, String password) {
     return '/api/Customer/Login?CustomerPhone=$customerPhone&passWord=$password&Token=1111';
   }
-
+// ----- auth end--------
+  // ── Existing endpoints ────────────────────────────────
   static const String register = "/api/Customer/AddCustomer";
+  // ... your other existing endpoints
+
+  // ── Main Backend (fixed base URL: http://15.235.51.177/TheOneAPI/api/) ──
+  // These use a separate Dio instance — NOT the company server
+  static const String getDeviceConfig      = 'GetDeviceConfigV2';
+  static const String checkDeviceActivate  = 'CheckDeviceActivate';
+  static const String deviceDeactivate     = 'DeviceDeactivate';
+
+  // ── Company Server (dynamic base URL from ActivationModel.server) ────────
+  static const String login                = 'api/Users/Login';
+
   static String bannerOne = "/api/Baner1";
   static String biggestDiscount = "/api/Product/GetProductsWithBiggestDiscount";
   static String bestSeller = "/api/Product/GetProductsWithBestSeller";
   static String newProduct = "/api/Product/GetNewProducts";
-  static const String getMainCategory = "/api/Category/GetMainCategory";
-  static const String getSubCategory = "/api/Category/GetCategoryByParentId";
-
   static String subCategoryProducts = "/api/Product";
 
   static String productDetails = "/api/Product/GetProductById";
@@ -31,7 +40,6 @@ class EndPoints {
   static String addOrder = "/api/Order";
   static String getOrdersDetails = "/api/Order/GetOrderProductsByCustomerID";
 
-  static String searchProducts = "/api/Product/SearchProducts";
 
   static const String addNewAddress = "/api/Customer/AddCustomerAddress";
   static const String addFavorite = "/api/Customer/AddCustomerProduct";
@@ -91,4 +99,17 @@ class EndPoints {
   static const String deleteInvoice = "/api/Invoices/Delete";
   // Reports
   static const String getReport = "/api/Reports";
+
+
+
+ // end_points.dart — add these
+ static const String getMainCategory          = '/api/Category/GetMainCategory';
+ static const String getSubCategory           = '/api/Category/GetCategoryByParentId';
+ static const String getProductsByCategory    = '/api/Product/GetProductsByCategory';
+ static const String searchProducts           = '/api/Product/SearchProducts';
+ static const String searchProductByBarcode   = '/api/Product/SearchProductByBarcode';
+ static const String getLastInvoiceByPattern  = '/api/SalesInvoice/GetLastInvoiceByInvoiceID';
+ static const String createSalesInvoice       = '/api/SalesInvoice/Create';
+ static const String editSalesInvoice         = '/api/SalesInvoice/Edit';
+ static const String getPayWays               = '/api/PayWays';
 }
