@@ -7,18 +7,18 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 // final privateKey = 'c104780a25b4f80c037445dd1f6947e1';
 // final publicKey = 'e0c9de1b2de26fe2';
 
-// // mazyad
-// final basicToken =
-//     'Basic MTE5MTEyODE2MzRlYjVhYTpTZk12SU1FNTlOU05qZEVsdlpqK2NDM0ZuaUJBWTBxRGlSM2xqVnU0RU5ZPQ==';
-// final privateKey = '7a0847a8ed338cff77b74bc74a8061de';
-// final publicKey = '11911281634eb5aa';
-
-
- // alharamayn
+// mazyad
 final basicToken =
-    'Basic NzNhZDlkN2U4MzI4OWVlNzpaSEltUG5KNXNXUWt5bWFtQm45WnNyeFhuYzRHcWp0SVhIOFZMN0FtWVBRPQ==';
-final privateKey = '6eaceaec3d66b72db1c0f7c694b963ba';
-final publicKey = '73ad9d7e83289ee7';
+    'Basic MTE5MTEyODE2MzRlYjVhYTpTZk12SU1FNTlOU05qZEVsdlpqK2NDM0ZuaUJBWTBxRGlSM2xqVnU0RU5ZPQ==';
+final privateKey = '7a0847a8ed338cff77b74bc74a8061de';
+final publicKey = '11911281634eb5aa';
+
+
+//  // alharamayn
+// final basicToken =
+//     'Basic NzNhZDlkN2U4MzI4OWVlNzpaSEltUG5KNXNXUWt5bWFtQm45WnNyeFhuYzRHcWp0SVhIOFZMN0FtWVBRPQ==';
+// final privateKey = '6eaceaec3d66b72db1c0f7c694b963ba';
+// final publicKey = '73ad9d7e83289ee7';
 
 dynamic decrypt(String encryptedText, String privateKey, String publicKey) {
   final keyObj = encrypt.Key.fromUtf8(privateKey);
