@@ -112,4 +112,10 @@ class EndPoints {
  static const String createSalesInvoice       = '/api/SalesInvoice/Create';
  static const String editSalesInvoice         = '/api/SalesInvoice/Edit';
  static const String getPayWays               = '/api/PayWays';
+
+  // Invoice Collection
+  static const String getBranches        = '/api/CompanyBranch/GetBranches';
+  static const String getInvoicePatterns = '/api/InvoicePattern/GetByBranch';
+  static const String getQuotePatterns   = '/api/InvoicePattern/GetQuoteByBranch';
+  static const String getCurrencies      = '/api/Currency/GetCurrencies';
 }
