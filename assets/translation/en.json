@@ -211,5 +211,31 @@
     "add_note": "Add Note",
     "required": "Required",
     "invalid": "Invalid value"
+  },
+
+
+  "invoice_collection": {
+    "title":              "Invoice Collection",
+    "branch":             "Branch",
+    "select_branch":      "Select Branch",
+    "date":               "Date",
+    "credit_account":     "Credit Account",
+    "collection_method":  "Collection Method",
+    "payment_method":     "Payment Method",
+    "currency":           "Currency",
+    "disbursement":       "Disbursement",
+    "equivalent":         "Equivalent",
+    "local_value":        "Local Value",
+    "in_voice":           "Invoice",
+    "type_of_receipt":    "Type of Receipt",
+    "knet_number":        "KNet Number",
+    "approval_number":    "Approval Number",
+    "check_number":       "Check Number",
+    "due_date":           "Due Date",
+    "description":        "Description",
+    "enter_description":  "Enter description here",
+    "save":               "Save",
+    "saved_successfully": "Voucher saved successfully"
   }
+
 }

@@ -7,63 +7,100 @@ abstract class InvoiceCollectionEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadInvoiceCollectionData extends InvoiceCollectionEvent {
+class LoadCollectionSetupData extends InvoiceCollectionEvent {
+  const LoadCollectionSetupData();
+}
+
+class CollectionBranchChanged extends InvoiceCollectionEvent {
   final int branchId;
-  final bool isPriceQuote;
 
-  const LoadInvoiceCollectionData({
-    required this.branchId,
-    this.isPriceQuote = false,
-  });
+  const CollectionBranchChanged(this.branchId);
 
   @override
-  List<Object?> get props => [branchId, isPriceQuote];
+  List<Object?> get props => [branchId];
 }
 
-class LoadPatternsByBranch extends InvoiceCollectionEvent {
-  final int branchId;
-  final bool isPriceQuote;
-
-  const LoadPatternsByBranch({
-    required this.branchId,
-    this.isPriceQuote = false,
-  });
-
-  @override
-  List<Object?> get props => [branchId, isPriceQuote];
-}
-
-class SelectBranch extends InvoiceCollectionEvent {
-  final int branchId;
-  final bool isPriceQuote;
-
-  const SelectBranch({
-    required this.branchId,
-    this.isPriceQuote = false,
-  });
-
-  @override
-  List<Object?> get props => [branchId, isPriceQuote];
-}
-
-class SelectPattern extends InvoiceCollectionEvent {
-  final int patternId;
-
-  const SelectPattern(this.patternId);
-
-  @override
-  List<Object?> get props => [patternId];
-}
-
-class SelectCurrency extends InvoiceCollectionEvent {
+class CollectionCurrencyChanged extends InvoiceCollectionEvent {
   final int currencyId;
   final double rate;
 
-  const SelectCurrency({
+  const CollectionCurrencyChanged({
     required this.currencyId,
     required this.rate,
   });
 
   @override
   List<Object?> get props => [currencyId, rate];
+}
+
+class CollectionPayWayChanged extends InvoiceCollectionEvent {
+  final int codePw;
+
+  const CollectionPayWayChanged(this.codePw);
+
+  @override
+  List<Object?> get props => [codePw];
+}
+
+class CollectionBondTypeChanged extends InvoiceCollectionEvent {
+  final int voucherType;
+  final String bankName;
+
+  const CollectionBondTypeChanged({
+    required this.voucherType,
+    required this.bankName,
+  });
+
+  @override
+  List<Object?> get props => [voucherType];
+}
+
+class CollectionInvoiceLinked extends InvoiceCollectionEvent {
+  final num invoiceId;
+  final num invoiceNo;
+  final double voucherValue;
+  final String customerName;
+  final num acId;
+
+  const CollectionInvoiceLinked({
+    required this.invoiceId,
+    required this.invoiceNo,
+    required this.voucherValue,
+    required this.customerName,
+    required this.acId,
+  });
+
+  @override
+  List<Object?> get props => [invoiceId, invoiceNo];
+}
+
+class CollectionCustomerSearched extends InvoiceCollectionEvent {
+  final num acId;
+  final String acName;
+
+  const CollectionCustomerSearched({
+    required this.acId,
+    required this.acName,
+  });
+
+  @override
+  List<Object?> get props => [acId];
+}
+
+class SubmitCollection extends InvoiceCollectionEvent {
+  final CollectionRequestModel request;
+
+  const SubmitCollection(this.request);
+
+  @override
+  List<Object?> get props => [request];
+}
+
+class EditCollection extends InvoiceCollectionEvent {
+  final CollectionRequestModel request;
+
+  const EditCollection(this.request);
+
+  @override
+  List<Object?> get props => [request];
 }

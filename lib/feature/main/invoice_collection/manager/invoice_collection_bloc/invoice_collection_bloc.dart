@@ -1,92 +1,5 @@
 part of '../../invoice_collection_imports.dart';
 
-// ── State ─────────────────────────────────────────────────────────────────────
-class InvoiceCollectionState extends Equatable {
-  final Status branchesStatus;
-  final Status patternsStatus;
-  final Status currenciesStatus;
-
-  final List<BranchModel>         branches;
-  final List<InvoicePatternModel> patterns;
-  final List<CurrencyModel>       currencies;
-
-  final int    selectedBranchId;
-  final int    selectedPatternId;
-  final int    selectedCurrencyId;
-  final double selectedCurrencyRate;
-
-  final String? errorMessage;
-
-  const InvoiceCollectionState({
-    this.branchesStatus   = Status.initial,
-    this.patternsStatus   = Status.initial,
-    this.currenciesStatus = Status.initial,
-    this.branches         = const [],
-    this.patterns         = const [],
-    this.currencies       = const [],
-    this.selectedBranchId   = 0,
-    this.selectedPatternId  = -1,
-    this.selectedCurrencyId = 0,
-    this.selectedCurrencyRate = 1.0,
-    this.errorMessage,
-  });
-
-  // Derived getters
-  BranchModel? get selectedBranch =>
-      branches.where((b) => b.branchId == selectedBranchId).isNotEmpty
-          ? branches.firstWhere((b) => b.branchId == selectedBranchId)
-          : null;
-
-  InvoicePatternModel? get selectedPattern =>
-      patterns.where((p) => p.patternId == selectedPatternId).isNotEmpty
-          ? patterns.firstWhere((p) => p.patternId == selectedPatternId)
-          : null;
-
-  CurrencyModel? get selectedCurrency =>
-      currencies.where((c) => c.currencyId == selectedCurrencyId).isNotEmpty
-          ? currencies.firstWhere((c) => c.currencyId == selectedCurrencyId)
-          : null;
-
-  bool get isReady =>
-      selectedBranchId != 0 && selectedPatternId != -1;
-
-  InvoiceCollectionState copyWith({
-    Status? branchesStatus,
-    Status? patternsStatus,
-    Status? currenciesStatus,
-    List<BranchModel>?         branches,
-    List<InvoicePatternModel>? patterns,
-    List<CurrencyModel>?       currencies,
-    int?    selectedBranchId,
-    int?    selectedPatternId,
-    int?    selectedCurrencyId,
-    double? selectedCurrencyRate,
-    String? errorMessage,
-  }) {
-    return InvoiceCollectionState(
-      branchesStatus:       branchesStatus   ?? this.branchesStatus,
-      patternsStatus:       patternsStatus   ?? this.patternsStatus,
-      currenciesStatus:     currenciesStatus ?? this.currenciesStatus,
-      branches:             branches         ?? this.branches,
-      patterns:             patterns         ?? this.patterns,
-      currencies:           currencies       ?? this.currencies,
-      selectedBranchId:     selectedBranchId     ?? this.selectedBranchId,
-      selectedPatternId:    selectedPatternId    ?? this.selectedPatternId,
-      selectedCurrencyId:   selectedCurrencyId   ?? this.selectedCurrencyId,
-      selectedCurrencyRate: selectedCurrencyRate ?? this.selectedCurrencyRate,
-      errorMessage:         errorMessage         ?? this.errorMessage,
-    );
-  }
-
-  @override
-  List<Object?> get props => [
-    branchesStatus, patternsStatus, currenciesStatus,
-    branches, patterns, currencies,
-    selectedBranchId, selectedPatternId,
-    selectedCurrencyId, selectedCurrencyRate,
-    errorMessage,
-  ];
-}
 
 // ── Bloc ──────────────────────────────────────────────────────────────────────
 class InvoiceCollectionBloc
@@ -96,138 +9,218 @@ class InvoiceCollectionBloc
   InvoiceCollectionBloc({required InvoiceCollectionDataSource dataSource})
       : _dataSource = dataSource,
         super(const InvoiceCollectionState()) {
-    on<LoadInvoiceCollectionData>(_onLoadAll);
-    on<LoadPatternsByBranch>(_onLoadPatterns);
-    on<SelectBranch>(_onSelectBranch);
-    on<SelectPattern>(_onSelectPattern);
-    on<SelectCurrency>(_onSelectCurrency);
+    on<LoadCollectionSetupData>(_onLoadSetup);
+    on<CollectionBranchChanged>(_onBranchChanged);
+    on<CollectionCurrencyChanged>(_onCurrencyChanged);
+    on<CollectionPayWayChanged>(_onPayWayChanged);
+    on<CollectionBondTypeChanged>(_onBondTypeChanged);
+    on<CollectionInvoiceLinked>(_onInvoiceLinked);
+    on<CollectionCustomerSearched>(_onCustomerSearched);
+    on<SubmitCollection>(_onSubmit);
+    on<EditCollection>(_onEdit);
   }
 
-  // ── Load all (branches + currencies in parallel, then patterns) ────────────
-  Future<void> _onLoadAll(
-      LoadInvoiceCollectionData event,
+  // ── Load all setup data ───────────────────────────────────────────────────
+  Future<void> _onLoadSetup(
+      LoadCollectionSetupData event,
       Emitter<InvoiceCollectionState> emit,
       ) async {
     emit(state.copyWith(
       branchesStatus:   Status.loading,
       currenciesStatus: Status.loading,
+      payWaysStatus:    Status.loading,
+      bondTypesStatus:  Status.loading,
     ));
 
-    // ── Run separately to preserve generic types ──────────────────────────────
-    final branchResult   = await _dataSource.getBranches();
-    final currencyResult = await _dataSource.getCurrencies();
+    // ── Branches ──
+    try {
+      final branches = await _dataSource.getBranches();
+      final firstBranchId =
+      branches.isNotEmpty ? branches.first['ID'] as int : 0;
+      emit(state.copyWith(
+        branchesStatus:   Status.success,
+        branches:         branches,
+        selectedBranchId: firstBranchId,
+      ));
 
-    // ── Handle branches ───────────────────────────────────────────────────────
-    int autoSelectedBranchId = state.selectedBranchId;
-
-    branchResult.fold(
-          (failure) => emit(state.copyWith(
+      // Load bond types for the first branch
+      if (firstBranchId != 0) {
+        _loadBondTypes(firstBranchId, emit);
+      }
+    } catch (e) {
+      emit(state.copyWith(
         branchesStatus: Status.failure,
-        errorMessage:   failure.message,
-      )),
-          (branches) {
-        autoSelectedBranchId =
-        branches.isNotEmpty ? branches.first.branchId : 0;
-        emit(state.copyWith(
-          branchesStatus:   Status.success,
-          branches:         branches,
-          selectedBranchId: autoSelectedBranchId,
-        ));
-      },
-    );
+        errorMessage:   e.toString(),
+      ));
+    }
 
-    // ── Handle currencies ─────────────────────────────────────────────────────
-    currencyResult.fold(
-          (failure) => emit(state.copyWith(
+    // ── Currencies ──
+    try {
+      final currencies = await _dataSource.getCurrencies();
+      final defaultCurrency = currencies.isNotEmpty ? currencies.first : null;
+      emit(state.copyWith(
+        currenciesStatus:     Status.success,
+        currencies:           currencies,
+        selectedCurrencyId:   defaultCurrency?['CurrencyID'] ?? 0,
+        selectedCurrencyRate: (defaultCurrency?['Rate'] ?? 1.0).toDouble(),
+      ));
+    } catch (e) {
+      emit(state.copyWith(
         currenciesStatus: Status.failure,
-        errorMessage:     failure.message,
-      )),
-          (currencies) {
-        final defaultCurrency =
-        currencies.where((c) => c.isDefault).isNotEmpty
-            ? currencies.firstWhere((c) => c.isDefault)
-            : currencies.isNotEmpty
-            ? currencies.first
-            : null;
-        emit(state.copyWith(
-          currenciesStatus:     Status.success,
-          currencies:           currencies,
-          selectedCurrencyId:   defaultCurrency?.currencyId ?? 0,
-          selectedCurrencyRate: defaultCurrency?.rate       ?? 1.0,
-        ));
-      },
-    );
+        errorMessage:     e.toString(),
+      ));
+    }
 
-    // ── Load patterns for auto-selected branch ────────────────────────────────
-    if (autoSelectedBranchId != 0) {
-      add(LoadPatternsByBranch(
-        branchId:     autoSelectedBranchId,
-        isPriceQuote: event.isPriceQuote,
+    // ── Pay Ways ──
+    try {
+      final payWays = await _dataSource.getPayWays();
+      emit(state.copyWith(
+        payWaysStatus: Status.success,
+        payWays:       payWays,
+        selectedCodePw: payWays.isNotEmpty
+            ? (payWays.first['Code_PW'] as num).toInt()
+            : 0,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        payWaysStatus: Status.failure,
+        errorMessage:  e.toString(),
       ));
     }
   }
 
-  // ── Load patterns for a branch ─────────────────────────────────────────────
-  Future<void> _onLoadPatterns(
-      LoadPatternsByBranch event,
+  Future<void> _loadBondTypes(
+      int branchId,
+      Emitter<InvoiceCollectionState> emit,
+      ) async {
+    try {
+      final bondTypes = await _dataSource.getBondTypesByBranch(branchId);
+      final first = bondTypes.isNotEmpty ? bondTypes.first : null;
+      emit(state.copyWith(
+        bondTypesStatus:     Status.success,
+        bondTypes:           bondTypes,
+        selectedVoucherType: first?.voucherType ?? 0,
+        selectedBankName:    first?.customerName ?? '',
+      ));
+    } catch (e) {
+      // Fallback to global bond types
+      try {
+        final bondTypes = await _dataSource.getBondTypes();
+        final first = bondTypes.isNotEmpty ? bondTypes.first : null;
+        emit(state.copyWith(
+          bondTypesStatus:     Status.success,
+          bondTypes:           bondTypes,
+          selectedVoucherType: first?.voucherType ?? 0,
+          selectedBankName:    first?.customerName ?? '',
+        ));
+      } catch (e2) {
+        emit(state.copyWith(
+          bondTypesStatus: Status.failure,
+          errorMessage:    e2.toString(),
+        ));
+      }
+    }
+  }
+
+  // ── Branch changed → reload bond types ───────────────────────────────────
+  Future<void> _onBranchChanged(
+      CollectionBranchChanged event,
       Emitter<InvoiceCollectionState> emit,
       ) async {
     emit(state.copyWith(
-      patternsStatus:  Status.loading,
-      patterns:        [],
-      selectedPatternId: -1,
+      selectedBranchId: event.branchId,
+      bondTypesStatus:  Status.loading,
     ));
-
-    final result = event.isPriceQuote
-        ? await _dataSource.getQuotePatterns(branchId: event.branchId)
-        : await _dataSource.getInvoicePatterns(branchId: event.branchId);
-
-    result.fold(
-          (failure) => emit(state.copyWith(
-        patternsStatus: Status.failure,
-        errorMessage:   failure.message,
-      )),
-          (patterns) {
-        // Auto-select first pattern
-        final autoPatternId =
-        patterns.isNotEmpty ? patterns.first.patternId : -1;
-        emit(state.copyWith(
-          patternsStatus:   Status.success,
-          patterns:         patterns,
-          selectedPatternId: autoPatternId,
-        ));
-      },
-    );
+    await _loadBondTypes(event.branchId, emit);
   }
 
-  // ── Select branch → reload patterns ───────────────────────────────────────
-  Future<void> _onSelectBranch(
-      SelectBranch event,
-      Emitter<InvoiceCollectionState> emit,
-      ) async {
-    emit(state.copyWith(selectedBranchId: event.branchId));
-    add(LoadPatternsByBranch(
-      branchId:     event.branchId,
-      isPriceQuote: event.isPriceQuote,
-    ));
-  }
-
-  // ── Select pattern ─────────────────────────────────────────────────────────
-  void _onSelectPattern(
-      SelectPattern event,
-      Emitter<InvoiceCollectionState> emit,
-      ) {
-    emit(state.copyWith(selectedPatternId: event.patternId));
-  }
-
-  // ── Select currency ────────────────────────────────────────────────────────
-  void _onSelectCurrency(
-      SelectCurrency event,
+  void _onCurrencyChanged(
+      CollectionCurrencyChanged event,
       Emitter<InvoiceCollectionState> emit,
       ) {
     emit(state.copyWith(
       selectedCurrencyId:   event.currencyId,
       selectedCurrencyRate: event.rate,
     ));
+  }
+
+  void _onPayWayChanged(
+      CollectionPayWayChanged event,
+      Emitter<InvoiceCollectionState> emit,
+      ) {
+    emit(state.copyWith(selectedCodePw: event.codePw));
+  }
+
+  void _onBondTypeChanged(
+      CollectionBondTypeChanged event,
+      Emitter<InvoiceCollectionState> emit,
+      ) {
+    emit(state.copyWith(
+      selectedVoucherType: event.voucherType,
+      selectedBankName:    event.bankName,
+    ));
+  }
+
+  void _onInvoiceLinked(
+      CollectionInvoiceLinked event,
+      Emitter<InvoiceCollectionState> emit,
+      ) {
+    emit(state.copyWith(
+      invoiceId:    event.invoiceId,
+      invoiceNo:    event.invoiceNo,
+      voucherValue: event.voucherValue,
+      customerName: event.customerName,
+      acId:         event.acId,
+    ));
+  }
+
+  void _onCustomerSearched(
+      CollectionCustomerSearched event,
+      Emitter<InvoiceCollectionState> emit,
+      ) {
+    emit(state.copyWith(
+      acId:         event.acId,
+      customerName: event.acName,
+    ));
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+  Future<void> _onSubmit(
+      SubmitCollection event,
+      Emitter<InvoiceCollectionState> emit,
+      ) async {
+    emit(state.copyWith(submitStatus: Status.loading));
+    try {
+      final voucher = await _dataSource.addCollection(event.request);
+      emit(state.copyWith(
+        submitStatus:    Status.success,
+        voucherResponse: voucher,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        submitStatus: Status.failure,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  // ── Edit ──────────────────────────────────────────────────────────────────
+  Future<void> _onEdit(
+      EditCollection event,
+      Emitter<InvoiceCollectionState> emit,
+      ) async {
+    emit(state.copyWith(submitStatus: Status.loading));
+    try {
+      final voucher = await _dataSource.editCollection(event.request);
+      emit(state.copyWith(
+        submitStatus:    Status.success,
+        voucherResponse: voucher,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        submitStatus: Status.failure,
+        errorMessage: e.toString(),
+      ));
+    }
   }
 }

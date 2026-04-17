@@ -1,4 +1,4 @@
-part of '../invoice_collection_imports.dart';
+part of '../invoice_setup_imports.dart';
 
 class BranchModel extends Equatable {
   final int branchId;

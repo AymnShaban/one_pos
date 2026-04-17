@@ -211,5 +211,29 @@
     "add_note": "إضافة ملاحظة",
     "required": "مطلوب",
     "invalid": "قيمة غير صحيحة"
+  },
+
+  "invoice_collection": {
+    "title":              "تحصيل فواتير",
+    "branch":             "الفرع",
+    "select_branch":      "اختر الفرع",
+    "date":               "التاريخ",
+    "credit_account":     "الحساب الدائن",
+    "collection_method":  "طريقة التحصيل",
+    "payment_method":     "طريقة الدفع",
+    "currency":           "العملة",
+    "disbursement":       "الصرف",
+    "equivalent":         "المعادل",
+    "local_value":        "القيمة المحلية",
+    "in_voice":           "فاتورة",
+    "type_of_receipt":    "نوع السند",
+    "knet_number":        "رقم كي نت",
+    "approval_number":    "رقم الموافقة",
+    "check_number":       "رقم الشيك",
+    "due_date":           "تاريخ الاستحقاق",
+    "description":        "البيان",
+    "enter_description":  "أدخل البيان هنا",
+    "save":               "حفظ",
+    "saved_successfully": "تم حفظ السند بنجاح"
   }
 }

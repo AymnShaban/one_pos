@@ -10,7 +10,7 @@ import '../../../core/widgets/custom_snack_bar.dart';
 import '../../../core/widgets/product_item_selector.dart';
 import '../../../core/widgets/product_list_wrapper.dart';
 import '../../../core/widgets/pull_to_refresh.dart';
-import '../invoice_collection/invoice_collection_imports.dart';
+import '../invoice_setup/invoice_setup_imports.dart';
 
 part 'manager/cart_bloc/cart_bloc.dart';
 part 'manager/cart_bloc/cart_event.dart';

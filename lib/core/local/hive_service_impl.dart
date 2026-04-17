@@ -189,4 +189,45 @@ class HiveServiceImpl implements IUserCache {
       await _settingsBox?.put(_haveDiscountKey, value);
 
   int getHaveDiscount() => _settingsBox?.get(_haveDiscountKey) ?? 1;
+
+  // ── Auth config getters (from ActivationModel saved at activation) ─────────
+  String? getPrivateKey() {
+    final config = getAppConfig();
+    return config?['PrivateKey'] as String?;
+  }
+
+  String? getPublicKey() {
+    final config = getAppConfig();
+    return config?['PublicKey'] as String?;
+  }
+
+  String? getAuthorization() {
+    final config = getAppConfig();
+    return config?['Authorization'] as String?;
+  }
+
+  String? getBaseUrl() {
+    final config = getAppConfig();
+    return config?['BaseURL'] as String?;
+  }
+
+  String? getIpAddress() {
+    final config = getAppConfig();
+    return config?['Server'] as String?;
+  }
+
+  String? getServerUserName() {
+    final config = getAppConfig();
+    return config?['UserName'] as String?;
+  }
+
+  String? getServerPassword() {
+    final config = getAppConfig();
+    return config?['PassWord'] as String?;
+  }
+
+  String? getDatabaseName() {
+    final config = getAppConfig();
+    return config?['DBName'] as String?;
+  }
 }

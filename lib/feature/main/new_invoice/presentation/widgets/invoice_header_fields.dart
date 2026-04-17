@@ -15,7 +15,7 @@ class InvoiceHeaderFields extends StatelessWidget {
     final isAr       = context.locale.languageCode == 'ar';
     final sellerName = HiveServiceImpl.instance.getSellerName() ?? '';
 
-    return BlocBuilder<InvoiceCollectionBloc, InvoiceCollectionState>(
+    return BlocBuilder<InvoiceSetupBloc, InvoiceSetupState>(
       builder: (context, colState) {
         return Container(
           color: AppColors.whiteColor,
@@ -33,8 +33,7 @@ class InvoiceHeaderFields extends StatelessWidget {
                         height: 40.h,
                         padding: EdgeInsets.symmetric(horizontal: 8.w),
                         decoration: BoxDecoration(
-                          border: Border.all(
-                              color: AppColors.secondaryColor),
+                          border: Border.all(color: AppColors.secondaryColor),
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Align(
@@ -71,8 +70,9 @@ class InvoiceHeaderFields extends StatelessWidget {
                               isAr
                                   ? p.patternArName
                                   : p.patternEnName,
-                              style: AppTextTheme.caption.copyWith(
-                                  color: AppColors.black),
+                              style: AppTextTheme.caption
+                                  .copyWith(color: AppColors.black),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         )
@@ -80,9 +80,8 @@ class InvoiceHeaderFields extends StatelessWidget {
                         onChanged: (p) {
                           if (p != null) {
                             context
-                                .read<InvoiceCollectionBloc>()
+                                .read<InvoiceSetupBloc>()
                                 .add(SelectPattern(p.patternId));
-                            // Sync to NewInvoiceBloc
                             context
                                 .read<NewInvoiceBloc>()
                                 .add(UpdatePatternId(p.patternId));
@@ -115,8 +114,9 @@ class InvoiceHeaderFields extends StatelessWidget {
                               isAr
                                   ? b.branchArName
                                   : b.branchEnName,
-                              style: AppTextTheme.caption.copyWith(
-                                  color: AppColors.black),
+                              style: AppTextTheme.caption
+                                  .copyWith(color: AppColors.black),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         )
@@ -124,12 +124,11 @@ class InvoiceHeaderFields extends StatelessWidget {
                         onChanged: (b) {
                           if (b != null) {
                             context
-                                .read<InvoiceCollectionBloc>()
+                                .read<InvoiceSetupBloc>()
                                 .add(SelectBranch(
                               branchId:     b.branchId,
                               isPriceQuote: isPriceQuote,
                             ));
-                            // Sync to NewInvoiceBloc
                             context
                                 .read<NewInvoiceBloc>()
                                 .add(UpdateBranchId(b.branchId));
@@ -157,8 +156,9 @@ class InvoiceHeaderFields extends StatelessWidget {
                               isAr
                                   ? c.currencyArName
                                   : c.currencyEnName,
-                              style: AppTextTheme.caption.copyWith(
-                                  color: AppColors.black),
+                              style: AppTextTheme.caption
+                                  .copyWith(color: AppColors.black),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         )
@@ -166,12 +166,11 @@ class InvoiceHeaderFields extends StatelessWidget {
                         onChanged: (c) {
                           if (c != null) {
                             context
-                                .read<InvoiceCollectionBloc>()
+                                .read<InvoiceSetupBloc>()
                                 .add(SelectCurrency(
                               currencyId: c.currencyId,
                               rate:       c.rate,
                             ));
-                            // Sync to NewInvoiceBloc
                             context
                                 .read<NewInvoiceBloc>()
                                 .add(UpdateCurrency(
@@ -205,8 +204,10 @@ class _LabeledField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(label,
-            style: AppTextTheme.caption.copyWith(color: AppColors.black)),
+        Text(
+          label,
+          style: AppTextTheme.caption.copyWith(color: AppColors.black),
+        ),
         SizedBox(height: 4.h),
         child,
       ],
@@ -231,12 +232,12 @@ class _StyledDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<T>(
-      initialValue: value,
+      initialValue:      value,        // ← fixed: was initialValue
       isExpanded: true,
       decoration: InputDecoration(
-        filled: true,
+        filled:    true,
         fillColor: AppColors.whiteColor,
-        hintText: hint,
+        hintText:  hint,
         hintStyle: AppTextTheme.caption.copyWith(color: AppColors.grey),
         contentPadding:
         EdgeInsets.symmetric(horizontal: 12.w, vertical: 0),
@@ -255,9 +256,9 @@ class _StyledDropdown<T> extends StatelessWidget {
           BorderSide(color: AppColors.mainAppColor, width: 1.5),
         ),
       ),
-      items: items,
+      items:     items,
       onChanged: onChanged,
-      style: AppTextTheme.caption.copyWith(color: AppColors.black),
+      style:     AppTextTheme.caption.copyWith(color: AppColors.black),
     );
   }
 }
@@ -269,13 +270,14 @@ class _LoadingField extends StatelessWidget {
     return Container(
       height: 40.h,
       decoration: BoxDecoration(
-        color: AppColors.backgroundColor,
+        color:        AppColors.backgroundColor,
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: Colors.grey.shade300),
+        border:       Border.all(color: Colors.grey.shade300),
       ),
       child: Center(
         child: SizedBox(
-          width: 16.w, height: 16.w,
+          width: 16.w,
+          height: 16.w,
           child: CircularProgressIndicator(
             strokeWidth: 2,
             color: AppColors.mainAppColor,

@@ -1,4 +1,4 @@
-part of '../invoice_collection_imports.dart';
+part of '../invoice_setup_imports.dart';
 
 class InvoicePatternModel extends Equatable {
   final int patternId;
