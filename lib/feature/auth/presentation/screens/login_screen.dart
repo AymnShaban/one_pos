@@ -3,9 +3,10 @@ import '../../../../../core/helper/helper.dart';
 import '../../../../../core/widgets/custom_snack_bar.dart';
 import '../../../../core/services/service_locator/services_imports.dart';
 import '../../../main/home/home_imports.dart';
-import '../../bloc/log_in_bloc/log_in_bloc.dart';
 import '../../bloc/log_in_bloc/log_in_event.dart';
-import '../../models/user_model.dart';
+import '../../manager/login_bloc/login_bloc.dart';
+import '../../manager/login_bloc/login_event.dart';
+import '../../models/customer_model.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,14 +16,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey           = GlobalKey<FormState>();
-  final _userNameController = TextEditingController();
+  final _formKey            = GlobalKey<FormState>();
+  final _phoneController    = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword     = true;
 
   @override
   void dispose() {
-    _userNameController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -31,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      body: BlocListener<LoginBloc, BaseState<UserModel>>(
+      body: BlocListener<LoginBloc, BaseState<CustomerModel>>(
         listener: (context, state) {
           if (state.status == Status.success) {
             showCustomSnackBar(context, 'auth.login_success'.tr());
@@ -109,18 +110,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: Alignment.centerRight,
                     child: Text(
                       'auth.shop_easily_and_enjoy_special_offers'.tr(),
-                      style: AppTextTheme.body2
-                          .copyWith(color: AppColors.grey),
+                      style: AppTextTheme.body2.copyWith(color: AppColors.grey),
                     ),
                   ),
                   SizedBox(height: 28.h),
 
-                  // Username
+                  // Username / Phone
                   _buildField(
-                    controller:  _userNameController,
-                    hint:        'auth.username'.tr(),
-                    icon:        Icons.person_outline_rounded,
-                    validator:   (v) => v == null || v.isEmpty
+                    controller: _phoneController,
+                    hint:       'auth.username'.tr(),
+                    icon:       Icons.person_outline_rounded,
+                    validator:  (v) => v == null || v.isEmpty
                         ? 'auth.enter_username'.tr()
                         : null,
                   ),
@@ -128,11 +128,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Password
                   _buildField(
-                    controller:   _passwordController,
-                    hint:         'auth.password'.tr(),
-                    icon:         Icons.lock_outline_rounded,
-                    obscure:      _obscurePassword,
-                    validator:    (v) => v == null || v.isEmpty
+                    controller: _passwordController,
+                    hint:       'auth.password'.tr(),
+                    icon:       Icons.lock_outline_rounded,
+                    obscure:    _obscurePassword,
+                    validator:  (v) => v == null || v.isEmpty
                         ? 'auth.enter_your_password'.tr()
                         : null,
                     suffix: IconButton(
@@ -150,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 28.h),
 
                   // Login button
-                  BlocBuilder<LoginBloc, BaseState<UserModel>>(
+                  BlocBuilder<LoginBloc, BaseState<CustomerModel>>(
                     builder: (context, state) {
                       if (state.status == Status.loading) {
                         return CircularProgressIndicator(
@@ -158,14 +158,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       }
                       return SizedBox(
-                        width: double.infinity,
+                        width:  double.infinity,
                         height: 50.h,
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
                               context.read<LoginBloc>().add(
                                 LoginSubmitted(
-                                  userName: _userNameController.text.trim(),
+                                  phone:    _phoneController.text.trim(),
                                   password: _passwordController.text,
                                 ),
                               );
@@ -187,6 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       );
                     },
                   ),
+                  SizedBox(height: 24.h),
                 ],
               ),
             ),

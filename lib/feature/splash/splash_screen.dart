@@ -3,6 +3,7 @@ import '../../core/services/service_locator/services_imports.dart';
 import '../auth/bloc/activation_bloc/activation_bloc.dart';
 import '../auth/bloc/activation_bloc/activation_event.dart';
 import '../auth/bloc/log_in_bloc/log_in_bloc.dart';
+import '../auth/manager/login_bloc/login_bloc.dart';
 import '../auth/presentation/screens/activation_screen.dart';
 import '../auth/presentation/screens/login_screen.dart';
 import '../main/home/home_imports.dart';
@@ -34,12 +35,12 @@ class _SplashScreenState extends State<SplashScreen> {
     if (config == null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => getIt<ActivationBloc>(),
-            child: const ActivationScreen(),
+          MaterialPageRoute(
+            builder: (_) => BlocProvider(
+              create: (_) => getIt<LoginBloc>(),
+              child: const LoginScreen(),
+            ),
           ),
-        ),
       );
       return;
     }
@@ -74,9 +75,9 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => BlocProvider.value(
-              value: activationBloc,
-              child: const ActivationScreen(),
+            builder: (_) => BlocProvider(
+              create: (_) => getIt<LoginBloc>(),
+              child: const LoginScreen(),
             ),
           ),
         );

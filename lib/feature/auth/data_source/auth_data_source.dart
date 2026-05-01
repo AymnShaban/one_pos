@@ -6,9 +6,7 @@ import '../../../core/network/encrupt.dart';
 import '../models/activation_model.dart';
 import '../models/user_model.dart';
 
-// Separate Dio for the main backend (not the company server)
-const String _mainBackendUrl =
-    'http://15.235.51.177/TheOneAPI/api/';
+const String _mainBackendUrl = 'http://15.235.51.177/TheOneAPI/api/';
 
 const Map<String, String> _mainHeaders = {
   'Accept': 'application/json',
@@ -16,6 +14,12 @@ const Map<String, String> _mainHeaders = {
   'Authorization':
   'Basic ZTBjOWRlMWIyZGUyNmZlMjpnOEV0eXg4VFU1Nzl2RHhKemFOMWxvM3I0NitXSkx2cWIvSU1ZZElVUkhNPQ==',
 };
+
+// ── Dummy credentials ─────────────────────────────────────────────────────────
+const String _dummyUser     = 'posaymn';
+const String _dummyPassword = 'Aa@12345';
+const String _dummyCode     = 'DUMM-Y000-TEST-0001';
+// ─────────────────────────────────────────────────────────────────────────────
 
 abstract interface class AuthDataSource {
   Future<Either<Failure, ActivationModel>> checkActivationCode({
@@ -82,9 +86,7 @@ class AuthDataSourceImpl implements AuthDataSource {
         final raw = response.data;
         if (raw.toString().contains(
             'No Configuration was found for this Serial.')) {
-          return Left(
-            ServerFailure(message: 'no_configuration_found'),
-          );
+          return Left(ServerFailure(message: 'no_configuration_found'));
         }
         final List<dynamic> list = json.decode(raw.toString());
         if (list.isEmpty) {
@@ -106,6 +108,10 @@ class AuthDataSourceImpl implements AuthDataSource {
     required String deviceModel,
     required String deviceName,
   }) async {
+    // ── DUMMY BYPASS ─────────────────────────────────────────────────────────
+    if (activationCode == _dummyCode) return const Right(true);
+    // ─────────────────────────────────────────────────────────────────────────
+
     try {
       final response = await _dio.get(
         'CheckDeviceActivate',
@@ -122,8 +128,7 @@ class AuthDataSourceImpl implements AuthDataSource {
         options: Options(headers: _mainHeaders),
       );
       if (response.statusCode == 200) {
-        final isActive = response.data.toString() == 'True';
-        return Right(isActive);
+        return Right(response.data.toString() == 'True');
       }
       return Left(ServerFailure(message: 'server_error'));
     } catch (e) {
@@ -141,9 +146,7 @@ class AuthDataSourceImpl implements AuthDataSource {
         queryParameters: {'ActivationCode': activationCode},
         options: Options(headers: _mainHeaders),
       );
-      if (response.statusCode == 200) {
-        return const Right(null);
-      }
+      if (response.statusCode == 200) return const Right(null);
       return Left(ServerFailure(message: 'deactivation_error'));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
@@ -156,16 +159,29 @@ class AuthDataSourceImpl implements AuthDataSource {
     required String password,
     required ActivationModel config,
   }) async {
+    // ── DUMMY BYPASS ─────────────────────────────────────────────────────────
+    if (userName.trim() == _dummyUser &&
+        password.trim() == _dummyPassword) {
+      const user = UserModel(
+        userId:          1,
+        userName:        _dummyUser,
+        fullUserName:    'أيمن شعبان',
+        haveDiscount:    1,
+        userPermissions: [],
+      );
+      return const Right(user);
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     try {
-      // Use company server — separate Dio instance
       final companyDio = Dio(
         BaseOptions(
-          baseUrl: 'http://${config.server}/${config.baseUrl.isNotEmpty ? config.baseUrl : 'TheOneAPI/api/'}',
+          baseUrl:
+          'http://${config.server}/${config.baseUrl.isNotEmpty ? config.baseUrl : 'TheOneAPI/api/'}',
           headers: {'Authorization': 'Basic ${config.authorization}'},
         ),
       );
 
-      // Encrypt login payload with company keys
       final encryptedData = _encryptLoginData(
         userName:       userName,
         password:       password,
@@ -200,7 +216,6 @@ class AuthDataSourceImpl implements AuthDataSource {
     }
   }
 
-  // These call your existing encrypt/decrypt functions from core/network/encrypt.dart
   String _encryptLoginData({
     required String userName,
     required String password,
@@ -211,7 +226,6 @@ class AuthDataSourceImpl implements AuthDataSource {
     required String privateKey,
     required String publicKey,
   }) {
-    // Call your existing encryptData() function
     return encryptData(
       {
         'UserName':       userName,

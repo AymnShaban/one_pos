@@ -6,6 +6,7 @@ import '../../../../core/services/service_locator/services_imports.dart';
 import '../../bloc/activation_bloc/activation_bloc.dart';
 import '../../bloc/activation_bloc/activation_event.dart';
 import '../../bloc/log_in_bloc/log_in_bloc.dart';
+import '../../manager/login_bloc/login_bloc.dart';
 import '../../models/activation_model.dart';
 import 'login_screen.dart';
 

@@ -5,7 +5,7 @@ class AuthServiceLocator {
 
 
     getIt.registerLazySingleton<LoginDataSource>(
-      () => LoginDataSourceImpl(getIt<GenericDataSource>()),
+      () => LoginDataSourceImpl(),
     );
     getIt.registerLazySingleton<AuthDataSource>(
           () => AuthDataSourceImpl(),
