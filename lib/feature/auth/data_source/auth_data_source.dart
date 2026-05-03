@@ -2,18 +2,13 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../../../core/http/either.dart';
 import '../../../../core/http/failure.dart';
+import '../../../core/network/cryptography.dart';
 import '../../../core/network/encrupt.dart';
 import '../models/activation_model.dart';
 import '../models/user_model.dart';
 
-const String _mainBackendUrl = 'http://15.235.51.177/TheOneAPI/api/';
-
-const Map<String, String> _mainHeaders = {
-  'Accept': 'application/json',
-  'Accept-Language': 'ar',
-  'Authorization':
-  'Basic ZTBjOWRlMWIyZGUyNmZlMjpnOEV0eXg4VFU1Nzl2RHhKemFOMWxvM3I0NitXSkx2cWIvSU1ZZElVUkhNPQ==',
-};
+const String _activationBaseUrl  = 'http://54.39.132.162/CustomerActivationAPI/';
+const String _activationEndpoint = 'Device/CheckDeviceActivate';
 
 // ── Dummy credentials ─────────────────────────────────────────────────────────
 const String _dummyUser     = 'posaymn';
@@ -33,7 +28,7 @@ abstract interface class AuthDataSource {
     required String deviceName,
   });
 
-  Future<Either<Failure, bool>> checkDeviceActivation({
+  Future<Either<Failure, void>> checkDeviceActivation({
     required String activationCode,
     required String deviceCode,
     required String deviceWifiMAC,
@@ -53,7 +48,7 @@ abstract interface class AuthDataSource {
 }
 
 class AuthDataSourceImpl implements AuthDataSource {
-  final Dio _dio = Dio(BaseOptions(baseUrl: _mainBackendUrl));
+  final Dio _activationDio = Dio(BaseOptions(baseUrl: _activationBaseUrl));
 
   @override
   Future<Either<Failure, ActivationModel>> checkActivationCode({
@@ -67,32 +62,59 @@ class AuthDataSourceImpl implements AuthDataSource {
     required String deviceName,
   }) async {
     try {
-      final response = await _dio.get(
-        'GetDeviceConfigV2',
-        queryParameters: {
-          'ActivationCode': '$key1-$key2-$key3-$key4',
-          'DeviceCode':     deviceCode,
-          'DeviceTypeID':   1,
-          'DeviceWifiMAC':  deviceWifiMAC,
-          'DeviceModel':    deviceModel,
-          'DeviceName':     deviceName,
-          'DeviceIMEI':     deviceName,
-          'DeviceToken':    'DeviceToken',
-        },
-        options: Options(headers: _mainHeaders),
+      final bodyMap = {
+        'activationCode': '$key1-$key2-$key3-$key4',
+        'deviceCode':     deviceCode,
+        'deviceTypeID':   1,
+        'deviceWifiMAC':  deviceWifiMAC,
+        'deviceModel':    deviceModel,
+        'deviceName':     deviceName,
+        'deviceIMEI':     deviceName,
+        'deviceToken':    'DeviceToken',
+      };
+      final body = json.encode(bodyMap);
+      final signed = signRequest(body);
+
+      final response = await _activationDio.post(
+        _activationEndpoint,
+        data: body,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept':       '*/*',
+            ...signed.toMap(),
+          },
+          responseType: ResponseType.plain,
+        ),
       );
 
       if (response.statusCode == 200) {
-        final raw = response.data;
-        if (raw.toString().contains(
-            'No Configuration was found for this Serial.')) {
+        final raw = response.data?.toString().trim() ?? '';
+        if (raw.isEmpty ||
+            raw.contains('No Configuration was found for this Serial.')) {
           return Left(ServerFailure(message: 'no_configuration_found'));
         }
-        final List<dynamic> list = json.decode(raw.toString());
-        if (list.isEmpty) {
+
+        // Backend returns the encrypted payload either as a bare base64 string
+        // or wrapped in quotes. Strip surrounding quotes if present.
+        final cipher = raw.startsWith('"') && raw.endsWith('"')
+            ? raw.substring(1, raw.length - 1)
+            : raw;
+
+        final decrypted = await decryptAesGcm(cipher);
+        final dynamic parsed = json.decode(decrypted);
+
+        Map<String, dynamic>? configJson;
+        if (parsed is List && parsed.isNotEmpty) {
+          configJson = Map<String, dynamic>.from(parsed.first);
+        } else if (parsed is Map) {
+          configJson = Map<String, dynamic>.from(parsed);
+        }
+
+        if (configJson == null) {
           return Left(ServerFailure(message: 'no_configuration_found'));
         }
-        return Right(ActivationModel.fromJson(list.first));
+        return Right(ActivationModel.fromJson(configJson));
       }
       return Left(ServerFailure(message: 'server_error'));
     } catch (e) {
@@ -101,7 +123,7 @@ class AuthDataSourceImpl implements AuthDataSource {
   }
 
   @override
-  Future<Either<Failure, bool>> checkDeviceActivation({
+  Future<Either<Failure, void>> checkDeviceActivation({
     required String activationCode,
     required String deviceCode,
     required String deviceWifiMAC,
@@ -109,26 +131,46 @@ class AuthDataSourceImpl implements AuthDataSource {
     required String deviceName,
   }) async {
     // ── DUMMY BYPASS ─────────────────────────────────────────────────────────
-    if (activationCode == _dummyCode) return const Right(true);
+    if (activationCode == _dummyCode) return const Right(null);
     // ─────────────────────────────────────────────────────────────────────────
 
     try {
-      final response = await _dio.get(
-        'CheckDeviceActivate',
-        queryParameters: {
-          'ActivationCode': activationCode,
-          'DeviceCode':     deviceCode,
-          'DeviceTypeID':   1,
-          'DeviceWifiMAC':  deviceWifiMAC,
-          'DeviceModel':    deviceModel,
-          'DeviceName':     deviceName,
-          'DeviceIMEI':     deviceName,
-          'DeviceToken':    '',
-        },
-        options: Options(headers: _mainHeaders),
+      final bodyMap = {
+        'activationCode': activationCode,
+        'deviceCode':     deviceCode,
+        'deviceTypeID':   1,
+        'deviceWifiMAC':  deviceWifiMAC,
+        'deviceModel':    deviceModel,
+        'deviceName':     deviceName,
+        'deviceIMEI':     deviceName,
+        'deviceToken':    'DeviceToken',
+      };
+      final body = json.encode(bodyMap);
+      final signed = signRequest(body);
+
+      final response = await _activationDio.post(
+        _activationEndpoint,
+        data: body,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept':       '*/*',
+            ...signed.toMap(),
+          },
+        ),
       );
+
       if (response.statusCode == 200) {
-        return Right(response.data.toString() == 'True');
+        final raw = response.data;
+        final Map<String, dynamic> data = raw is Map
+            ? Map<String, dynamic>.from(raw)
+            : Map<String, dynamic>.from(json.decode(raw.toString()));
+
+        final isSuccess = data['isSuccess'] == true;
+        final value     = data['value'] == true;
+
+        if (isSuccess && value) return const Right(null);
+        return Left(ServerFailure(message: 'device_deactivated'));
       }
       return Left(ServerFailure(message: 'server_error'));
     } catch (e) {
@@ -141,10 +183,17 @@ class AuthDataSourceImpl implements AuthDataSource {
     required String activationCode,
   }) async {
     try {
-      final response = await _dio.get(
-        'DeviceDeactivate',
-        queryParameters: {'ActivationCode': activationCode},
-        options: Options(headers: _mainHeaders),
+      final signed = signRequest('');
+
+      final response = await _activationDio.get(
+        'Device/DeviceDeactivate',
+        queryParameters: {'activationCode': activationCode},
+        options: Options(
+          headers: {
+            'Accept': '*/*',
+            ...signed.toMap(),
+          },
+        ),
       );
       if (response.statusCode == 200) return const Right(null);
       return Left(ServerFailure(message: 'deactivation_error'));

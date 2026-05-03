@@ -29,24 +29,25 @@ class PaginationHandler<T, B extends BlocBase<BaseState<T>>> {
     final result = await fetchFunction(currentPage, pageSize, params);
     await result.fold(
       (failure) async {
-        // On failure, load from cache
-        final cached = await _cache.getCachedPage(cacheKey: cacheKey!);
-        if (cached.isNotEmpty) {
-          items = cached;
-          bloc.emit(
-            bloc.state.copyWith(
-              status: Status.success,
-              items: List<T>.from(items),
-            ),
-          );
-        } else {
-          bloc.emit(
-            bloc.state.copyWith(
-              status: Status.failure,
-              errorMessage: failure.message,
-            ),
-          );
+        if (cacheKey != null) {
+          final cached = await _cache.getCachedPage(cacheKey: cacheKey);
+          if (cached.isNotEmpty) {
+            items = cached;
+            bloc.emit(
+              bloc.state.copyWith(
+                status: Status.success,
+                items: List<T>.from(items),
+              ),
+            );
+            return;
+          }
         }
+        bloc.emit(
+          bloc.state.copyWith(
+            status: Status.failure,
+            errorMessage: failure.message,
+          ),
+        );
       },
       (data) async {
         items.addAll(data);

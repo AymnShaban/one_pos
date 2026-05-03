@@ -95,25 +95,20 @@ class ActivationBloc
     );
 
     result.fold(
-          (failure) => emit(state.copyWith(
-        status:       Status.failure,
-        errorMessage: failure.message,
-      )),
-          (isActive) {
-        if (isActive) {
-          emit(state.copyWith(
-            status:   Status.success,
-            metadata: {'isActive': true},
-          ));
-        } else {
-          // Clear all saved data — device deactivated remotely
+          (failure) {
+        // device_deactivated → wipe config so splash routes to activation
+        if (failure.message == 'device_deactivated') {
           _clearConfig();
-          emit(state.copyWith(
-            status:       Status.failure,
-            errorMessage: 'device_deactivated',
-          ));
         }
+        emit(state.copyWith(
+          status:       Status.failure,
+          errorMessage: failure.message,
+        ));
       },
+          (_) => emit(state.copyWith(
+        status:   Status.success,
+        metadata: {'isActive': true},
+      )),
     );
   }
 

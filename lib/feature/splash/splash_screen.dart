@@ -2,11 +2,24 @@ import '../../../core/helper/helper.dart';
 import '../../core/services/service_locator/services_imports.dart';
 import '../auth/bloc/activation_bloc/activation_bloc.dart';
 import '../auth/bloc/activation_bloc/activation_event.dart';
-import '../auth/bloc/log_in_bloc/log_in_bloc.dart';
 import '../auth/manager/login_bloc/login_bloc.dart';
 import '../auth/presentation/screens/activation_screen.dart';
 import '../auth/presentation/screens/login_screen.dart';
 import '../main/home/home_imports.dart';
+
+Route _activationRoute() => MaterialPageRoute(
+      builder: (_) => BlocProvider(
+        create: (_) => getIt<ActivationBloc>(),
+        child: const ActivationScreen(),
+      ),
+    );
+
+Route _loginRoute() => MaterialPageRoute(
+      builder: (_) => BlocProvider(
+        create: (_) => getIt<LoginBloc>(),
+        child: const LoginScreen(),
+      ),
+    );
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -31,31 +44,15 @@ class _SplashScreenState extends State<SplashScreen> {
     final config = hive.getAppConfig();
     final userId = hive.getUserId();
 
-    // ── Case 1: Never activated ──────────────────────────────────────────────
+    // ── Case 1: Never activated → open the activation screen directly ───────
     if (config == null) {
-      Navigator.pushReplacement(
-        context,
-          MaterialPageRoute(
-            builder: (_) => BlocProvider(
-              create: (_) => getIt<LoginBloc>(),
-              child: const LoginScreen(),
-            ),
-          ),
-      );
+      Navigator.pushReplacement(context, _activationRoute());
       return;
     }
 
     // ── Case 2: Activated but not logged in ──────────────────────────────────
     if (userId == null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => getIt<LoginBloc>(),
-            child: const LoginScreen(),
-          ),
-        ),
-      );
+      Navigator.pushReplacement(context, _loginRoute());
       return;
     }
 
@@ -71,16 +68,8 @@ class _SplashScreenState extends State<SplashScreen> {
       final isActive = state.metadata['isActive'] == true;
 
       if (!isActive) {
-        // Device deactivated remotely — go to activation
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => BlocProvider(
-              create: (_) => getIt<LoginBloc>(),
-              child: const LoginScreen(),
-            ),
-          ),
-        );
+        // Device deactivated remotely — back to activation
+        Navigator.pushReplacement(context, _activationRoute());
         return;
       }
 

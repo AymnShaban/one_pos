@@ -5,7 +5,7 @@ class EndPoints {
   //   static const String baseUrl = "http://15.235.51.177/TheOneAPI";
 
   // mazyad
-  static const String baseUrl = "http://78.89.159.126:9393/TheOneAPIMazyad";
+  static const String baseUrl = "http://78.89.159.126:9494/TheOneAPIPOSDolphen";
 
   //
   // // alharamayn

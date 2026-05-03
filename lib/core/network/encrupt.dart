@@ -7,12 +7,16 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 // final privateKey = 'c104780a25b4f80c037445dd1f6947e1';
 // final publicKey = 'e0c9de1b2de26fe2';
 
-// mazyad
-final basicToken =
-    'Basic MTE5MTEyODE2MzRlYjVhYTpTZk12SU1FNTlOU05qZEVsdlpqK2NDM0ZuaUJBWTBxRGlSM2xqVnU0RU5ZPQ==';
-final privateKey = '7a0847a8ed338cff77b74bc74a8061de';
-final publicKey = '11911281634eb5aa';
+// // mazyad
+// final basicToken =
+//     'Basic MTE5MTEyODE2MzRlYjVhYTpTZk12SU1FNTlOU05qZEVsdlpqK2NDM0ZuaUJBWTBxRGlSM2xqVnU0RU5ZPQ==';
+// final privateKey = '7a0847a8ed338cff77b74bc74a8061de';
+// final publicKey = '11911281634eb5aa';
+//
 
+final basicToken = 'Basic N2QyY2ZlNTZiZGQzY2JiMjpNdjBvejNoaDVQQllYdGZFaTI4dnJXdXRNak5nN1VkUmlkVUc2bG5LVnNrPQ==';
+final privateKey = '265a0fe75f4a3a375d3930a8bfc63f0a';
+final publicKey = '7d2cfe56bdd3cbb2';
 
 //  // alharamayn
 // final basicToken =
