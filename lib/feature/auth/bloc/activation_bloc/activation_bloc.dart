@@ -177,7 +177,6 @@ class ActivationBloc extends Bloc<ActivationEvent, BaseState<ActivationModel>> {
       focusNode2.requestFocus();
     }
   }
-
   @override
   Future<void> close() {
     key1Controller.dispose();

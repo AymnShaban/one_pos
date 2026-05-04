@@ -108,10 +108,14 @@ class _ActivationScreenState extends State<ActivationScreen> {
                       controller: bloc.key1Controller,
                       focusNode:  bloc.focusNode1,
                       hint:       'KEY 1',
+                      inputFormatters: [_ActivationPasteFormatter()],
                       onChanged: (v) {
-                        bloc.pasteFullCode(v);
-                        bloc.moveToNextField(
-                            v, bloc.focusNode1, bloc.focusNode2);
+                        if (v.contains('-')) {
+                          bloc.pasteFullCode(v);
+                        } else {
+                          bloc.moveToNextField(
+                              v, bloc.focusNode1, bloc.focusNode2);
+                        }
                       },
                     ),
                     _Divider(),
@@ -255,12 +259,14 @@ class _KeyField extends StatelessWidget {
   final FocusNode focusNode;
   final String hint;
   final ValueChanged<String> onChanged;
+  final List<TextInputFormatter>? inputFormatters;
 
   const _KeyField({
     required this.controller,
     required this.focusNode,
     required this.hint,
     required this.onChanged,
+    this.inputFormatters,
   });
 
   @override
@@ -270,7 +276,8 @@ class _KeyField extends StatelessWidget {
         controller:    controller,
         focusNode:     focusNode,
         textAlign:     TextAlign.center,
-        maxLength:     4,
+        maxLength:     inputFormatters == null ? 4 : null,
+        inputFormatters: inputFormatters,
         onChanged:     onChanged,
         style: AppTextTheme.body2Bold.copyWith(color: AppColors.black),
         decoration: InputDecoration(
@@ -312,5 +319,24 @@ class _Divider extends StatelessWidget {
         style: AppTextTheme.heading2.copyWith(color: AppColors.grey),
       ),
     );
+  }
+}
+
+// Lets a full dashed activation code (e.g. "7283-9D98-F38D-43SA")
+// pass through onChanged so the bloc can distribute it across all 4 fields,
+// while still capping plain typing at 4 characters.
+class _ActivationPasteFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final t = newValue.text;
+    if (t.contains('-')) return newValue;
+    if (t.length > 4) {
+      return TextEditingValue(
+        text: t.substring(0, 4),
+        selection: const TextSelection.collapsed(offset: 4),
+      );
+    }
+    return newValue;
   }
 }
