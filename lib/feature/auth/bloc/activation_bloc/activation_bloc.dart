@@ -40,7 +40,7 @@ class ActivationBloc extends Bloc<ActivationEvent, BaseState<ActivationModel>> {
   ) async {
     emit(state.copyWith(status: Status.loading));
 
-    final result = await _dataSource.checkActivationCode(
+    final result = await _dataSource.getDeviceConfig(
       key1: event.key1,
       key2: event.key2,
       key3: event.key3,

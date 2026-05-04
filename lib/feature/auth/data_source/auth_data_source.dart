@@ -5,21 +5,13 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/http/either.dart';
 import '../../../../core/http/failure.dart';
 import '../../../core/network/cryptography.dart';
-import '../../../core/network/encrupt.dart';
 import '../models/activation_model.dart';
-import '../models/user_model.dart';
 
 const String _activationBaseUrl  = 'http://54.39.132.162/CustomerActivationAPI/';
 const String _activationEndpoint = 'Device/GetDeviceConfig';
 
-// ── Dummy credentials ─────────────────────────────────────────────────────────
-const String _dummyUser     = 'posaymn';
-const String _dummyPassword = 'Aa@12345';
-const String _dummyCode     = 'DUMM-Y000-TEST-0001';
-// ─────────────────────────────────────────────────────────────────────────────
-
 abstract interface class AuthDataSource {
-  Future<Either<Failure, ActivationModel>> checkActivationCode({
+  Future<Either<Failure, ActivationModel>> getDeviceConfig({
     required String key1,
     required String key2,
     required String key3,
@@ -42,18 +34,13 @@ abstract interface class AuthDataSource {
     required String activationCode,
   });
 
-  Future<Either<Failure, UserModel>> login({
-    required String userName,
-    required String password,
-    required ActivationModel config,
-  });
 }
 
 class AuthDataSourceImpl implements AuthDataSource {
   final Dio _activationDio = Dio(BaseOptions(baseUrl: _activationBaseUrl));
 
   @override
-  Future<Either<Failure, ActivationModel>> checkActivationCode({
+  Future<Either<Failure, ActivationModel>> getDeviceConfig({
     required String key1,
     required String key2,
     required String key3,
@@ -160,9 +147,6 @@ class AuthDataSourceImpl implements AuthDataSource {
     required String deviceModel,
     required String deviceName,
   }) async {
-    // ── DUMMY BYPASS ─────────────────────────────────────────────────────────
-    if (activationCode == _dummyCode) return const Right(null);
-    // ─────────────────────────────────────────────────────────────────────────
 
     try {
       final bodyMap = {
@@ -232,77 +216,5 @@ class AuthDataSourceImpl implements AuthDataSource {
     }
   }
 
-  @override
-  Future<Either<Failure, UserModel>> login({
-    required String userName,
-    required String password,
-    required ActivationModel config,
-  }) async {
-    // ── DUMMY BYPASS ─────────────────────────────────────────────────────────
-    if (userName.trim() == _dummyUser &&
-        password.trim() == _dummyPassword) {
-      const user = UserModel(
-        userId:          1,
-        userName:        _dummyUser,
-        fullUserName:    'أيمن شعبان',
-        haveDiscount:    1,
-        userPermissions: [],
-      );
-      return const Right(user);
-    }
-    // ─────────────────────────────────────────────────────────────────────────
 
-    try {
-      final companyDio = Dio(
-        BaseOptions(
-          baseUrl:
-          'http://${config.server}/${config.baseUrl.isNotEmpty ? config.baseUrl : 'TheOneAPI/api/'}',
-          headers: {'Authorization': 'Basic ${config.authorization}'},
-        ),
-      );
-
-      final loginPayload = {
-        'UserName':       userName,
-        'PassWord':       password,
-        'serverName':     config.server,
-        'DBName':         config.dbName,
-        'serverUserName': config.userName,
-        'serverPassword': config.password,
-      };
-      log('[Login] request body (plain): ${json.encode(loginPayload)}');
-      final encryptedData = encryptData(
-        loginPayload,
-        config.privateKey,
-        config.publicKey,
-      );
-      log('[Login] request body (encrypted): $encryptedData');
-
-      final response = await companyDio.post(
-        'Users/Login',
-        data: json.encode(encryptedData),
-      );
-
-      if (response.statusCode == 200) {
-        log('[Login] raw encrypted response: ${response.data}');
-        final decrypted = _decrypt(
-          response.data,
-          config.privateKey,
-          config.publicKey,
-        );
-        log('[Login] decrypted response: $decrypted');
-        final List<dynamic> list = json.decode(decrypted);
-        if (list.isEmpty) {
-          return Left(ServerFailure(message: 'invalid_credentials'));
-        }
-        return Right(UserModel.fromJson(list.first));
-      }
-      return Left(ServerFailure(message: 'login_failed'));
-    } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
-    }
-  }
-
-  String _decrypt(dynamic data, String privateKey, String publicKey) {
-    return decrypt(data, privateKey, publicKey);
-  }
 }
