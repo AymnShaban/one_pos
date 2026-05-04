@@ -1,31 +1,18 @@
+import 'package:one_pos/core/helper/helper.dart';
+import '../services/service_locator/services_imports.dart';
 import 'constants.dart';
 
 class EndPoints {
-  // test
-  //   static const String baseUrl = "http://15.235.51.177/TheOneAPI";
 
   // mazyad
-  static const String baseUrl = "http://78.89.159.126:9494/TheOneAPIPOSDolphen";
-
-  //
-  // // alharamayn
-  // static const String baseUrl = "http://78.89.159.126:9494/TheOneAPIElhrmeen";
+  static  String baseUrl = getIt<HiveServiceImpl>().getBaseUrl()??"";
 
   static String logIn(String customerPhone, String password) {
     return '/api/Customer/Login?CustomerPhone=$customerPhone&passWord=$password&Token=1111';
   }
 
-  // ----- auth end--------
   // ── Existing endpoints ────────────────────────────────
   static const String register = "/api/Customer/AddCustomer";
-
-  // ... your other existing endpoints
-
-  // ── Main Backend (fixed base URL: http://15.235.51.177/TheOneAPI/api/) ──
-  // These use a separate Dio instance — NOT the company server
-  static const String getDeviceConfig = 'GetDeviceConfigV2';
-  static const String checkDeviceActivate = 'CheckDeviceActivate';
-  static const String deviceDeactivate = 'DeviceDeactivate';
 
   // ── Company Server (dynamic base URL from ActivationModel.server) ────────
   static const String login = 'api/Users/Login';

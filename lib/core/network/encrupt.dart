@@ -1,6 +1,7 @@
 import 'dart:convert';
-
 import 'package:encrypt/encrypt.dart' as encrypt;
+import '../local/hive_service_impl.dart';
+import '../services/service_locator/services_imports.dart';
 
 //test
 // final basicToken = 'Basic ZTBjOWRlMWIyZGUyNmZlMjpnOEV0eXg4VFU1Nzl2RHhKemFOMWxvM3I0NitXSkx2cWIvSU1ZZElVUkhNPQ==';
@@ -14,9 +15,9 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 // final publicKey = '11911281634eb5aa';
 //
 
-final basicToken = 'Basic N2QyY2ZlNTZiZGQzY2JiMjpNdjBvejNoaDVQQllYdGZFaTI4dnJXdXRNak5nN1VkUmlkVUc2bG5LVnNrPQ==';
-final privateKey = '265a0fe75f4a3a375d3930a8bfc63f0a';
-final publicKey = '7d2cfe56bdd3cbb2';
+final basicToken = 'Basic ${getIt<HiveServiceImpl>().getAuthorization()??""}';
+final privateKey =  getIt<HiveServiceImpl>().getPrivateKey()??"";
+final publicKey = getIt<HiveServiceImpl>().getPublicKey()??"";
 
 //  // alharamayn
 // final basicToken =

@@ -145,8 +145,11 @@ class ActivationBloc extends Bloc<ActivationEvent, BaseState<ActivationModel>> {
     required String activationCode,
   }) async {
     final hive = HiveServiceImpl.instance;
+    final json = config.toJson();
     await hive.saveActivationCode(activationCode);
-    await hive.saveAppConfig(config.toJson());
+    await hive.saveAppConfig(json);
+    debugPrint('[Activation] saved activationCode: $activationCode');
+    debugPrint('[Activation] saved appConfig: $json');
   }
 
   Future<void> _clearConfig() async {

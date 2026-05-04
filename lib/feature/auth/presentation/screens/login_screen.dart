@@ -3,7 +3,6 @@ import '../../../../../core/helper/helper.dart';
 import '../../../../../core/widgets/custom_snack_bar.dart';
 import '../../../../core/services/service_locator/services_imports.dart';
 import '../../../main/home/home_imports.dart';
-import '../../bloc/log_in_bloc/log_in_event.dart';
 import '../../manager/login_bloc/login_bloc.dart';
 import '../../manager/login_bloc/login_event.dart';
 import '../../models/customer_model.dart';
