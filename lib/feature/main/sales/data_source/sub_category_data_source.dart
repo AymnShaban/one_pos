@@ -21,6 +21,7 @@ class SubCategoryDataSourceImpl implements SubCategoryDataSource {
       endpoint: EndPoints.getSubCategory,
       queryParameters: {
         'Parent': parentCategoryId,
+        'GBranchID': branchId,
       },
       fromJson: SubCategoryModel.fromJson,
     );

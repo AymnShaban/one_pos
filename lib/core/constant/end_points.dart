@@ -96,7 +96,7 @@ class EndPoints {
   static const String getSubCategory = '/api/Category/GetCategoryByParentId';
   static const String getProductsByCategory =
       '/api/Product/GetByCategory';
-  static String subCategoryProducts = "/Product/GetProductsByCategory";
+  static String subCategoryProducts = "/api/Product/GetProductsByCategory";
 
   static const String searchProducts = '/api/Product/SearchProducts';
   static const String searchProductByBarcode =

@@ -41,18 +41,20 @@ class CategoryListView extends StatelessWidget {
                 label:      isAr ? cat.categoryArName : cat.categoryEnName,
                 isSelected: isSelected,
                 onTap: () {
+                  final branchId =
+                      context.read<NewInvoiceBloc>().state.branchId;
                   context.read<CategoryBloc>().add(
                     SelectMainCategory(
                       index:      index,
                       categoryId: cat.categoryId,
+                      branchId:   branchId,
                     ),
                   );
                   // Load products for this category
                   context.read<ProductBloc>().add(
                     LoadFirstPage(params: {
                       'categoryId': cat.categoryId,
-                      'branchId':
-                      context.read<NewInvoiceBloc>().state.branchId,
+                      'branchId':   branchId,
                       'customerId': -1,
                     }),
                   );

@@ -7,18 +7,6 @@ abstract class SalesEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class FetchProducts extends SalesEvent {
-  const FetchProducts();
-}
-
-class SearchProducts extends SalesEvent {
-  final String query;
-  const SearchProducts(this.query);
-
-  @override
-  List<Object?> get props => [query];
-}
-
 class FilterByCategory extends SalesEvent {
   final int? categoryId;
   const FilterByCategory(this.categoryId);

@@ -18,7 +18,8 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<CategoryBloc>().add(const LoadMainCategories());
+    final branchId = context.read<NewInvoiceBloc>().state.branchId;
+    context.read<CategoryBloc>().add(LoadMainCategories(branchId: branchId));
     context.read<NewInvoiceBloc>().add(const LoadPayWays());
   }
 

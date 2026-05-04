@@ -21,7 +21,6 @@ part 'models/sub_category_model.dart';
 part 'presentation/screens/sales_tab.dart';
 part 'presentation/widgets/main_category_dropdown.dart';
 part 'presentation/widgets/sub_category_list_view.dart';
-part 'presentation/widgets/sales_search_bar.dart';
 part 'data_source/sales_data_source.dart';
 part 'data_source/main_category_data_source.dart';
 part 'data_source/sub_category_data_source.dart';

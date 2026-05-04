@@ -12,7 +12,6 @@ class _SalesTabState extends State<SalesTab> {
   @override
   void initState() {
     super.initState();
-    context.read<SalesBloc>().add(const FetchProducts());
     context.read<MainCategoryBloc>().add(const FetchMainCategories());
   }
 
@@ -57,22 +56,10 @@ class _SalesTabState extends State<SalesTab> {
                 slivers: [
                   HomeAppBar(isOnline: context.read<HomeBloc>().isOnline),
 
-                  // Search bar
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-                      child: SalesSearchBar(
-                        onChanged: (query) => context
-                            .read<SalesBloc>()
-                            .add(SearchProducts(query)),
-                      ),
-                    ),
-                  ),
-
                   // Main category dropdown
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
+                      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
                       child: const MainCategoryDropdown(),
                     ),
                   ),

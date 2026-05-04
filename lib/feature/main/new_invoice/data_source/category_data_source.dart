@@ -2,7 +2,11 @@ part of '../new_invoice_imports.dart';
 
 abstract interface class CategoryDataSource {
   Future<Either<Failure, List<CategoryModel>>> getMainCategories();
-  Future<Either<Failure, List<CategoryModel>>> getSubCategories(int parentId);
+
+  Future<Either<Failure, List<CategoryModel>>> getSubCategories(
+    int parentId,
+    int branchId,
+  );
 }
 
 class CategoryDataSourceImpl implements CategoryDataSource {
@@ -19,10 +23,13 @@ class CategoryDataSourceImpl implements CategoryDataSource {
   }
 
   @override
-  Future<Either<Failure, List<CategoryModel>>> getSubCategories(int parentId) {
+  Future<Either<Failure, List<CategoryModel>>> getSubCategories(
+    int parentId,
+    int branchId,
+  ) {
     return _genericDataSource.fetchData<CategoryModel>(
       endpoint: EndPoints.getSubCategory,
-      queryParameters: {'Parent': parentId},
+      queryParameters: {'Parent': parentId, 'GBranchID': branchId},
       fromJson: CategoryModel.fromJson,
     );
   }

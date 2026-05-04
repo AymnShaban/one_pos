@@ -66,7 +66,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
         ));
         // Auto-load first category's sub-categories
         if (data.isNotEmpty) {
-          add(LoadSubCategories(data.first.categoryId));
+          add(LoadSubCategories(data.first.categoryId, event.branchId));
         }
       },
     );
@@ -80,7 +80,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       subCategories: state.subCategories.copyWith(status: Status.loading),
     ));
 
-    final result = await _dataSource.getSubCategories(event.parentId);
+    final result = await _dataSource.getSubCategories(event.parentId, event.branchId);
     result.fold(
           (failure) => emit(state.copyWith(
         subCategories: state.subCategories.copyWith(
@@ -102,7 +102,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       selectedMainIndex: event.index,
       selectedSubIndex:  0,
     ));
-    add(LoadSubCategories(event.categoryId));
+    add(LoadSubCategories(event.categoryId, event.branchId));
   }
 
   void _onSelectSub(SelectSubCategory event, Emitter<CategoryState> emit) {

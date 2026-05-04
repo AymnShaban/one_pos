@@ -8,24 +8,37 @@ abstract class CategoryEvent extends Equatable {
 }
 
 class LoadMainCategories extends CategoryEvent {
-  const LoadMainCategories();
+  final int branchId;
+
+  const LoadMainCategories({required this.branchId});
+
+  @override
+  List<Object?> get props => [branchId];
 }
 
 class LoadSubCategories extends CategoryEvent {
   final int parentId;
-  const LoadSubCategories(this.parentId);
+  final int branchId;
+
+  const LoadSubCategories(this.parentId, this.branchId);
 
   @override
-  List<Object?> get props => [parentId];
+  List<Object?> get props => [parentId, branchId];
 }
 
 class SelectMainCategory extends CategoryEvent {
   final int index;
   final int categoryId;
-  const SelectMainCategory({required this.index, required this.categoryId});
+  final int branchId;
+
+  const SelectMainCategory({
+    required this.index,
+    required this.categoryId,
+    required this.branchId,
+  });
 
   @override
-  List<Object?> get props => [index, categoryId];
+  List<Object?> get props => [index, categoryId, branchId];
 }
 
 class SelectSubCategory extends CategoryEvent {
