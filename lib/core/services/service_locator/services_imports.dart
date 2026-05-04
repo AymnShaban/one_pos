@@ -7,7 +7,6 @@ import '../../../feature/auth/bloc/governorates_bloc/governorates_bloc.dart';
 import '../../../feature/auth/bloc/log_in_bloc/log_in_bloc.dart';
 import '../../../feature/auth/data_source/auth_data_source.dart';
 import '../../../feature/auth/data_source/login_data_source.dart';
-import '../../../feature/auth/manager/login_bloc/login_bloc.dart';
 import '../../../feature/main/basket/basket_imports.dart';
 import '../../../feature/main/favourite/favorite_imports.dart';
 import '../../../feature/main/home/home_imports.dart';

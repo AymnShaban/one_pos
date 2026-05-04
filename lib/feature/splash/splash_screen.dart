@@ -2,7 +2,7 @@ import '../../../core/helper/helper.dart';
 import '../../core/services/service_locator/services_imports.dart';
 import '../auth/bloc/activation_bloc/activation_bloc.dart';
 import '../auth/bloc/activation_bloc/activation_event.dart';
-import '../auth/manager/login_bloc/login_bloc.dart';
+import '../auth/bloc/log_in_bloc/log_in_bloc.dart';
 import '../auth/presentation/screens/activation_screen.dart';
 import '../auth/presentation/screens/login_screen.dart';
 import '../main/home/home_imports.dart';

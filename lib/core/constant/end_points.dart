@@ -7,9 +7,8 @@ class EndPoints {
   // mazyad
   static  String baseUrl = getIt<HiveServiceImpl>().getBaseUrl()??"";
 
-  static String logIn(String customerPhone, String password) {
-    return '/api/Customer/Login?CustomerPhone=$customerPhone&passWord=$password&Token=1111';
-  }
+  static String logIn = '/api/Customer/Login';
+
 
   // ── Existing endpoints ────────────────────────────────
   static const String register = "/api/Customer/AddCustomer";

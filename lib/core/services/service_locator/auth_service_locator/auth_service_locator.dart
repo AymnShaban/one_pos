@@ -5,14 +5,14 @@ class AuthServiceLocator {
 
 
     getIt.registerLazySingleton<LoginDataSource>(
-      () => LoginDataSourceImpl(),
+      () => LoginDataSourceImpl(getIt<GenericDataSource>()),
     );
     getIt.registerLazySingleton<AuthDataSource>(
           () => AuthDataSourceImpl(),
     );
 
 
-    getIt.registerFactory<LoginBloc>(() => LoginBloc(dataSource: getIt()));
+    getIt.registerFactory<LoginBloc>(() => LoginBloc(loginDataSource: getIt()));
     getIt.registerFactory<AreasBloc>(
           () => AreasBloc(getIt()),
     );

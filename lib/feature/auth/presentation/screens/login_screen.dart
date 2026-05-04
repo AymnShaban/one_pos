@@ -3,9 +3,8 @@ import '../../../../../core/helper/helper.dart';
 import '../../../../../core/widgets/custom_snack_bar.dart';
 import '../../../../core/services/service_locator/services_imports.dart';
 import '../../../main/home/home_imports.dart';
-import '../../manager/login_bloc/login_bloc.dart';
-import '../../manager/login_bloc/login_event.dart';
-import '../../models/customer_model.dart';
+import '../../bloc/log_in_bloc/log_in_bloc.dart';
+import '../../bloc/log_in_bloc/log_in_event.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      body: BlocListener<LoginBloc, BaseState<CustomerModel>>(
+      body: BlocListener<LoginBloc, BaseState<String>>(
         listener: (context, state) {
           if (state.status == Status.success) {
             showCustomSnackBar(context, 'auth.login_success'.tr());
@@ -149,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 28.h),
 
                   // Login button
-                  BlocBuilder<LoginBloc, BaseState<CustomerModel>>(
+                  BlocBuilder<LoginBloc, BaseState<String>>(
                     builder: (context, state) {
                       if (state.status == Status.loading) {
                         return CircularProgressIndicator(
