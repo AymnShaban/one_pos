@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../core/http/either.dart';
 import '../../../../core/http/failure.dart';
 import '../../../core/network/cryptography.dart';
@@ -8,7 +10,7 @@ import '../models/activation_model.dart';
 import '../models/user_model.dart';
 
 const String _activationBaseUrl  = 'http://54.39.132.162/CustomerActivationAPI/';
-const String _activationEndpoint = 'Device/CheckDeviceActivate';
+const String _activationEndpoint = 'Device/GetDeviceConfig';
 
 // ── Dummy credentials ─────────────────────────────────────────────────────────
 const String _dummyUser     = 'posaymn';
@@ -73,7 +75,9 @@ class AuthDataSourceImpl implements AuthDataSource {
         'deviceToken':    'DeviceToken',
       };
       final body = json.encode(bodyMap);
+      debugPrint('[Activation] >>> request body (plain): $body');
       final signed = signRequest(body);
+      debugPrint('[Activation] >>> signed headers: ${signed.toMap()}');
 
       final response = await _activationDio.post(
         _activationEndpoint,
@@ -85,11 +89,22 @@ class AuthDataSourceImpl implements AuthDataSource {
             ...signed.toMap(),
           },
           responseType: ResponseType.plain,
+          validateStatus: (_) => true,
         ),
       );
 
+      debugPrint('[Activation] <<< status: ${response.statusCode}');
+      debugPrint('[Activation] <<< response headers: ${response.headers.map}');
+      debugPrint('[Activation] <<< response body: ${response.data}');
+      if (response.statusCode != 200) {
+        return Left(ServerFailure(
+          message: 'server_error_${response.statusCode}: ${response.data}',
+        ));
+      }
+
       if (response.statusCode == 200) {
         final raw = response.data?.toString().trim() ?? '';
+        log('[Activation] raw encrypted response: $raw');
         if (raw.isEmpty ||
             raw.contains('No Configuration was found for this Serial.')) {
           return Left(ServerFailure(message: 'no_configuration_found'));
@@ -102,6 +117,7 @@ class AuthDataSourceImpl implements AuthDataSource {
             : raw;
 
         final decrypted = await decryptAesGcm(cipher);
+        log('[Activation] decrypted response: $decrypted');
         final dynamic parsed = json.decode(decrypted);
 
         Map<String, dynamic>? configJson;
@@ -117,7 +133,21 @@ class AuthDataSourceImpl implements AuthDataSource {
         return Right(ActivationModel.fromJson(configJson));
       }
       return Left(ServerFailure(message: 'server_error'));
-    } catch (e) {
+    } on DioException catch (e, st) {
+      debugPrint('[Activation] !!! DioException type: ${e.type}');
+      debugPrint('[Activation] !!! DioException message: ${e.message}');
+      debugPrint('[Activation] !!! DioException status: ${e.response?.statusCode}');
+      debugPrint('[Activation] !!! DioException response headers: ${e.response?.headers.map}');
+      debugPrint('[Activation] !!! DioException response body: ${e.response?.data}');
+      debugPrint('[Activation] !!! DioException request data: ${e.requestOptions.data}');
+      debugPrint('[Activation] !!! DioException request headers: ${e.requestOptions.headers}');
+      debugPrint('[Activation] !!! DioException stacktrace: $st');
+      return Left(ServerFailure(
+        message: 'server_error_${e.response?.statusCode}: ${e.response?.data}',
+      ));
+    } catch (e, st) {
+      debugPrint('[Activation] !!! unexpected error: $e');
+      debugPrint('[Activation] !!! stacktrace: $st');
       return Left(ServerFailure(message: e.toString()));
     }
   }
@@ -231,16 +261,21 @@ class AuthDataSourceImpl implements AuthDataSource {
         ),
       );
 
-      final encryptedData = _encryptLoginData(
-        userName:       userName,
-        password:       password,
-        serverName:     config.server,
-        dbName:         config.dbName,
-        serverUserName: config.userName,
-        serverPassword: config.password,
-        privateKey:     config.privateKey,
-        publicKey:      config.publicKey,
+      final loginPayload = {
+        'UserName':       userName,
+        'PassWord':       password,
+        'serverName':     config.server,
+        'DBName':         config.dbName,
+        'serverUserName': config.userName,
+        'serverPassword': config.password,
+      };
+      log('[Login] request body (plain): ${json.encode(loginPayload)}');
+      final encryptedData = encryptData(
+        loginPayload,
+        config.privateKey,
+        config.publicKey,
       );
+      log('[Login] request body (encrypted): $encryptedData');
 
       final response = await companyDio.post(
         'Users/Login',
@@ -248,11 +283,13 @@ class AuthDataSourceImpl implements AuthDataSource {
       );
 
       if (response.statusCode == 200) {
+        log('[Login] raw encrypted response: ${response.data}');
         final decrypted = _decrypt(
           response.data,
           config.privateKey,
           config.publicKey,
         );
+        log('[Login] decrypted response: $decrypted');
         final List<dynamic> list = json.decode(decrypted);
         if (list.isEmpty) {
           return Left(ServerFailure(message: 'invalid_credentials'));
@@ -263,30 +300,6 @@ class AuthDataSourceImpl implements AuthDataSource {
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
-  }
-
-  String _encryptLoginData({
-    required String userName,
-    required String password,
-    required String serverName,
-    required String dbName,
-    required String serverUserName,
-    required String serverPassword,
-    required String privateKey,
-    required String publicKey,
-  }) {
-    return encryptData(
-      {
-        'UserName':       userName,
-        'PassWord':       password,
-        'serverName':     serverName,
-        'DBName':         dbName,
-        'serverUserName': serverUserName,
-        'serverPassword': serverPassword,
-      },
-      privateKey,
-      publicKey,
-    );
   }
 
   String _decrypt(dynamic data, String privateKey, String publicKey) {

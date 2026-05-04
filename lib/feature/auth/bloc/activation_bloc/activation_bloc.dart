@@ -2,13 +2,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/local/hive_service_impl.dart';
 import '../../../../core/bloc/paginated_bloc/paginated_bloc.dart';
+import '../../../../core/http/either.dart';
 import '../../data_source/auth_data_source.dart';
 import '../../models/activation_model.dart';
 import '../../models/device_info_model.dart';
 import 'activation_event.dart';
 
-class ActivationBloc
-    extends Bloc<ActivationEvent, BaseState<ActivationModel>> {
+class ActivationBloc extends Bloc<ActivationEvent, BaseState<ActivationModel>> {
   final AuthDataSource _dataSource;
   final DeviceInfoModel _deviceInfo = DeviceInfoModel();
 
@@ -23,8 +23,8 @@ class ActivationBloc
   final focusNode4 = FocusNode();
 
   ActivationBloc({required AuthDataSource dataSource})
-      : _dataSource = dataSource,
-        super(const BaseState()) {
+    : _dataSource = dataSource,
+      super(const BaseState()) {
     on<CheckActivationCode>(_onCheck);
     on<CheckDeviceActivation>(_onCheckDevice);
     on<DeactivateDevice>(_onDeactivate);
@@ -35,52 +35,52 @@ class ActivationBloc
   }
 
   Future<void> _onCheck(
-      CheckActivationCode event,
-      Emitter<BaseState<ActivationModel>> emit,
-      ) async {
+    CheckActivationCode event,
+    Emitter<BaseState<ActivationModel>> emit,
+  ) async {
     emit(state.copyWith(status: Status.loading));
 
     final result = await _dataSource.checkActivationCode(
-      key1:          event.key1,
-      key2:          event.key2,
-      key3:          event.key3,
-      key4:          event.key4,
-      deviceCode:    _deviceInfo.deviceCode    ?? '',
+      key1: event.key1,
+      key2: event.key2,
+      key3: event.key3,
+      key4: event.key4,
+      deviceCode: _deviceInfo.deviceCode ?? '',
       deviceWifiMAC: _deviceInfo.wifiMacAddress ?? '',
-      deviceModel:   _deviceInfo.deviceModel   ?? '',
-      deviceName:    _deviceInfo.deviceName    ?? '',
+      deviceModel: _deviceInfo.deviceModel ?? '',
+      deviceName: _deviceInfo.deviceName ?? '',
     );
 
-    result.fold(
-          (failure) => emit(state.copyWith(
-        status:       Status.failure,
-        errorMessage: failure.message,
-      )),
-          (config) async {
-        // Save everything locally
-        await _saveConfig(
-          config:         config,
-          activationCode: '${event.key1}-${event.key2}-${event.key3}-${event.key4}',
-        );
-        emit(state.copyWith(
-          status: Status.success,
-          items:  [config],
-        ));
-      },
+    if (result.isError) {
+      emit(
+        state.copyWith(
+          status: Status.failure,
+          errorMessage: result.throwError().message,
+        ),
+      );
+      return;
+    }
+
+    final config = result.getOrThrow();
+    await _saveConfig(
+      config: config,
+      activationCode: '${event.key1}-${event.key2}-${event.key3}-${event.key4}',
     );
+    emit(state.copyWith(status: Status.success, items: [config]));
   }
 
   Future<void> _onCheckDevice(
-      CheckDeviceActivation event,
-      Emitter<BaseState<ActivationModel>> emit,
-      ) async {
-    final activationCode =
-        HiveServiceImpl.instance.getActivationCode() ?? '';
+    CheckDeviceActivation event,
+    Emitter<BaseState<ActivationModel>> emit,
+  ) async {
+    final activationCode = HiveServiceImpl.instance.getActivationCode() ?? '';
     if (activationCode.isEmpty) {
-      emit(state.copyWith(
-        status:       Status.failure,
-        errorMessage: 'no_activation_code',
-      ));
+      emit(
+        state.copyWith(
+          status: Status.failure,
+          errorMessage: 'no_activation_code',
+        ),
+      );
       return;
     }
 
@@ -88,54 +88,55 @@ class ActivationBloc
 
     final result = await _dataSource.checkDeviceActivation(
       activationCode: activationCode,
-      deviceCode:     _deviceInfo.deviceCode    ?? '',
-      deviceWifiMAC:  _deviceInfo.wifiMacAddress ?? '',
-      deviceModel:    _deviceInfo.deviceModel   ?? '',
-      deviceName:     _deviceInfo.deviceName    ?? '',
+      deviceCode: _deviceInfo.deviceCode ?? '',
+      deviceWifiMAC: _deviceInfo.wifiMacAddress ?? '',
+      deviceModel: _deviceInfo.deviceModel ?? '',
+      deviceName: _deviceInfo.deviceName ?? '',
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         // device_deactivated → wipe config so splash routes to activation
         if (failure.message == 'device_deactivated') {
           _clearConfig();
         }
-        emit(state.copyWith(
-          status:       Status.failure,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(status: Status.failure, errorMessage: failure.message),
+        );
       },
-          (_) => emit(state.copyWith(
-        status:   Status.success,
-        metadata: {'isActive': true},
-      )),
+      (_) => emit(
+        state.copyWith(status: Status.success, metadata: {'isActive': true}),
+      ),
     );
   }
 
   Future<void> _onDeactivate(
-      DeactivateDevice event,
-      Emitter<BaseState<ActivationModel>> emit,
-      ) async {
-    final activationCode =
-        HiveServiceImpl.instance.getActivationCode() ?? '';
+    DeactivateDevice event,
+    Emitter<BaseState<ActivationModel>> emit,
+  ) async {
+    final activationCode = HiveServiceImpl.instance.getActivationCode() ?? '';
     emit(state.copyWith(status: Status.loading));
 
     final result = await _dataSource.deactivateDevice(
       activationCode: activationCode,
     );
 
-    result.fold(
-          (failure) => emit(state.copyWith(
-        status:       Status.failure,
-        errorMessage: failure.message,
-      )),
-          (_) async {
-        await _clearConfig();
-        emit(state.copyWith(
-          status:   Status.success,
-          metadata: {'action': 'deactivated'},
-        ));
-      },
+    if (result.isError) {
+      emit(
+        state.copyWith(
+          status: Status.failure,
+          errorMessage: result.throwError().message,
+        ),
+      );
+      return;
+    }
+
+    await _clearConfig();
+    emit(
+      state.copyWith(
+        status: Status.success,
+        metadata: {'action': 'deactivated'},
+      ),
     );
   }
 
@@ -153,25 +154,28 @@ class ActivationBloc
     await hive.clearAppConfig();
   }
 
-  void moveToNextField(
-      String value,
-      FocusNode current,
-      FocusNode? next,
-      ) {
+  void moveToNextField(String value, FocusNode current, FocusNode? next) {
     if (value.length == 4) {
       next != null ? next.requestFocus() : current.unfocus();
     }
   }
 
   void pasteFullCode(String value) {
+    if (!value.contains('-')) return;
     final parts = value.split('-');
-    if (parts.isNotEmpty)        key1Controller.text = parts[0];
-    if (parts.length > 1)        key2Controller.text = parts[1];
-    if (parts.length > 2)        key3Controller.text = parts[2];
-    if (parts.length > 3)        key4Controller.text = parts[3];
-    if (parts.isNotEmpty)        focusNode2.requestFocus();
-    if (parts.length > 1)        focusNode3.requestFocus();
-    if (parts.length > 2)        focusNode4.requestFocus();
+    if (parts.isNotEmpty) key1Controller.text = parts[0];
+    if (parts.length > 1) key2Controller.text = parts[1];
+    if (parts.length > 2) key3Controller.text = parts[2];
+    if (parts.length > 3) key4Controller.text = parts[3];
+    if (parts.length >= 4) {
+      focusNode4.unfocus();
+    } else if (parts.length == 3) {
+      focusNode4.requestFocus();
+    } else if (parts.length == 2) {
+      focusNode3.requestFocus();
+    } else {
+      focusNode2.requestFocus();
+    }
   }
 
   @override

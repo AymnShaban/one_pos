@@ -32,20 +32,21 @@ class ActivationModel extends Equatable {
   });
 
   factory ActivationModel.fromJson(Map<String, dynamic> json) {
+    String s(dynamic v) => v?.toString() ?? '';
     return ActivationModel(
-      connectionId:      json['ConnectionID']      ?? '',
-      dbDescription:     json['DBDescription']     ?? '',
-      dbName:            json['DBName']             ?? '',
-      password:          json['PassWord']           ?? '',
-      server:            json['Server']             ?? '',
-      userName:          json['UserName']           ?? '',
-      publicKey:         json['PublicKey']          ?? '',
-      privateKey:        json['PrivateKey']         ?? '',
-      authorization:     json['Authorization']      ?? '',
-      signature:         json['Signature']          ?? '',
-      lastLoginName:     json['LastLoginName']      ?? '',
-      lastLoginPassword: json['LastLoginPassword']  ?? '',
-      baseUrl:           json['BaseURL']            ?? '',
+      connectionId:      s(json['ConnectionID']),
+      dbDescription:     s(json['DBDescription']),
+      dbName:            s(json['DBName']),
+      password:          s(json['PassWord']),
+      server:            s(json['Server']),
+      userName:          s(json['UserName']),
+      publicKey:         s(json['PublicKey']),
+      privateKey:        s(json['PrivateKey']),
+      authorization:     s(json['Authorization']),
+      signature:         s(json['Signature']),
+      lastLoginName:     s(json['LastLoginName']),
+      lastLoginPassword: s(json['LastLoginPassword']),
+      baseUrl:           s(json['BaseURL']),
     );
   }
 
