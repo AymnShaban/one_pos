@@ -20,7 +20,7 @@ class SearchProducts extends SalesEvent {
 }
 
 class FilterByCategory extends SalesEvent {
-  final String? categoryId;
+  final int? categoryId;
   const FilterByCategory(this.categoryId);
 
   @override

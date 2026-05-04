@@ -31,7 +31,6 @@ class ProductSearchDataSourceImpl implements ProductSearchDataSource {
       paginationParams: params,
       queryParameters: {
         'categoryId': categoryId,
-        'GBranchID':  branchId,
         'ACID':       customerId,
       },
       fromJson: ItemModel.fromJson,

@@ -12,8 +12,16 @@ import '../home/presentation/widgets/home_app_bar.dart';
 
 part 'manager/sales_bloc/sales_bloc.dart';
 part 'manager/sales_bloc/sales_event.dart';
-part 'models/sales_filter_model.dart';
+part 'manager/main_category_bloc/main_category_bloc.dart';
+part 'manager/main_category_bloc/main_category_event.dart';
+part 'manager/sub_category_bloc/sub_category_bloc.dart';
+part 'manager/sub_category_bloc/sub_category_event.dart';
+part 'models/main_category_model.dart';
+part 'models/sub_category_model.dart';
 part 'presentation/screens/sales_tab.dart';
-part 'presentation/widgets/category_filter_bar.dart';
+part 'presentation/widgets/main_category_dropdown.dart';
+part 'presentation/widgets/sub_category_list_view.dart';
 part 'presentation/widgets/sales_search_bar.dart';
 part 'data_source/sales_data_source.dart';
+part 'data_source/main_category_data_source.dart';
+part 'data_source/sub_category_data_source.dart';

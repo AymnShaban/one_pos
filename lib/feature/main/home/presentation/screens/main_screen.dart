@@ -5,8 +5,12 @@ class MainScreen extends StatelessWidget {
 
   static final List<Widget> _screens = [
     const HomeTab(),
-    BlocProvider(
-      create: (_) => getIt<SalesBloc>(),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<SalesBloc>()),
+        BlocProvider(create: (_) => getIt<MainCategoryBloc>()),
+        BlocProvider(create: (_) => getIt<SubCategoryBloc>()),
+      ],
       child: const SalesTab(),
     ),
     BlocProvider(

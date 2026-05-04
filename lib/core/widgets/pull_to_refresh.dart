@@ -72,8 +72,9 @@ class _PullToRefreshState extends State<PullToRefresh> {
   }
 
   Future<void> _handleRefresh() async {
-    if (!widget.enableRefresh || _isRefreshing || widget.onRefresh == null)
+    if (!widget.enableRefresh || _isRefreshing || widget.onRefresh == null) {
       return;
+    }
     setState(() => _isRefreshing = true);
     await widget.onRefresh!();
     setState(() {
@@ -83,8 +84,9 @@ class _PullToRefreshState extends State<PullToRefresh> {
   }
 
   Future<void> _handleLoadMore() async {
-    if (!widget.enableLoadMore || _isLoadingMore || widget.onLoadMore == null)
+    if (!widget.enableLoadMore || _isLoadingMore || widget.onLoadMore == null) {
       return;
+    }
     setState(() => _isLoadingMore = true);
     final DateTime start = DateTime.now();
     await widget.onLoadMore!();

@@ -48,6 +48,7 @@
     "title": "المبيعات",
     "search_product": "بحث عن منتج...",
     "no_products": "لا توجد منتجات",
+    "no_sub_categories": "لا توجد أقسام فرعية",
     "all": "الكل",
     "out_of_stock": "نفذت الكمية",
     "unavailable": "غير متاح",

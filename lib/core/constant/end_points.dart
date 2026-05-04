@@ -20,7 +20,6 @@ class EndPoints {
   static String biggestDiscount = "/api/Product/GetProductsWithBiggestDiscount";
   static String bestSeller = "/api/Product/GetProductsWithBestSeller";
   static String newProduct = "/api/Product/GetNewProducts";
-  static String subCategoryProducts = "/api/Product";
 
   static String productDetails = "/api/Product/GetProductById";
   static String addToBasket = "/api/Product/AddSalesBasket";
@@ -96,7 +95,9 @@ class EndPoints {
   static const String getMainCategory = '/api/Category/GetMainCategory';
   static const String getSubCategory = '/api/Category/GetCategoryByParentId';
   static const String getProductsByCategory =
-      '/api/Product/GetProductsByCategory';
+      '/api/Product/GetByCategory';
+  static String subCategoryProducts = "/Product/GetProductsByCategory";
+
   static const String searchProducts = '/api/Product/SearchProducts';
   static const String searchProductByBarcode =
       '/api/Product/SearchProductByBarcode';

@@ -4,8 +4,7 @@ abstract interface class SalesDataSource {
   Future<Either<Failure, List<ItemModel>>> getProducts({
     required int page,
     required int limit,
-    String? search,
-    String? categoryId,
+   required int categoryId,
   });
 }
 
@@ -18,15 +17,13 @@ class SalesDataSourceImpl implements SalesDataSource {
   Future<Either<Failure, List<ItemModel>>> getProducts({
     required int page,
     required int limit,
-    String? search,
-    String? categoryId,
+   required int categoryId,
   }) {
     return _genericDataSource.fetchData<ItemModel>(
       endpoint: EndPoints.subCategoryProducts,
       paginationParams: PaginationParams(page: page, limit: limit),
       queryParameters: {
-        if (search != null && search.isNotEmpty) 'search': search,
-        if (categoryId != null && categoryId.isNotEmpty) 'categoryId': categoryId,
+      'categoryId': categoryId,
       },
       fromJson: ItemModel.fromJson,
     );

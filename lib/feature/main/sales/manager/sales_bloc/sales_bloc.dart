@@ -5,7 +5,7 @@ class SalesBloc extends Bloc<SalesEvent, BaseState<ItemModel>> {
   late final PaginationHandler<ItemModel, SalesBloc> _paginationHandler;
 
   String? _searchQuery;
-  String? _selectedCategoryId;
+  int? _selectedCategoryId;
 
   SalesBloc({required SalesDataSource dataSource})
       : _dataSource = dataSource,
@@ -22,8 +22,7 @@ class SalesBloc extends Bloc<SalesEvent, BaseState<ItemModel>> {
           (page, limit, [params]) => _dataSource.getProducts(
         page: page,
         limit: limit,
-        search: _searchQuery,
-        categoryId: _selectedCategoryId,
+        categoryId: _selectedCategoryId??0,
       ),
     );
   }
@@ -34,8 +33,7 @@ class SalesBloc extends Bloc<SalesEvent, BaseState<ItemModel>> {
           (page, limit, [params]) => _dataSource.getProducts(
         page: page,
         limit: limit,
-        search: _searchQuery,
-        categoryId: _selectedCategoryId,
+        categoryId: _selectedCategoryId??0,
       ),
     );
   }
@@ -46,8 +44,7 @@ class SalesBloc extends Bloc<SalesEvent, BaseState<ItemModel>> {
           (page, limit, [params]) => _dataSource.getProducts(
         page: page,
         limit: limit,
-        search: _searchQuery,
-        categoryId: _selectedCategoryId,
+        categoryId: _selectedCategoryId ??0,
       ),
     );
   }
@@ -57,8 +54,7 @@ class SalesBloc extends Bloc<SalesEvent, BaseState<ItemModel>> {
           (page, limit, [params]) => _dataSource.getProducts(
         page: page,
         limit: limit,
-        search: _searchQuery,
-        categoryId: _selectedCategoryId,
+        categoryId: _selectedCategoryId??0,
       ),
     );
   }

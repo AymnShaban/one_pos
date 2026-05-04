@@ -16,6 +16,7 @@ enum BadgeType {
 
 @HiveType(typeId: 3)
 class ItemModel extends Equatable {
+
   @HiveField(0)
   final String productCode;
   @HiveField(1)

@@ -48,6 +48,7 @@
     "title": "Sales",
     "search_product": "Search for a product...",
     "no_products": "No products found",
+    "no_sub_categories": "No sub-categories",
     "all": "All",
     "out_of_stock": "Out of Stock",
     "unavailable": "Unavailable",
