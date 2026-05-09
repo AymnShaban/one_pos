@@ -1,6 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import '../../core/helper/helper.dart';
 import '../../feature/auth/presentation/screens/login_screen.dart';
+import '../../feature/main/basket/basket_imports.dart';
+import '../../feature/main/details/manager/product_details_bloc/product_details_bloc.dart';
+import '../../feature/main/details/presentation/screens/details_screen.dart';
+import '../../feature/main/favourite/favorite_imports.dart';
 import '../models/item_model.dart';
 import '../services/service_locator/services_imports.dart';
 import 'custom_snack_bar.dart';
@@ -62,25 +66,25 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
     }
 
     if (_isFavorite) {
-      // context.read<FavoriteBloc>().add(
-      //   AddFavorite(
-      //     AddAndDeleteFavoriteRequest(
-      //       productID: widget.product.productId,
-      //       customerPhone: customerModel.customerPhone!,
-      //       barCode: widget.product.productCode,
-      //     ),
-      //   ),
-      // );
+      context.read<FavoriteBloc>().add(
+        AddFavorite(
+          AddAndDeleteFavoriteRequest(
+            productID: widget.product.productId,
+            customerPhone: customerModel.customerPhone!,
+            barCode: widget.product.productCode,
+          ),
+        ),
+      );
     } else {
-      // context.read<FavoriteBloc>().add(
-      //   DeleteFavorite(
-      //     AddAndDeleteFavoriteRequest(
-      //       productID: widget.product.productId,
-      //       customerPhone: customerModel.customerPhone!,
-      //       barCode: widget.product.productCode,
-      //     ),
-      //   ),
-      // );
+      context.read<FavoriteBloc>().add(
+        DeleteFavorite(
+          AddAndDeleteFavoriteRequest(
+            productID: widget.product.productId,
+            customerPhone: customerModel.customerPhone!,
+            barCode: widget.product.productCode,
+          ),
+        ),
+      );
     }
   }
 
@@ -102,12 +106,12 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       _quantity++;
     });
 
-    // final request = AddToBasketRequest(
-    //   customerID: customerModel.customerId,
-    //   productID: widget.product.productId,
-    //   productBarcode: widget.product.productCode,
-    // );
-    // context.read<AddToBasketBloc>().add(AddToBasket(request));
+    final request = AddToBasketRequest(
+      customerID: customerModel.customerId,
+      productID: widget.product.productId,
+      productBarcode: widget.product.productCode,
+    );
+    context.read<AddToBasketBloc>().add(AddToBasket(request));
   }
 
   Future<void> _incrementQuantity() async {
@@ -131,15 +135,15 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       });
 
       if (context.mounted) {
-        // context.read<AddToBasketBloc>().add(
-        //   AddToBasket(
-        //     AddToBasketRequest(
-        //       customerID: customerModel.customerId,
-        //       productID: widget.product.productId,
-        //       productBarcode: widget.product.productCode,
-        //     ),
-        //   ),
-        // );
+        context.read<AddToBasketBloc>().add(
+          AddToBasket(
+            AddToBasketRequest(
+              customerID: customerModel.customerId,
+              productID: widget.product.productId,
+              productBarcode: widget.product.productCode,
+            ),
+          ),
+        );
       }
     }
   }
@@ -197,19 +201,19 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
 
     return GestureDetector(
       onTap: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => BlocProvider(
-        //       create: (context) => getIt<ProductDetailsBloc>(),
-        //       child: DetailsScreen(
-        //         productId: widget.product.productId,
-        //         initialQuantity: widget.initialQuantity,
-        //         stockQuantity: widget.product.stockQuantity.toDouble(),
-        //       ),
-        //     ),
-        //   ),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BlocProvider(
+              create: (context) => getIt<ProductDetailsBloc>(),
+              child: DetailsScreen(
+                productId: widget.product.productId,
+                initialQuantity: widget.initialQuantity,
+                stockQuantity: widget.product.stockQuantity.toDouble(),
+              ),
+            ),
+          ),
+        );
       },
       child: Container(
         width: itemWidth,
