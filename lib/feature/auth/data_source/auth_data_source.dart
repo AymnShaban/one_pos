@@ -4,11 +4,14 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/http/either.dart';
 import '../../../../core/http/failure.dart';
+import '../../../core/local/hive_service_impl.dart';
 import '../../../core/network/cryptography.dart';
+import '../../../core/services/service_locator/services_imports.dart';
 import '../models/activation_model.dart';
 
 const String _activationBaseUrl  = 'http://54.39.132.162/CustomerActivationAPI/';
 const String _activationEndpoint = 'Device/GetDeviceConfig';
+const String _checkActivationEndpoint = 'Device/CheckDeviceActivate';
 
 abstract interface class AuthDataSource {
   Future<Either<Failure, ActivationModel>> getDeviceConfig({
@@ -51,6 +54,7 @@ class AuthDataSourceImpl implements AuthDataSource {
     required String deviceName,
   }) async {
     try {
+
       final bodyMap = {
         'activationCode': '$key1-$key2-$key3-$key4',
         'deviceCode':     deviceCode,
@@ -90,6 +94,8 @@ class AuthDataSourceImpl implements AuthDataSource {
       }
 
       if (response.statusCode == 200) {
+        getIt<HiveServiceImpl>().saveActivationCode('$key1-$key2-$key3-$key4');
+
         final raw = response.data?.toString().trim() ?? '';
         log('[Activation] raw encrypted response: $raw');
         if (raw.isEmpty ||
@@ -163,7 +169,7 @@ class AuthDataSourceImpl implements AuthDataSource {
       final signed = signRequest(body);
 
       final response = await _activationDio.post(
-        _activationEndpoint,
+        _checkActivationEndpoint,
         data: body,
         options: Options(
           headers: {
@@ -171,6 +177,7 @@ class AuthDataSourceImpl implements AuthDataSource {
             'Accept':       '*/*',
             ...signed.toMap(),
           },
+
         ),
       );
 

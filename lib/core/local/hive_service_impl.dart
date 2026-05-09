@@ -144,14 +144,21 @@ class HiveServiceImpl implements IUserCache {
     logger('Saved location to cache: $districtName, $regionName');
   }
 
-  Future<void> saveActivationCode(String code) async =>
-      await _settingsBox?.put(_activationCodeKey, code);
+  Future<void> saveActivationCode(String code) async {
+    await _settingsBox?.put(_activationCodeKey, code);
+    await _settingsBox?.flush();
+  }
 
-  String? getActivationCode() =>
-      _settingsBox?.get(_activationCodeKey);
+  String? getActivationCode() {
+    final value = _settingsBox?.get(_activationCodeKey);
+    if (value is String && value.isNotEmpty) return value;
+    return null;
+  }
 
-  Future<void> saveAppConfig(Map<String, dynamic> config) async =>
-      await _settingsBox?.put(_appConfigKey, config);
+  Future<void> saveAppConfig(Map<String, dynamic> config) async {
+    await _settingsBox?.put(_appConfigKey, config);
+    await _settingsBox?.flush();
+  }
 
   Map<String, dynamic>? getAppConfig() {
     final data = _settingsBox?.get(_appConfigKey);
@@ -175,8 +182,10 @@ class HiveServiceImpl implements IUserCache {
     return data != null ? Map<String, dynamic>.from(data) : null;
   }
 
-  Future<void> saveUserId(int id) async =>
-      await _settingsBox?.put(_userIdKey, id);
+  Future<void> saveUserId(int id) async {
+    await _settingsBox?.put(_userIdKey, id);
+    await _settingsBox?.flush();
+  }
 
   int? getUserId() => _settingsBox?.get(_userIdKey);
 

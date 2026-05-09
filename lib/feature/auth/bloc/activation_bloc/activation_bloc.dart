@@ -27,7 +27,7 @@ class ActivationBloc extends Bloc<ActivationEvent, BaseState<ActivationModel>> {
       super(const BaseState()) {
     on<CheckActivationCode>(_onCheck);
     on<CheckDeviceActivation>(_onCheckDevice);
-    on<DeactivateDevice>(_onDeactivate);
+
   }
 
   Future<void> initDevice(BuildContext context) async {
@@ -106,36 +106,6 @@ class ActivationBloc extends Bloc<ActivationEvent, BaseState<ActivationModel>> {
       },
       (_) => emit(
         state.copyWith(status: Status.success, metadata: {'isActive': true}),
-      ),
-    );
-  }
-
-  Future<void> _onDeactivate(
-    DeactivateDevice event,
-    Emitter<BaseState<ActivationModel>> emit,
-  ) async {
-    final activationCode = HiveServiceImpl.instance.getActivationCode() ?? '';
-    emit(state.copyWith(status: Status.loading));
-
-    final result = await _dataSource.deactivateDevice(
-      activationCode: activationCode,
-    );
-
-    if (result.isError) {
-      emit(
-        state.copyWith(
-          status: Status.failure,
-          errorMessage: result.throwError().message,
-        ),
-      );
-      return;
-    }
-
-    await _clearConfig();
-    emit(
-      state.copyWith(
-        status: Status.success,
-        metadata: {'action': 'deactivated'},
       ),
     );
   }

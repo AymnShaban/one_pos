@@ -31,3 +31,4 @@ class CheckDeviceActivation extends ActivationEvent {
 class DeactivateDevice extends ActivationEvent {
   const DeactivateDevice();
 }
+

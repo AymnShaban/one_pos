@@ -40,12 +40,18 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
 
-    final hive   = HiveServiceImpl.instance;
-    final config = hive.getAppConfig();
-    final userId = hive.getUserId();
+
+    final hive   = getIt<HiveServiceImpl>();
+    final config = hive.getActivationCode();
+    final appCfg = hive.getAppConfig();
+    final userId = getIt<IUserCache>().getUserModel()?.customerId;
+
+    debugPrint(
+      '[Splash] activationCode=$config | hasAppConfig=${appCfg != null} | userId=$userId',
+    );
 
     // ── Case 1: Never activated → open the activation screen directly ───────
-    if (config == null) {
+    if (config == null && appCfg == null) {
       Navigator.pushReplacement(context, _activationRoute());
       return;
     }
@@ -61,36 +67,36 @@ class _SplashScreenState extends State<SplashScreen> {
     await activationBloc.initDevice(context);
     activationBloc.add(const CheckDeviceActivation());
 
-    // Listen for the result once
-    await for (final state in activationBloc.stream.take(1)) {
-      if (!mounted) return;
+    // Wait for the first terminal (success/failure) state — ignore loading.
+    final result = await activationBloc.stream.firstWhere(
+      (s) => s.status == Status.success || s.status == Status.failure,
+    );
+    if (!mounted) return;
 
-      final isActive = state.metadata['isActive'] == true;
-
-      if (!isActive) {
-        // Device deactivated remotely — back to activation
-        Navigator.pushReplacement(context, _activationRoute());
-        return;
-      }
-
-      // All good — go to main screen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => MultiBlocProvider(
-            providers: [
-              BlocProvider(
-                create: (_) => getIt<HomeBloc>()..add(const InitHome()),
-              ),
-              BlocProvider(
-                create: (_) => getIt<NavBloc>(),
-              ),
-            ],
-            child: const MainScreen(),
-          ),
-        ),
-      );
+    // Only force re-activation when the server explicitly tells us the device
+    // was deactivated. Any other failure (network, 403, etc.) shouldn't lock
+    // the user out — fall through to the main screen with cached credentials.
+    if (result.errorMessage == 'device_deactivated') {
+      Navigator.pushReplacement(context, _activationRoute());
+      return;
     }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => getIt<HomeBloc>()..add(const InitHome()),
+            ),
+            BlocProvider(
+              create: (_) => getIt<NavBloc>(),
+            ),
+          ],
+          child: const MainScreen(),
+        ),
+      ),
+    );
   }
 
   @override
