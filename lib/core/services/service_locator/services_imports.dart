@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:one_pos/feature/main/details/data_source/product_details_data_source.dart';
 
 import '../../../feature/auth/bloc/activation_bloc/activation_bloc.dart';
 import '../../../feature/auth/bloc/areas_bloc/areas_bloc.dart';
@@ -8,6 +9,7 @@ import '../../../feature/auth/bloc/log_in_bloc/log_in_bloc.dart';
 import '../../../feature/auth/data_source/auth_data_source.dart';
 import '../../../feature/auth/data_source/login_data_source.dart';
 import '../../../feature/main/basket/basket_imports.dart';
+import '../../../feature/main/details/manager/product_details_bloc/product_details_bloc.dart';
 import '../../../feature/main/favourite/favorite_imports.dart';
 import '../../../feature/main/home/home_imports.dart';
 import '../../../feature/main/invoice_collection/invoice_collection_imports.dart';
@@ -40,3 +42,4 @@ part 'settings_service_locator/settings_service_locator.dart';
 part 'new_invoice_service_locator/new_invoice_service_locator.dart';
 part 'invoice_setup_service_locator/invoice_setup_service_locator.dart';
 part 'invoice_collection_services_locator/invoice_collection_services_locator.dart';
+part 'details_service_locator/details_service_locator.dart';

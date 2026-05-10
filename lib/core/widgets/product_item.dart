@@ -204,8 +204,12 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => BlocProvider(
-              create: (context) => getIt<ProductDetailsBloc>(),
+            builder: (context) => MultiBlocProvider(
+              providers: [
+                BlocProvider(  create: (context) => getIt<ProductDetailsBloc>(),),
+                BlocProvider.value(  value:getIt<ProductDetailsBloc>(),),
+
+              ],
               child: DetailsScreen(
                 productId: widget.product.productId,
                 initialQuantity: widget.initialQuantity,
