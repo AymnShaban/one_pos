@@ -6,8 +6,9 @@ import '../models/customer_model.dart';
 
 abstract interface class LoginDataSource {
   Future<Either<Failure, CustomerModel>> login({
-    required String phone,
+    required String userName,
     required String password,
+
   });
 }
 
@@ -18,16 +19,19 @@ class LoginDataSourceImpl implements LoginDataSource {
 
   @override
   Future<Either<Failure, CustomerModel>> login({
-    required String phone,
+    required String userName,
     required String password,
   }) async {
-    final result = await _genericDataSource.fetchResult<CustomerModel>(
+    final result = await _genericDataSource.postData<CustomerModel>(
       endpoint: EndPoints.logIn,
-      fromJson: CustomerModel.fromJson,
-      queryParameters: {
-        'CustomerPhone': phone,
-        'passWord': password,
-        'Token': '1111',
+      data: {
+
+          "UserName": userName,
+          "PassWord": password,
+          "serverName":getIt<HiveServiceImpl>().getAppConfig()?['Server'],
+          "DBName": getIt<HiveServiceImpl>().getAppConfig()?['DBName'],
+          "serverUserName":  getIt<HiveServiceImpl>().getAppConfig()?['UserName'],
+          "serverPassword": getIt<HiveServiceImpl>().getAppConfig()?['PassWord'],
       },
     );
     return result.fold((failure) => Left(failure), (right) async {

@@ -20,7 +20,7 @@ class LoginBloc extends Bloc<LoginEvent, BaseState<String>> {
     emit(state.copyWith(status: Status.loading));
 
     final result = await _loginDataSource.login(
-      phone: event.phone,
+      userName:event.phone,
       password: event.password,
     );
 

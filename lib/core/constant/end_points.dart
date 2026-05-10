@@ -16,10 +16,6 @@ class EndPoints {
   // ── Company Server (dynamic base URL from ActivationModel.server) ────────
   static const String login = 'api/Users/Login';
 
-  static String bannerOne = "/api/Baner1";
-  static String biggestDiscount = "/api/Product/GetProductsWithBiggestDiscount";
-  static String bestSeller = "/api/Product/GetProductsWithBestSeller";
-  static String newProduct = "/api/Product/GetNewProducts";
 
   static String productDetails = "/api/Product/GetProductById";
   static String addToBasket = "/api/Product/AddSalesBasket";

@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 16.h),
                   Text(
-                    'The One POS',
+                   getIt<HiveServiceImpl>().getDatabaseName()??"The One POS",
                     style: AppTextTheme.titleSmallBold
                         .copyWith(color: AppColors.black),
                   ),
@@ -130,9 +130,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     hint:       'auth.password'.tr(),
                     icon:       Icons.lock_outline_rounded,
                     obscure:    _obscurePassword,
-                    validator:  (v) => v == null || v.isEmpty
-                        ? 'auth.enter_your_password'.tr()
-                        : null,
                     suffix: IconButton(
                       onPressed: () =>
                           setState(() => _obscurePassword = !_obscurePassword),

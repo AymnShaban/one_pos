@@ -1,4 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import  'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/local/hive_service_impl.dart';
 import '../../../../core/bloc/paginated_bloc/paginated_bloc.dart';
@@ -12,7 +12,6 @@ class ActivationBloc extends Bloc<ActivationEvent, BaseState<ActivationModel>> {
   final AuthDataSource _dataSource;
   final DeviceInfoModel _deviceInfo = DeviceInfoModel();
 
-  // Key controllers — managed here so screen stays StatelessWidget
   final key1Controller = TextEditingController();
   final key2Controller = TextEditingController();
   final key3Controller = TextEditingController();
