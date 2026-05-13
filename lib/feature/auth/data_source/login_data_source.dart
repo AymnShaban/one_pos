@@ -1,50 +1,78 @@
-import '../../../../../core/helper/helper.dart';
+import 'dart:convert';
 
+import '../../../../../core/helper/helper.dart';
 import '../../../../../core/constant/end_points.dart';
+import '../../../core/http/api_consumer.dart';
 import '../../../core/services/service_locator/services_imports.dart';
-import '../models/customer_model.dart';
+import '../models/user_model.dart';
 
 abstract interface class LoginDataSource {
-  Future<Either<Failure, CustomerModel>> login({
+  Future<Either<Failure, UserModel>> login({
     required String userName,
     required String password,
-
   });
 }
 
 class LoginDataSourceImpl implements LoginDataSource {
-  final GenericDataSource _genericDataSource;
+  final ApiConsumer _apiConsumer;
 
-  LoginDataSourceImpl(this._genericDataSource);
+  LoginDataSourceImpl(this._apiConsumer);
 
   @override
-  Future<Either<Failure, CustomerModel>> login({
+  Future<Either<Failure, UserModel>> login({
     required String userName,
     required String password,
   }) async {
-    final result = await _genericDataSource.postData<CustomerModel>(
-      endpoint: EndPoints.logIn,
-      data: {
+    final config = getIt<HiveServiceImpl>().getAppConfig();
+    if (config == null) {
+      return Left(ServerFailure(message: 'no_configuration_found'));
+    }
 
-          "UserName": userName,
-          "PassWord": password,
-          "serverName":getIt<HiveServiceImpl>().getAppConfig()?['Server'],
-          "DBName": getIt<HiveServiceImpl>().getAppConfig()?['DBName'],
-          "serverUserName":  getIt<HiveServiceImpl>().getAppConfig()?['UserName'],
-          "serverPassword": getIt<HiveServiceImpl>().getAppConfig()?['PassWord'],
+    final result = await _apiConsumer.post(
+      EndPoints.logIn,
+      data: {
+        "UserName": userName,
+        "PassWord": password,
+        "serverName": config['Server'],
+        "DBName": config['DBDescription'],
+        "serverUserName": config['UserName'],
+        "serverPassword": config['PassWord'],
       },
     );
-    return result.fold((failure) => Left(failure), (right) async {
-      try {
-        loggerFatal(right.toString());
 
-        getIt<IUserCache>().cacheUserModel(right);
-        return Right(right);
+    return result.fold((failure) => Left(failure), (response) async {
+      try {
+        final users = _parseUsers(response['data']);
+        if (users.isEmpty) {
+          return Left(ServerFailure(message: 'invalid_credentials'));
+        }
+
+        final user = users.first;
+        await _persistUser(user);
+        loggerInfo('Login success: ${user.toJson()}');
+        return Right(user);
       } catch (e) {
         return Left(
-          ParsingFailure(message: 'Failed to process token: ${e.toString()}'),
+          ParsingFailure(message: 'Failed to parse login response: $e'),
         );
       }
     });
+  }
+
+  List<UserModel> _parseUsers(dynamic data) {
+    final decoded = data is String ? jsonDecode(data) : data;
+    if (decoded is! List) return const [];
+    return decoded
+        .whereType<Map>()
+        .map((e) => UserModel.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+  }
+
+  Future<void> _persistUser(UserModel user) async {
+    final hive = getIt<HiveServiceImpl>();
+    await hive.saveLoggedInUser(user.toJson());
+    await hive.saveUserId(user.userId);
+    await hive.saveSellerName(user.userName);
+    await hive.saveHaveDiscount(user.haveDiscount);
   }
 }

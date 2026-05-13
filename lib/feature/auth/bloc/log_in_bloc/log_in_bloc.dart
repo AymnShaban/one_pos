@@ -33,6 +33,7 @@ class LoginBloc extends Bloc<LoginEvent, BaseState<String>> {
         ),
       ),
       (token) {
+        // saving user data in hive
        emit(state.copyWith(status: Status.success));
       },
     );

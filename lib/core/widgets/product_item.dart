@@ -4,7 +4,7 @@ import '../../feature/auth/presentation/screens/login_screen.dart';
 import '../../feature/main/basket/basket_imports.dart';
 import '../../feature/main/details/manager/product_details_bloc/product_details_bloc.dart';
 import '../../feature/main/details/presentation/screens/details_screen.dart';
-import '../../feature/main/favourite/favorite_imports.dart';
+// import '../../feature/main/favourite/favorite_imports.dart';
 import '../models/item_model.dart';
 import '../services/service_locator/services_imports.dart';
 import 'custom_snack_bar.dart';
@@ -66,25 +66,25 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
     }
 
     if (_isFavorite) {
-      context.read<FavoriteBloc>().add(
-        AddFavorite(
-          AddAndDeleteFavoriteRequest(
-            productID: widget.product.productId,
-            customerPhone: customerModel.customerPhone!,
-            barCode: widget.product.productCode,
-          ),
-        ),
-      );
+      // context.read<FavoriteBloc>().add(
+      //   AddFavorite(
+      //     AddAndDeleteFavoriteRequest(
+      //       productID: widget.product.productId,
+      //       customerPhone: customerModel.employeeId.toString(),
+      //       barCode: widget.product.productCode,
+      //     ),
+      //   ),
+      // );
     } else {
-      context.read<FavoriteBloc>().add(
-        DeleteFavorite(
-          AddAndDeleteFavoriteRequest(
-            productID: widget.product.productId,
-            customerPhone: customerModel.customerPhone!,
-            barCode: widget.product.productCode,
-          ),
-        ),
-      );
+      // context.read<FavoriteBloc>().add(
+      //   DeleteFavorite(
+      //     AddAndDeleteFavoriteRequest(
+      //       productID: widget.product.productId,
+      //       customerPhone: customerModel.employeeId.toString(),
+      //       barCode: widget.product.productCode,
+      //     ),
+      //   ),
+      // );
     }
   }
 
@@ -107,7 +107,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
     });
 
     final request = AddToBasketRequest(
-      customerID: customerModel.customerId,
+      customerID: customerModel.employeeId??1,
       productID: widget.product.productId,
       productBarcode: widget.product.productCode,
     );
@@ -138,7 +138,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
         context.read<AddToBasketBloc>().add(
           AddToBasket(
             AddToBasketRequest(
-              customerID: customerModel.customerId,
+              customerID: customerModel.employeeId??1,
               productID: widget.product.productId,
               productBarcode: widget.product.productCode,
             ),

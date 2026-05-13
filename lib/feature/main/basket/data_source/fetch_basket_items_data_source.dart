@@ -16,7 +16,7 @@ class BasketDataSourceImpl implements BasketDataSource {
       endpoint: EndPoints.getCustomerBasket,
       fromJson: BasketItemModel.fromJson,
       queryParameters: {
-        'CustomerID': getIt<IUserCache>().getUserModel()!.customerId.toString()
+        'CustomerID': getIt<IUserCache>().getUserModel()!.employeeId.toString()
       }
     );
     return result.fold(

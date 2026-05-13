@@ -8,13 +8,12 @@ import '../../../core/widgets/custom_snack_bar.dart';
 import '../../../core/widgets/flexible_image.dart';
 import '../../../core/widgets/product_list_wrapper.dart';
 import '../../../core/widgets/pull_to_refresh.dart';
-import '../../auth/models/customer_model.dart';
 import '../../auth/presentation/screens/login_screen.dart';
 
 part 'presentation/screens/basket_screen.dart';
 part 'presentation/widgets/order_minimum_widget.dart';
 part 'presentation/widgets/payment_button_section.dart';
-part 'presentation/widgets/place_details_widget.dart';
+// part 'presentation/widgets/place_details_widget.dart';
 part 'presentation/widgets/product_basket_item.dart';
 part 'models/add_to_basket_model.dart';
 part 'models/basket_model.dart';

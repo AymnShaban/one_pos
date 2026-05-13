@@ -149,7 +149,7 @@ class _DetailsCounterBoxState extends State<_DetailsCounterBox> {
 
     setState(() => _isProcessing = true);
     final request = AddToBasketRequest(
-      customerID: customerModel.customerId,
+      customerID: customerModel.employeeId??1,
       productID: widget.product.productId,
       productBarcode: widget.barcode,
     );
@@ -169,7 +169,7 @@ class _DetailsCounterBoxState extends State<_DetailsCounterBox> {
 
       setState(() => _isProcessing = true);
       final request = AddToBasketRequest(
-        customerID: customerModel.customerId,
+        customerID: customerModel.employeeId??1,
         productID: widget.product.productId,
         productBarcode: widget.barcode,
       );

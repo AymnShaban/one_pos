@@ -47,7 +47,7 @@ class PaymentButtonSection extends StatelessWidget {
                   width: 138,
                   height: 45,
                   child:
-                     ( getIt<IUserCache>().getUserModel()?.districtName?.isEmpty ?? true)
+                     ( getIt<IUserCache>().getUserModel()?.fullUserName.isEmpty ?? true)
                       ? ElevatedButton(
                           onPressed: () {
                             // Navigator.push(

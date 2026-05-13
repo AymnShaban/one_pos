@@ -9,8 +9,6 @@ import 'core/services/bloc_observer.dart';
 import 'core/services/service_locator/services_imports.dart';
 import 'core/theme/light_theme.dart';
 import 'core/widgets/custom_language.dart';
-import 'feature/auth/bloc/activation_bloc/activation_bloc.dart';
-import 'feature/auth/presentation/screens/activation_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,11 +59,8 @@ class MyApp extends StatelessWidget {
           theme:                   AppThemeData.light(context),
           navigatorKey:            NavigationService.navigatorKey,
           scaffoldMessengerKey:    NavigationService.scaffoldMessengerKey,
-          home:                    BlocProvider(
-            create: (_) => getIt<ActivationBloc>(),
-            child: const ActivationScreen(),
-          ),
-        );
+          home:                    SplashScreen());
+
       },
     );
   }

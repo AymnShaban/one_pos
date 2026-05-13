@@ -1,9 +1,9 @@
 part of "hive_service_impl.dart";
 abstract interface class IUserCache {
-  Future<void> cacheUserModel(CustomerModel userModel);
-  CustomerModel? getUserModel();
+  Future<void> cacheUserModel(UserModel userModel);
+  UserModel? getUserModel();
   Future<void> clearUserModel();
-  Future<void> updateCachedUserModel(CustomerModel userModel);
+  Future<void> updateCachedUserModel(UserModel userModel);
   Future<void> cacheOrderId(String orderId);
   Future<void> upDateOrderId(String orderId);
   String? getOrderId();

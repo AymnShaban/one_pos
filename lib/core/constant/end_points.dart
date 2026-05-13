@@ -7,14 +7,11 @@ class EndPoints {
   // mazyad
   static  String baseUrl = getIt<HiveServiceImpl>().getBaseUrl()??"";
 
-  static String logIn = '/api/Customer/Login';
+  static const String logIn = '/api/Users/Login';
 
 
   // ── Existing endpoints ────────────────────────────────
   static const String register = "/api/Customer/AddCustomer";
-
-  // ── Company Server (dynamic base URL from ActivationModel.server) ────────
-  static const String login = 'api/Users/Login';
 
 
   static String productDetails = "/api/Product/GetProductById";

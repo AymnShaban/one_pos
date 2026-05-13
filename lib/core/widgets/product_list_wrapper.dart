@@ -2,7 +2,7 @@
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../feature/main/basket/basket_imports.dart';
-import '../../feature/main/favourite/favorite_imports.dart';
+// import '../../feature/main/favourite/favorite_imports.dart';
 import '../helper/helper.dart';
 import '../services/service_locator/services_imports.dart';
 import 'custom_snack_bar.dart';
@@ -35,53 +35,12 @@ class _ProductListWrapperState extends State<ProductListWrapper> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: getIt<FavoriteBloc>()),
+        // BlocProvider.value(value: getIt<FavoriteBloc>()),
         BlocProvider.value(value: getIt<AddToBasketBloc>()),
         BlocProvider.value(value: getIt<BasketBloc>()),
       ],
       child: MultiBlocListener(
         listeners: [
-          BlocListener<FavoriteBloc, BaseState<FavoriteModel>>(
-            listener: (context, state) {
-              final productId = state.metadata['productId'] as int?;
-              if (productId == null) return;
-              if (state.metadata['action'] == 'add' ||
-                  state.metadata['action'] == 'delete') {
-                if (state.status == Status.success &&
-                    _shouldShowSnackBar(productId)) {
-                  final customerModel = getIt<IUserCache>().getUserModel();
-                  if (customerModel != null) {
-                    context.read<FavoriteBloc>().add(
-                      GetFavorite(customerModel.customerPhone!),
-                    );
-                  }
-                } else if (state.status == Status.failure &&
-                    _shouldShowSnackBar(productId)) {
-                  context.read<FavoriteBloc>().add(
-                    state.metadata['action'] == 'add'
-                        ? DeleteFavorite(
-                      AddAndDeleteFavoriteRequest(
-                        productID: productId,
-                        customerPhone: getIt<IUserCache>()
-                            .getUserModel()!
-                            .customerPhone!,
-                        barCode: '',
-                      ),
-                    )
-                        : AddFavorite(
-                      AddAndDeleteFavoriteRequest(
-                        productID: productId,
-                        customerPhone: getIt<IUserCache>()
-                            .getUserModel()!
-                            .customerPhone!,
-                        barCode: '',
-                      ),
-                    ),
-                  );
-                }
-              }
-            },
-          ),
           BlocListener<AddToBasketBloc, BaseState<void>>(
             listener: (context, state) {
               if (state.status == Status.success &&

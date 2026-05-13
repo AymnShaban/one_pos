@@ -76,7 +76,7 @@ class _BasketScreenState extends State<BasketScreen> {
 
                 SizedBox(height: 12.h),
 
-                const PlaceDetailsWidget(),
+                // const PlaceDetailsWidget(),
 
                 ProductListWrapper(
                   child: BlocBuilder<BasketBloc, BaseState<BasketItemModel>>(

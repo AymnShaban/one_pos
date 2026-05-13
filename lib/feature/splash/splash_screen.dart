@@ -44,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final hive   = getIt<HiveServiceImpl>();
     final config = hive.getActivationCode();
     final appCfg = hive.getAppConfig();
-    final userId = getIt<IUserCache>().getUserModel()?.customerId;
+    final userId = getIt<IUserCache>().getUserModel()?.employeeId;
 
     debugPrint(
       '[Splash] activationCode=$config | hasAppConfig=${appCfg != null} | userId=$userId',

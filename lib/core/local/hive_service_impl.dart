@@ -1,6 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:one_pos/feature/auth/models/user_model.dart';
 import '../../feature/auth/models/areas_model.dart';
-import '../../feature/auth/models/customer_model.dart';
 import '../helper/logger.dart';
 import '../models/item_model.dart';
 part 'user_cache_interface.dart';
@@ -8,7 +8,7 @@ part 'paginated_cache_interface.dart';
 
 class HiveServiceImpl implements IUserCache {
   static const String userBoxName = 'user_box';
-  static Box<CustomerModel>? _userBox;
+  static Box<UserModel>? _userBox;
   static const String currentUserKey = 'current_user';
   static const String orderBoxName = 'order_box';
   static Box<String>? _orderBox;
@@ -31,11 +31,11 @@ class HiveServiceImpl implements IUserCache {
 
   static Future<void> init() async {
     await Hive.initFlutter();
-    Hive.registerAdapter(CustomerModelAdapter());
+    Hive.registerAdapter(UserModelAdapter());
     Hive.registerAdapter(ItemModelAdapter());
     Hive.registerAdapter(AreasModelAdapter());
 
-    _userBox = await Hive.openBox<CustomerModel>(userBoxName);
+    _userBox = await Hive.openBox<UserModel>(userBoxName);
     _orderBox = await Hive.openBox<String>(orderBoxName);
     _selectedAreaBox = await Hive.openBox<AreasModel>(selectedAreaBoxName);
     _locationBox = await Hive.openBox<Map>(locationBoxName);
@@ -43,7 +43,7 @@ class HiveServiceImpl implements IUserCache {
   }
 
   @override
-  Future<void> cacheUserModel(CustomerModel user) async {
+  Future<void> cacheUserModel(UserModel user) async {
     await _userBox?.put(currentUserKey, user);
   }
 
@@ -67,7 +67,7 @@ class HiveServiceImpl implements IUserCache {
   }
 
   @override
-  CustomerModel? getUserModel() {
+  UserModel? getUserModel() {
     final user = _userBox?.get(currentUserKey);
     if (user != null) {
     }
@@ -80,7 +80,7 @@ class HiveServiceImpl implements IUserCache {
   }
 
   @override
-  Future updateCachedUserModel(CustomerModel user) async {
+  Future updateCachedUserModel(UserModel user) async {
     await _userBox?.put(currentUserKey, user);
     logger('Updated user in cache: ${user.toJson()}');
   }

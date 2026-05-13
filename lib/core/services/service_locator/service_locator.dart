@@ -52,7 +52,6 @@ Future<void> setup() async {
   await HiveServiceLocator.init(getIt: getIt);
   await SalesServiceLocator.init(getIt: getIt);
   await BasketServiceLocator.init(getIt: getIt);
-  await FavoriteServiceLocator.init(getIt: getIt);
   await InvoicesServiceLocator.init(getIt: getIt);
   await ReportsServiceLocator.init(getIt: getIt);
   await SettingsServiceLocator.init(getIt: getIt);
