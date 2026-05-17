@@ -44,10 +44,10 @@ class _SplashScreenState extends State<SplashScreen> {
     final hive   = getIt<HiveServiceImpl>();
     final config = hive.getActivationCode();
     final appCfg = hive.getAppConfig();
-    final userId = getIt<IUserCache>().getUserModel()?.employeeId;
+    final cachedUser = getIt<IUserCache>().getUserModel();
 
     debugPrint(
-      '[Splash] activationCode=$config | hasAppConfig=${appCfg != null} | userId=$userId',
+      '[Splash] activationCode=$config | hasAppConfig=${appCfg != null} | userId=${cachedUser?.userId}',
     );
 
     // ── Case 1: Never activated → open the activation screen directly ───────
@@ -57,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     // ── Case 2: Activated but not logged in ──────────────────────────────────
-    if (userId == null) {
+    if (cachedUser == null) {
       Navigator.pushReplacement(context, _loginRoute());
       return;
     }

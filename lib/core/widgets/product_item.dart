@@ -30,7 +30,6 @@ class EnhancedProductItem extends StatefulWidget {
 }
 
 class _EnhancedProductItemState extends State<EnhancedProductItem> {
-  late bool _isFavorite;
   late bool _isInCart;
   late int _quantity;
   bool _isProcessing = false;
@@ -38,59 +37,17 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
   @override
   void initState() {
     super.initState();
-    _isFavorite = widget.initialIsFavorite;
     _isInCart = widget.initialIsInCart;
     _quantity = widget.initialQuantity;
     _isProcessing = false;
   }
 
-  void _toggleFavorite() {
-    final previousFavoriteState = _isFavorite;
-    setState(() {
-      _isFavorite = !_isFavorite;
-    });
 
-    final customerModel = getIt<IUserCache>().getUserModel();
-    if (customerModel == null) {
-      if (mounted) {
-        showCustomSnackBar(context, 'please_log_in_to_manage_favorites'.tr());
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
-        );
-      }
-      setState(() {
-        _isFavorite = previousFavoriteState;
-      });
-      return;
-    }
 
-    if (_isFavorite) {
-      // context.read<FavoriteBloc>().add(
-      //   AddFavorite(
-      //     AddAndDeleteFavoriteRequest(
-      //       productID: widget.product.productId,
-      //       customerPhone: customerModel.employeeId.toString(),
-      //       barCode: widget.product.productCode,
-      //     ),
-      //   ),
-      // );
-    } else {
-      // context.read<FavoriteBloc>().add(
-      //   DeleteFavorite(
-      //     AddAndDeleteFavoriteRequest(
-      //       productID: widget.product.productId,
-      //       customerPhone: customerModel.employeeId.toString(),
-      //       barCode: widget.product.productCode,
-      //     ),
-      //   ),
-      // );
-    }
-  }
 
   Future<void> _addToCart() async {
     final customerModel = getIt<IUserCache>().getUserModel();
-    if (customerModel == null) {
+
       if (mounted) {
         showCustomSnackBar(context, 'please_log_in_to_add_to_cart'.tr());
         Navigator.pushReplacement(
@@ -98,8 +55,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
           MaterialPageRoute(builder: (context) => LoginScreen()),
         );
       }
-      return;
-    }
+
 
     setState(() {
       _isInCart = true;
@@ -107,7 +63,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
     });
 
     final request = AddToBasketRequest(
-      customerID: customerModel.employeeId??1,
+      customerID: customerModel?.employeeId??1,
       productID: widget.product.productId,
       productBarcode: widget.product.productCode,
     );
@@ -116,7 +72,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
 
   Future<void> _incrementQuantity() async {
     final customerModel = getIt<IUserCache>().getUserModel();
-    if (customerModel == null) return;
+
 
     final stockQuantity = widget.product.stockQuantity;
 
@@ -138,7 +94,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
         context.read<AddToBasketBloc>().add(
           AddToBasket(
             AddToBasketRequest(
-              customerID: customerModel.employeeId??1,
+              customerID: customerModel?.employeeId??1,
               productID: widget.product.productId,
               productBarcode: widget.product.productCode,
             ),
@@ -149,8 +105,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
   }
 
   Future<void> _decrementQuantity() async {
-    final customerModel = getIt<IUserCache>().getUserModel();
-    if (customerModel == null) {
+
       if (mounted) {
         showCustomSnackBar(context, 'please_log_in_to_manage_cart'.tr());
         Navigator.pushReplacement(
@@ -158,8 +113,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
           MaterialPageRoute(builder: (context) =>  LoginScreen()),
         );
       }
-      return;
-    }
+
 
     if (_quantity > 15) {
       await _showQuantityDialog(isFromDecrement: true);
@@ -251,13 +205,6 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
                         isProduct: true,
                       ),
                     ),
-                  ),
-
-                  // Top Right: Favorite Button
-                  Positioned(
-                    top: 8.h,
-                    right: 8.w,
-                    child: _buildFavoriteButton(),
                   ),
 
                   // Out of Stock Overlay
@@ -458,36 +405,6 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
     );
   }
 
-  Widget _buildFavoriteButton() {
-    return AnimatedScale(
-      scale: _isFavorite ? 1.2 : 1.0,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutBack,
-      child: InkWell(
-        onTap: _toggleFavorite,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: EdgeInsets.all(6.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Icon(
-            _isFavorite ? Icons.favorite : Icons.favorite_border,
-            color: _isFavorite ? Colors.red : Colors.black87,
-            size: 18.sp,
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildOutOfStockBanner() {
     return Positioned.fill(

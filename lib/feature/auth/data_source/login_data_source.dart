@@ -70,6 +70,9 @@ class LoginDataSourceImpl implements LoginDataSource {
 
   Future<void> _persistUser(UserModel user) async {
     final hive = getIt<HiveServiceImpl>();
+    // Persist the typed model — this is what getUserModel() reads and what
+    // the splash gate / basket / details rely on to know a user is logged in.
+    await hive.cacheUserModel(user);
     await hive.saveLoggedInUser(user.toJson());
     await hive.saveUserId(user.userId);
     await hive.saveSellerName(user.userName);

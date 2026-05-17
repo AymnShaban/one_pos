@@ -1,4 +1,5 @@
 part of '../../home_imports.dart';
+
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
 
@@ -8,7 +9,9 @@ class HomeTab extends StatelessWidget {
       backgroundColor: const Color(0xffF0F2F8),
       body: BlocBuilder<HomeBloc, BaseState<HomeStatsModel>>(
         builder: (context, state) {
-          final stats = state.items.isNotEmpty ? state.items.first : const HomeStatsModel();
+          final stats = state.items.isNotEmpty
+              ? state.items.first
+              : const HomeStatsModel();
           final isSynced = context.read<HomeBloc>().isSynced;
 
           return CustomScrollView(
@@ -73,7 +76,33 @@ class HomeTab extends StatelessWidget {
                               label: 'home.new_sales_invoice'.tr(),
                               icon: Icons.shopping_cart_rounded,
                               color: const Color(0xff3B5BDB),
-                              onTap: () => _navigateToNewInvoice(context),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => MultiBlocProvider(
+                                      providers: [
+                                        BlocProvider(
+                                          create: (_) => getIt<SalesBloc>(),
+                                        ),
+                                        BlocProvider(
+                                          create: (_) =>
+                                              getIt<MainCategoryBloc>(),
+                                        ),
+                                        BlocProvider(
+                                          create: (_) =>
+                                              getIt<SubCategoryBloc>(),
+                                        ),
+                                        BlocProvider(
+                                          create: (_) =>
+                                              getIt<HomeBloc>(),
+                                        ),
+                                      ],
+                                      child: const SalesTab(),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                           SizedBox(width: 12.w),
@@ -169,41 +198,11 @@ class HomeTab extends StatelessWidget {
       ),
     );
   }
-  void _navigateToNewInvoice(
-      BuildContext context, {
-        bool isPriceQuote = false,
-        Map<String, dynamic>? editInvoice,
-      }) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create: (_) => getIt<CategoryBloc>(),
-            ),
-            BlocProvider(
-              create: (_) => getIt<CartBloc>(),
-            ),
-            BlocProvider(
-              create: (_) => getIt<NewInvoiceBloc>(),
-            ),
-            BlocProvider(
-              create: (_) => getIt<ProductBloc>(),
-            ),
-          ],
-          child: NewInvoiceScreen(
-            isPriceQuote: isPriceQuote,
-            editInvoice:  editInvoice,
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _SectionHeader extends StatelessWidget {
   final String title;
+
   const _SectionHeader({required this.title});
 
   @override
@@ -220,5 +219,4 @@ class _SectionHeader extends StatelessWidget {
       ),
     );
   }
-
 }
