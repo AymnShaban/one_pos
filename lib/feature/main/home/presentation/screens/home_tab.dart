@@ -96,6 +96,12 @@ class HomeTab extends StatelessWidget {
                                         BlocProvider(
                                           create: (_) =>
                                               getIt<HomeBloc>(),
+
+                                        ),
+                                        BlocProvider.value(
+                                         value: context.read<BasketBloc>(),
+
+
                                         ),
                                       ],
                                       child: const SalesTab(),

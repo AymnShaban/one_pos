@@ -3,7 +3,7 @@ part of '../../sales_imports.dart';
 class SubCategoryListView extends StatelessWidget {
   const SubCategoryListView({super.key});
 
-  static const double _stripHeight = 44.0;
+  static const double _stripHeight = 36.0;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +13,7 @@ class SubCategoryListView extends StatelessWidget {
       builder: (context, state) {
         return Container(
           height: _stripHeight.h,
-          color: AppColors.backgroundColor,
+          color: Colors.transparent,
           child: _buildContent(context, state, isAr),
         );
       },
@@ -28,8 +28,8 @@ class SubCategoryListView extends StatelessWidget {
     if (state.status == Status.loading) {
       return const Center(
         child: SizedBox(
-          width: 18,
-          height: 18,
+          width: 14,
+          height: 14,
           child: CircularProgressIndicator(strokeWidth: 2),
         ),
       );
@@ -39,7 +39,7 @@ class SubCategoryListView extends StatelessWidget {
       return Center(
         child: Text(
           state.errorMessage ?? 'error'.tr(),
-          style: AppTextTheme.labelMedium11.copyWith(color: Colors.red),
+          style: AppTextTheme.labelSmall.copyWith(color: Colors.red),
         ),
       );
     }
@@ -49,7 +49,7 @@ class SubCategoryListView extends StatelessWidget {
       return Center(
         child: Text(
           'sales.no_sub_categories'.tr(),
-          style: AppTextTheme.labelMedium11.copyWith(color: AppColors.grey),
+          style: AppTextTheme.labelSmall.copyWith(color: AppColors.grey),
         ),
       );
     }
@@ -58,9 +58,9 @@ class SubCategoryListView extends StatelessWidget {
 
     return ListView.separated(
       scrollDirection: Axis.horizontal,
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 2.h),
       itemCount: subs.length,
-      separatorBuilder: (_, __) => SizedBox(width: 6.w),
+      separatorBuilder: (_, __) => SizedBox(width: 8.w),
       itemBuilder: (context, index) {
         final sub = subs[index];
         final isSelected = selectedId == sub.categoryId;
@@ -74,26 +74,26 @@ class SubCategoryListView extends StatelessWidget {
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 4.h),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.mainAppColor.withValues(alpha: 0.12)
+                  ? AppColors.mainAppColor
                   : AppColors.whiteColor,
-              borderRadius: BorderRadius.circular(16.r),
+              borderRadius: BorderRadius.circular(10.r),
               border: Border.all(
                 color: isSelected
                     ? AppColors.mainAppColor
-                    : Colors.transparent,
-                width: 1.2,
+                    : Colors.grey.shade300,
+                width: 1,
               ),
             ),
             child: Center(
               child: Text(
                 isAr ? sub.categoryArName : (sub.categoryEnName ?? ''),
-                style: AppTextTheme.labelMedium11.copyWith(
-                  fontWeight: FontWeight.w600,
+                style: AppTextTheme.labelSmall.copyWith(
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                   color: isSelected
-                      ? AppColors.mainAppColor
+                      ? AppColors.whiteColor
                       : AppColors.black,
                 ),
               ),

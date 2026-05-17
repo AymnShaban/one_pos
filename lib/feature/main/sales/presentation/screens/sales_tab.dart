@@ -13,6 +13,7 @@ class _SalesTabState extends State<SalesTab> {
   void initState() {
     super.initState();
     context.read<MainCategoryBloc>().add(const FetchMainCategories());
+    context.read<BasketBloc>().add(const FetchBasketItems());
   }
 
   @override
@@ -20,6 +21,7 @@ class _SalesTabState extends State<SalesTab> {
     return ProductListWrapper(
       child: Scaffold(
         backgroundColor: const Color(0xffF0F2F8),
+        bottomNavigationBar: const BasketBottomBar(),
         body: MultiBlocListener(
           listeners: [
             // Main category selection → fetch its sub-categories
@@ -56,10 +58,10 @@ class _SalesTabState extends State<SalesTab> {
                 slivers: [
                   HomeAppBar(isOnline: context.read<HomeBloc>().isOnline),
 
-                  // Main category dropdown
+                  // Main category chip list
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
+                      padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
                       child: const MainCategoryDropdown(),
                     ),
                   ),

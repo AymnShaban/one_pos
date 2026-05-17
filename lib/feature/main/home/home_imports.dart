@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
+import 'package:one_pos/feature/main/basket/basket_imports.dart';
 import 'package:one_pos/feature/main/home/presentation/widgets/action_card.dart';
 import 'package:one_pos/feature/main/home/presentation/widgets/home_app_bar.dart';
 import 'package:one_pos/feature/main/home/presentation/widgets/recent_activity_item.dart';

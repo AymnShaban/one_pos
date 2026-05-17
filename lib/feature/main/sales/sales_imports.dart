@@ -7,6 +7,7 @@ import '../../../core/models/item_model.dart';
 import '../../../core/params/pagination_params.dart';
 import '../../../core/widgets/product_item_selector.dart';
 import '../../../core/widgets/product_list_wrapper.dart';
+import '../basket/basket_imports.dart';
 import '../home/home_imports.dart';
 import '../home/presentation/widgets/home_app_bar.dart';
 
@@ -21,6 +22,7 @@ part 'models/sub_category_model.dart';
 part 'presentation/screens/sales_tab.dart';
 part 'presentation/widgets/main_category_dropdown.dart';
 part 'presentation/widgets/sub_category_list_view.dart';
+part 'presentation/widgets/basket_bottom_bar.dart';
 part 'data_source/sales_data_source.dart';
 part 'data_source/main_category_data_source.dart';
 part 'data_source/sub_category_data_source.dart';
