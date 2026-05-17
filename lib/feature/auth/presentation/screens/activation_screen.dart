@@ -2,10 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 import '../../../../../core/helper/helper.dart';
 import '../../../../../core/widgets/custom_snack_bar.dart';
-import '../../../../core/services/service_locator/services_imports.dart';
 import '../../bloc/activation_bloc/activation_bloc.dart';
 import '../../bloc/activation_bloc/activation_event.dart';
-import '../../bloc/log_in_bloc/log_in_bloc.dart';
 import '../../models/activation_model.dart';
 import 'login_screen.dart';
 
@@ -34,15 +32,7 @@ class _ActivationScreenState extends State<ActivationScreen> {
         listener: (context, state) {
           if (state.status == Status.success) {
             // Config retrieved — go to login
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BlocProvider(
-                  create: (_) => getIt<LoginBloc>(),
-                  child: const LoginScreen(),
-                ),
-              ),
-            );
+            Navigator.pushReplacement(context, LoginScreen.route());
           }
           if (state.status == Status.failure) {
             showCustomSnackBar(

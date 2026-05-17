@@ -12,7 +12,7 @@ class DeleteBasketDataSourceImpl implements DeleteBasketDataSource {
 
   @override
   Future<Either<Failure, void>> deleteBasketItem(int productId,String barCode) async {
-    final customerId = getIt<IUserCache>().getUserModel()!.employeeId;
+    final customerId = getIt<IUserCache>().getUserModel()!.id;
     final queryParameters = {
       'CustomerID': customerId.toString(),
       'ProductID': productId.toString(),

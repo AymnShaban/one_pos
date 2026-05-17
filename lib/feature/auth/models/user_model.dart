@@ -46,6 +46,8 @@ class UserModel extends Equatable {
     );
   }
 
+  int get id => employeeId ?? userId;
+
   Map<String, dynamic> toJson() => {
     'UserID': userId,
     'UserName': userName,

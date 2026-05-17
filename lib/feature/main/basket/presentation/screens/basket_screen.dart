@@ -24,10 +24,7 @@ class _BasketScreenState extends State<BasketScreen> {
     } else {
       if (mounted) {
         showCustomSnackBar(context, 'please_log_in_to_manage_cart'.tr());
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) =>  LoginScreen()),
-        );
+        Navigator.pushReplacement(context, LoginScreen.route());
       }
     }
   }

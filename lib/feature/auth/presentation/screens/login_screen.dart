@@ -9,6 +9,15 @@ import '../../bloc/log_in_bloc/log_in_event.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
+  /// Always navigate to the login screen through this route so the
+  /// [LoginBloc] provider is guaranteed to be above it.
+  static Route<dynamic> route() => MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) => getIt<LoginBloc>(),
+          child: const LoginScreen(),
+        ),
+      );
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }

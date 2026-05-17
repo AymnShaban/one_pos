@@ -48,14 +48,13 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
   Future<void> _addToCart() async {
     final customerModel = getIt<IUserCache>().getUserModel();
 
+    if (customerModel == null) {
       if (mounted) {
         showCustomSnackBar(context, 'please_log_in_to_add_to_cart'.tr());
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
-        );
+        Navigator.pushReplacement(context, LoginScreen.route());
       }
-
+      return;
+    }
 
     setState(() {
       _isInCart = true;
@@ -63,7 +62,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
     });
 
     final request = AddToBasketRequest(
-      customerID: customerModel?.employeeId??1,
+      customerID: customerModel.id,
       productID: widget.product.productId,
       productBarcode: widget.product.productCode,
     );
@@ -94,7 +93,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
         context.read<AddToBasketBloc>().add(
           AddToBasket(
             AddToBasketRequest(
-              customerID: customerModel?.employeeId??1,
+              customerID: customerModel?.id ?? 0,
               productID: widget.product.productId,
               productBarcode: widget.product.productCode,
             ),
@@ -105,15 +104,15 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
   }
 
   Future<void> _decrementQuantity() async {
+    final customerModel = getIt<IUserCache>().getUserModel();
 
+    if (customerModel == null) {
       if (mounted) {
         showCustomSnackBar(context, 'please_log_in_to_manage_cart'.tr());
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) =>  LoginScreen()),
-        );
+        Navigator.pushReplacement(context, LoginScreen.route());
       }
-
+      return;
+    }
 
     if (_quantity > 15) {
       await _showQuantityDialog(isFromDecrement: true);

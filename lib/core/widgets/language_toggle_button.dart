@@ -141,7 +141,7 @@ class LanguageDropdownSection extends StatelessWidget {
             onChanged: (String? newLang) {
               if (newLang != null && newLang != currentLang) {
                 context.setLocale(Locale(newLang));
-                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen(),) );
+                Navigator.push(context, LoginScreen.route());
               }
             },
           ),

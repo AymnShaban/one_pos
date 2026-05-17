@@ -2,7 +2,6 @@ import '../../../core/helper/helper.dart';
 import '../../core/services/service_locator/services_imports.dart';
 import '../auth/bloc/activation_bloc/activation_bloc.dart';
 import '../auth/bloc/activation_bloc/activation_event.dart';
-import '../auth/bloc/log_in_bloc/log_in_bloc.dart';
 import '../auth/presentation/screens/activation_screen.dart';
 import '../auth/presentation/screens/login_screen.dart';
 import '../main/home/home_imports.dart';
@@ -14,12 +13,7 @@ Route _activationRoute() => MaterialPageRoute(
       ),
     );
 
-Route _loginRoute() => MaterialPageRoute(
-      builder: (_) => BlocProvider(
-        create: (_) => getIt<LoginBloc>(),
-        child: const LoginScreen(),
-      ),
-    );
+Route _loginRoute() => LoginScreen.route();
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

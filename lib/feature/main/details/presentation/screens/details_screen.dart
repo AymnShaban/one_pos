@@ -39,7 +39,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
             .getUserModel()!
             .employeeId
             .toString(),
-        customerId: getIt<IUserCache>().getUserModel()!.employeeId??1,
+        customerId: getIt<IUserCache>().getUserModel()!.id,
       ),
     );
   }
@@ -52,7 +52,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
             .getUserModel()!
             .employeeId
             .toString(),
-        customerId: getIt<IUserCache>().getUserModel()!.employeeId??1,
+        customerId: getIt<IUserCache>().getUserModel()!.id,
       ),
     );
   }
@@ -150,15 +150,15 @@ class _DetailsScreenState extends State<DetailsScreen> {
                   children: [
                     ImagesSection(
                       product: displayProduct,
-                      customerId: getIt<IUserCache>()
+                        customerId: getIt<IUserCache>()
                           .getUserModel()!
-                          .employeeId??1,
+                          .id,
                     ),
                     DetailsSection(
                       product: displayProduct,
                       customerId: getIt<IUserCache>()
                           .getUserModel()!
-                          .employeeId??1,
+                          .id,
                       initialQuantity: widget.initialQuantity,
                       stockQuantity: widget.stockQuantity,
                     ),

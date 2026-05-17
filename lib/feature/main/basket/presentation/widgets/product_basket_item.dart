@@ -27,7 +27,7 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
       context.read<AddToBasketBloc>().add(
         AddToBasket(
           AddToBasketRequest(
-            customerID: customerModel.employeeId??1,
+            customerID: customerModel.id,
             productID: widget.item.productID,
             productBarcode: barcode,
           ),
@@ -118,7 +118,7 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
                 context.read<AddToBasketBloc>().add(
                   AddToBasket(
                     AddToBasketRequest(
-                      customerID: customerModel.employeeId??1,
+                      customerID: customerModel.id,
                       productID: widget.item.productID,
                       productBarcode: widget.item.barCode,
                     ),
