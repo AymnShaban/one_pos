@@ -5,94 +5,50 @@ class PaymentButtonSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomRight,
-      child: Padding(
-        padding: const EdgeInsets.only(right: 12, left: 12),
-        child: BlocBuilder<BasketBloc, BaseState<ItemModel>>(
-          builder: (context, state) {
-            final total = state.items.fold<double>(
-              0,
-              (sum, item) => sum + item.totalSplitPrice,
-            );
-            return Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text.rich(
-                      maxLines: 1,
-                      overflow: TextOverflow.clip,
-                      style: AppTextTheme.titleLarge.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: context.isDarkMode
-                            ? Colors.white
-                            : AppColors.black,
-                      ),
-                      TextSpan(
-                        children: [
-                          TextSpan(text: total.toStringAsFixed(2)),
-                          TextSpan(text: 'EGP'.tr()),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      'subtotal'.tr(),
-                      style: AppTextTheme.captionBold.copyWith(
-                        color: context.isDarkMode
-                            ? Colors.white70
-                            : AppColors.grey,
-                      ),
-                    ),
-                  ],
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      child: BlocBuilder<BasketBloc, BaseState<ItemModel>>(
+        builder: (context, state) {
+          final total = state.items.fold<double>(
+            0,
+            (sum, item) => sum + item.totalSplitPrice,
+          );
+          if (total == 0) return const SizedBox.shrink();
+
+          return SizedBox(
+            width: double.infinity,
+            height: 54.h,
+            child: ElevatedButton(
+              onPressed: () {
+                // Payment logic here
+                showCustomSnackBar(context, 'Processing Payment...');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.mainAppColor,
+                elevation: 4,
+                shadowColor: AppColors.mainAppColor.withValues(alpha: 0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
-                const Spacer(),
-                SizedBox(
-                  width: 138,
-                  height: 45,
-                  child: ElevatedButton(
-                          onPressed: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) => MultiBlocProvider(
-                            //       providers: [
-                            //         BlocProvider(
-                            //           create: (context) =>
-                            //               getIt<OrderBloc>(),
-                            //         ),
-                            //         BlocProvider.value(
-                            //           value: getIt<BasketBloc>(),
-                            //         ),
-                            //       ],
-                            //       child: DeliveryTimeScreen(
-                            //         totalAmount: total,
-                            //       ),
-                            //     ),
-                            //   ),
-                            // );
-                          },
-                          // dont forget to change the total amount validation to total >= 2000
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.mainAppColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25.r),
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'payment'.tr(),
-                              style: AppTextTheme.titleLarge.copyWith(
-                                color: AppColors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                ),
-              ],
-            );
-          },
-        ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.payment_rounded, color: Colors.white, size: 24.sp),
+                  SizedBox(width: 12.w),
+                  Text(
+                    'payment'.tr().toUpperCase(),
+                    style: AppTextTheme.titleLarge.copyWith(
+                      color: AppColors.white,
+                      letterSpacing: 1.2,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

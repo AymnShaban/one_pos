@@ -3,8 +3,7 @@
   "nav_sales": "المبيعات",
   "nav_invoices": "الفواتير",
   "nav_reports": "التقارير",
-"nav_settings": "الإعدادات",
-
+  "nav_settings": "الإعدادات",
   "your_basket": "سلتك",
   "view_basket": "عرض السلة",
   "added_to_cart": "تمت الإضافة إلى السلة",
@@ -30,7 +29,6 @@
   "Quantity is high. Enter the desired total quantity:": "الكمية كبيرة. أدخل الكمية الإجمالية المطلوبة:",
   "Quantity is high. Enter the desired total quantity": "الكمية كبيرة. أدخل الكمية الإجمالية المطلوبة",
   "max_quantity_reached": "وصلت للحد الأقصى",
-
   "auth": {
     "welcome_back": "مرحباً بعودتك",
     "shop_easily_and_enjoy_special_offers": "سجّل دخولك للمتابعة",
@@ -69,7 +67,6 @@
     "customers": "العملاء",
     "pos_subtitle": "نقطة البيع الواحد"
   },
-
   "sales": {
     "title": "المبيعات",
     "search_product": "بحث عن منتج...",
@@ -91,7 +88,6 @@
     "please_log_in_to_manage_cart": "يرجى تسجيل الدخول لإدارة السلة",
     "unit": "وحدة"
   },
-
   "invoices": {
     "title": "إدارة الفواتير",
     "subtitle": "عرض وإدارة جميع الفواتير",
@@ -111,7 +107,6 @@
     "delete_success": "تم حذف الفاتورة بنجاح",
     "delete_error": "فشل حذف الفاتورة"
   },
-
   "reports": {
     "title": "التقارير",
     "daily_sales": "مبيعات اليومية",
@@ -134,7 +129,6 @@
     "units_sold": "{count} وحدة",
     "export_pdf": "تصدير التقرير (PDF)"
   },
-
   "settings": {
     "title": "الإعدادات",
     "subtitle": "إدارة إعدادات التطبيق",
@@ -162,7 +156,6 @@
     "copyright": "© ٢٠٢٦ جميع الحقوق محفوظة",
     "logout": "تسجيل الخروج"
   },
-
   "common": {
     "error": "حدث خطأ ما",
     "cancel": "إلغاء",
@@ -181,9 +174,9 @@
     "under_construction": "قيد الإنشاء",
     "page_under_development": "هذه الصفحة قيد التطوير",
     "SAR": "ر.س",
-    "EGP": "ج.م"
+    "EGP": "ج.م",
+    "total": "الإجمالي"
   },
-
   "new_invoice": {
     "title": "فاتورة مبيعات جديدة",
     "seller": "البائع",
@@ -239,28 +232,27 @@
     "required": "مطلوب",
     "invalid": "قيمة غير صحيحة"
   },
-
   "invoice_collection": {
-    "title":              "تحصيل فواتير",
-    "branch":             "الفرع",
-    "select_branch":      "اختر الفرع",
-    "date":               "التاريخ",
-    "credit_account":     "الحساب الدائن",
-    "collection_method":  "طريقة التحصيل",
-    "payment_method":     "طريقة الدفع",
-    "currency":           "العملة",
-    "disbursement":       "الصرف",
-    "equivalent":         "المعادل",
-    "local_value":        "القيمة المحلية",
-    "in_voice":           "فاتورة",
-    "type_of_receipt":    "نوع السند",
-    "knet_number":        "رقم كي نت",
-    "approval_number":    "رقم الموافقة",
-    "check_number":       "رقم الشيك",
-    "due_date":           "تاريخ الاستحقاق",
-    "description":        "البيان",
-    "enter_description":  "أدخل البيان هنا",
-    "save":               "حفظ",
+    "title": "تحصيل فواتير",
+    "branch": "الفرع",
+    "select_branch": "اختر الفرع",
+    "date": "التاريخ",
+    "credit_account": "الحساب الدائن",
+    "collection_method": "طريقة التحصيل",
+    "payment_method": "طريقة الدفع",
+    "currency": "العملة",
+    "disbursement": "الصرف",
+    "equivalent": "المعادل",
+    "local_value": "القيمة المحلية",
+    "in_voice": "فاتورة",
+    "type_of_receipt": "نوع السند",
+    "knet_number": "رقم كي نت",
+    "approval_number": "رقم الموافقة",
+    "check_number": "رقم الشيك",
+    "due_date": "تاريخ الاستحقاق",
+    "description": "البيان",
+    "enter_description": "أدخل البيان هنا",
+    "save": "حفظ",
     "saved_successfully": "تم حفظ السند بنجاح"
   }
 }

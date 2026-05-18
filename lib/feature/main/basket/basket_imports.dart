@@ -14,6 +14,7 @@ part 'presentation/widgets/order_minimum_widget.dart';
 part 'presentation/widgets/payment_button_section.dart';
 // part 'presentation/widgets/place_details_widget.dart';
 part 'presentation/widgets/product_basket_item.dart';
+part 'presentation/widgets/basket_pos_summary.dart';
 part 'models/add_to_basket_model.dart';
 part 'data_source/add_to_basket_data_source.dart';
 part 'data_source/delete_basket_data_source.dart';

@@ -17,7 +17,7 @@ class MainScreen extends StatelessWidget {
     BlocProvider(create: (_) => getIt<InvoicesBloc>(), child: InvoicesTab()),
     BlocProvider(create: (_) => getIt<ReportsBloc>(), child: ReportsTab()),
     BlocProvider(
-      create: (_) => getIt<SettingsBloc>()..add(const LoadSettings()),
+      create: (_) => getIt<SettingsBloc>(),
       child: const SettingsTab(),
     ),
   ];

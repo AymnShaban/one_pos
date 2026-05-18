@@ -181,7 +181,8 @@
     "under_construction": "Under Construction",
     "page_under_development": "This page is under development",
     "SAR": "SAR",
-    "EGP": "EGP"
+    "EGP": "EGP",
+    "total": "Total"
   },
 
   "new_invoice": {

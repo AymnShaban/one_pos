@@ -27,13 +27,11 @@ class HomeTab extends StatelessWidget {
                     children: [
                       // ── Welcome Card ──
                       GestureDetector(
-                          onTap: (){
-                            debugPrint(
-                                decrypt(printDecryptData)
-
-                            );
-                          },
-                          child: WelcomeCard(isSynced: isSynced)),
+                        onTap: () {
+                          debugPrint(decrypt(printDecryptData));
+                        },
+                        child: WelcomeCard(isSynced: isSynced),
+                      ),
                       SizedBox(height: 16.h),
 
                       // ── Stats Row ──
@@ -62,7 +60,7 @@ class HomeTab extends StatelessWidget {
                           Expanded(
                             child: StatsCard(
                               label: 'home.today_sales'.tr(),
-                              value: '${stats.todaySales.toStringAsFixed(0)}',
+                              value: stats.todaySales.toStringAsFixed(0),
                               badge: '+${stats.salesPercentage}%',
                               badgeColor: Colors.green,
                               iconColor: const Color(0xff40C057),
@@ -101,14 +99,10 @@ class HomeTab extends StatelessWidget {
                                               getIt<SubCategoryBloc>(),
                                         ),
                                         BlocProvider(
-                                          create: (_) =>
-                                              getIt<HomeBloc>(),
-
+                                          create: (_) => getIt<HomeBloc>(),
                                         ),
                                         BlocProvider.value(
-                                         value: context.read<BasketBloc>(),
-
-
+                                          value: getIt<BasketBloc>(),
                                         ),
                                       ],
                                       child: const SalesTab(),

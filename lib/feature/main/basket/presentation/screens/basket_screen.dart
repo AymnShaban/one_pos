@@ -108,11 +108,10 @@ class _BasketScreenState extends State<BasketScreen> {
                 SizedBox(height: 10.h),
 
                 // Conditionally show OrderMinimumWidget only when total < 2000
-                SizedBox(height: 10.h),
-
-                SizedBox(height: 10.h),
+                const BasketPosSummary(),
+                SizedBox(height: 20.h),
                 const PaymentButtonSection(),
-                SizedBox(height: 500.h),
+                SizedBox(height: 40.h),
               ],
             ),
           );
