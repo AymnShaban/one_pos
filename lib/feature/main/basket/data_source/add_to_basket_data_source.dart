@@ -13,7 +13,16 @@ class AddToBasketDataSourceImpl implements AddToBasketDataSource {
   Future<Either<Failure, void>> addToBasket(AddToBasketRequest request) async {
     try {
       if (request.item != null) {
-        await _basketCache.saveBasketItem(request.item!);
+        if (request.quantity != null) {
+          // Single operation: set the line to the exact desired quantity.
+          await _basketCache.setBasketItemQuantity(
+            request.item!,
+            request.quantity!,
+          );
+        } else {
+          // Legacy: increment by 1 (used by the +/- callers).
+          await _basketCache.saveBasketItem(request.item!);
+        }
         return const Right(null);
       } else {
         return Left(ParsingFailure(message: 'Product info missing for local storage'));

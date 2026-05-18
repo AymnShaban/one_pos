@@ -153,7 +153,7 @@ final class BaseApiConsumer implements ApiConsumer {
         dynamic requestData = data;
         if (encrypt && data != null) {
           log('[GET $url] request body (plain): ${jsonEncode(data)}');
-          String encryptedData = encryptData(data, privateKey, publicKey);
+          String encryptedData = encryptData(data);
           log('[GET $url] request body (encrypted): $encryptedData');
           requestData = jsonEncode(encryptedData);
         }
@@ -170,7 +170,7 @@ final class BaseApiConsumer implements ApiConsumer {
         dynamic responseData = response.data;
         if (encrypt) {
           log('[GET $url] raw encrypted response: ${response.data}');
-          final decryptedText = decrypt(response.data, privateKey, publicKey);
+          final decryptedText = decrypt(response.data);
           log('[GET $url] decrypted response: $decryptedText');
           if (decryptedText == 'This customer exists.') {
             return Left(ServerFailure(message: decryptedText));
@@ -219,7 +219,7 @@ final class BaseApiConsumer implements ApiConsumer {
       dynamic responseData = response.data;
       if (encrypt) {
         log('[HEAD $url] raw encrypted response: ${response.data}');
-        final decryptedText = decrypt(response.data, privateKey, publicKey);
+        final decryptedText = decrypt(response.data);
         log('[HEAD $url] decrypted response: $decryptedText');
         if (decryptedText == 'This customer exists.') {
           return Left(ServerFailure(message: decryptedText));
@@ -260,7 +260,7 @@ final class BaseApiConsumer implements ApiConsumer {
       dynamic requestData = data;
       if (encrypt && data != null) {
         log('[PATCH $url] request body (plain): ${jsonEncode(data)}');
-        String encryptedData = encryptData(data, privateKey, publicKey);
+        String encryptedData = encryptData(data);
         log('[PATCH $url] request body (encrypted): $encryptedData');
         requestData = jsonEncode(encryptedData);
       }
@@ -278,7 +278,7 @@ final class BaseApiConsumer implements ApiConsumer {
       dynamic responseData = response.data;
       if (encrypt) {
         log('[PATCH $url] raw encrypted response: ${response.data}');
-        final decryptedText = decrypt(response.data, privateKey, publicKey);
+        final decryptedText = decrypt(response.data);
         log('[PATCH $url] decrypted response: $decryptedText');
         if (decryptedText == 'This customer exists.') {
           return Left(ServerFailure(message: decryptedText));
@@ -320,7 +320,7 @@ final class BaseApiConsumer implements ApiConsumer {
       dynamic requestData = data;
       if (encrypt && data != null) {
         log('[POST $url] request body (plain): ${jsonEncode(data)}');
-        String encryptedData = encryptData(data, privateKey, publicKey);
+        String encryptedData = encryptData(data);
         log('[POST $url] request body (encrypted): $encryptedData');
         requestData = jsonEncode(encryptedData);
       } else if (formData != null) {
@@ -340,7 +340,7 @@ final class BaseApiConsumer implements ApiConsumer {
       dynamic responseData = response.data;
       if (encrypt) {
         log('[POST $url] raw encrypted response: ${response.data}');
-        final decryptedText = decrypt(response.data, privateKey, publicKey);
+        final decryptedText = decrypt(response.data);
         log('[POST $url] decrypted response: $decryptedText');
         if (decryptedText == 'This customer exists.') {
           return Left(ServerFailure(message: decryptedText));
@@ -383,7 +383,7 @@ final class BaseApiConsumer implements ApiConsumer {
       dynamic requestData = data;
       if (encrypt && data is Map<String, dynamic>) {
         log('[PUT $url] request body (plain): ${jsonEncode(data)}');
-        String encryptedData = encryptData(data, privateKey, publicKey);
+        String encryptedData = encryptData(data);
         log('[PUT $url] request body (encrypted): $encryptedData');
         requestData = jsonEncode(encryptedData);
       } else if (formData && data is Map<String, dynamic>) {
@@ -403,7 +403,7 @@ final class BaseApiConsumer implements ApiConsumer {
       dynamic responseData = response.data;
       if (encrypt) {
         log('[PUT $url] raw encrypted response: ${response.data}');
-        final decryptedText = decrypt(response.data, privateKey, publicKey);
+        final decryptedText = decrypt(response.data);
         log('[PUT $url] decrypted response: $decryptedText');
         if (decryptedText == 'This customer exists.') {
           return Left(ServerFailure(message: decryptedText));
@@ -442,7 +442,7 @@ final class BaseApiConsumer implements ApiConsumer {
       dynamic requestData = data;
       if (encrypt && data != null) {
         log('[DELETE $url] request body (plain): ${jsonEncode(data)}');
-        String encryptedData = encryptData(data, privateKey, publicKey);
+        String encryptedData = encryptData(data);
         log('[DELETE $url] request body (encrypted): $encryptedData');
         requestData = jsonEncode(encryptedData);
       }
@@ -458,7 +458,7 @@ final class BaseApiConsumer implements ApiConsumer {
       dynamic responseData = response.data;
       if (encrypt) {
         log('[DELETE $url] raw encrypted response: ${response.data}');
-        final decryptedText = decrypt(response.data, privateKey, publicKey);
+        final decryptedText = decrypt(response.data);
         log('[DELETE $url] decrypted response: $decryptedText');
         if (decryptedText == 'This customer exists.') {
           return Left(ServerFailure(message: decryptedText));
@@ -531,7 +531,7 @@ final class BaseApiConsumer implements ApiConsumer {
       if (encrypt) {
         log('[UPLOAD $url] request body (plain): ${jsonEncode(formData)}');
         // Encrypt formData map before converting to FormData, if needed
-        String encryptedData = encryptData(formData, privateKey, publicKey);
+        String encryptedData = encryptData(formData);
         log('[UPLOAD $url] request body (encrypted): $encryptedData');
         requestData = jsonEncode(encryptedData);
       }
@@ -549,7 +549,7 @@ final class BaseApiConsumer implements ApiConsumer {
       dynamic responseData = response.data;
       if (encrypt) {
         log('[UPLOAD $url] raw encrypted response: ${response.data}');
-        final decryptedText = decrypt(response.data, privateKey, publicKey);
+        final decryptedText = decrypt(response.data);
         log('[UPLOAD $url] decrypted response: $decryptedText');
         if (decryptedText == 'This customer exists.') {
           return Left(ServerFailure(message: decryptedText));

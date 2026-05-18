@@ -104,7 +104,7 @@ class EndPoints {
   static const String getBranches = '/api/CompanyBranch/GetBranches';
   static const String getInvoicePatterns = '/api/InvoicePattern/GetByBranch';
   static const String getQuotePatterns = '/api/InvoicePattern/GetQuoteByBranch';
-  static const String getCurrencies = '/api/Currency/GetCurrencies';
+  static const String getCurrencies = '/api/Currencies';
 
   static const String getReceiptsVouchersTypesByBranch =
       'api/VoucherSettings/GetReceiptsVouchersTypesByBranchID';

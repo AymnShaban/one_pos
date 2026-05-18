@@ -39,6 +39,18 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
     _isProcessing = false;
   }
 
+  @override
+  void didUpdateWidget(covariant EnhancedProductItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialQuantity != widget.initialQuantity ||
+        oldWidget.initialIsInCart != widget.initialIsInCart) {
+      setState(() {
+        _quantity = widget.initialQuantity;
+        _isInCart = widget.initialIsInCart;
+      });
+    }
+  }
+
 
 
 
@@ -53,6 +65,12 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       return;
     }
 
+    final stock = widget.product.stockQuantity.toInt();
+    if (stock > 0 && _quantity >= stock) {
+      if (mounted) showCustomSnackBar(context, 'max_quantity_reached'.tr());
+      return;
+    }
+
     setState(() {
       _isInCart = true;
       _quantity++;
@@ -63,8 +81,10 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       productID: widget.product.productId,
       productBarcode: widget.product.productCode,
       item: widget.product,
+      quantity: _quantity,
     );
     context.read<AddToBasketBloc>().add(AddToBasket(request));
+    context.read<BasketBloc>().add(const FetchBasketItems());
   }
 
   Future<void> _incrementQuantity() async {
@@ -80,7 +100,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       return;
     }
 
-    if (_quantity >= 3) {
+    if (_quantity >= 1) {
       await _showQuantityDialog(isFromDecrement: false);
     } else {
       setState(() {
@@ -95,9 +115,11 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
               productID: widget.product.productId,
               productBarcode: widget.product.productCode,
               item: widget.product,
+              quantity: _quantity,
             ),
           ),
         );
+        context.read<BasketBloc>().add(const FetchBasketItems());
       }
     }
   }
@@ -113,7 +135,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       return;
     }
 
-    if (_quantity > 3) {
+    if (_quantity > 1) {
       await _showQuantityDialog(isFromDecrement: true);
     } else {
       setState(() {
@@ -124,6 +146,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
             widget.product.productCode,
           ),
         );
+        context.read<BasketBloc>().add(const FetchBasketItems());
       });
     }
   }
@@ -446,60 +469,49 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       },
     );
 
-    if (result != null) {
-      final newTotal = int.tryParse(result) ?? -1;
-      if (newTotal >= 0) {
-        final customerModel = getIt<IUserCache>().getUserModel();
-        if (customerModel == null) return;
+    if (result == null) return;
 
-        final diff = newTotal - _quantity;
+    final entered = int.tryParse(result);
+    if (entered == null || entered < 0) return;
 
-        // Handle both increasing and decreasing
-        if (diff != 0) {
-          final isIncreasing = diff > 0;
-          final iterations = diff.abs();
-
-          for (int i = 0; i < iterations; i++) {
-            if (isIncreasing) {
-              // Adding to basket
-              final stockQuantity = widget.product.stockQuantity;
-              if (stockQuantity > 0 && _quantity >= stockQuantity) {
-                if (mounted) {
-                  showCustomSnackBar(context, 'max_quantity_reached'.tr());
-                }
-                break;
-              }
-
-              if (mounted) {
-                context.read<AddToBasketBloc>().add(
-                  AddToBasket(
-                    AddToBasketRequest(
-                      customerID: customerModel.id,
-                      productID: widget.product.productId,
-                      productBarcode: widget.product.productCode,
-                      item: widget.product,
-                    ),
-                  ),
-                );
-              }
-              _quantity++;
-              _isInCart = true;
-            } else {
-              // Removing from basket
-              if (mounted) {
-                context.read<BasketBloc>().add(
-                  DeleteBasketItem(
-                    widget.product.productId,
-                    widget.product.productCode,
-                  ),
-                );
-              }
-              _quantity--;
-            }
-          }
-          setState(() {});
-        }
+    final customerModel = getIt<IUserCache>().getUserModel();
+    if (customerModel == null) {
+      if (mounted) {
+        showCustomSnackBar(context, 'please_log_in_to_add_to_cart'.tr());
+        Navigator.pushReplacement(context, LoginScreen.route());
       }
+      return;
     }
+
+    // Cap at available stock — the user can't request more than in stock.
+    final stock = widget.product.stockQuantity.toInt();
+    var target = entered;
+    if (stock > 0 && target > stock) {
+      target = stock;
+      if (mounted) showCustomSnackBar(context, 'max_quantity_reached'.tr());
+    }
+
+    if (target == _quantity) return;
+    if (!mounted) return;
+
+    setState(() {
+      _quantity = target;
+      _isInCart = target > 0;
+    });
+
+    // Single operation — set the basket line to the exact quantity instead
+    // of dispatching one request per unit.
+    context.read<AddToBasketBloc>().add(
+      AddToBasket(
+        AddToBasketRequest(
+          customerID: customerModel.id,
+          productID: widget.product.productId,
+          productBarcode: widget.product.productCode,
+          item: widget.product,
+          quantity: target,
+        ),
+      ),
+    );
+    context.read<BasketBloc>().add(const FetchBasketItems());
   }
 }

@@ -81,22 +81,25 @@ class _BasketScreenState extends State<BasketScreen> {
                             ),
                           );
                         }
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.symmetric(vertical: 10.h),
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            loggerInfo("basket items : ${items[index].barCode}");
+                        return Column(
+                          children: [
+                            const BasketTableHeader(),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: EdgeInsets.zero,
+                              itemCount: items.length,
+                              itemBuilder: (context, index) {
+                                loggerInfo(
+                                    "basket items : ${items[index].barCode}");
 
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ProductBasketItem(
-                                item: items[index],
-                                bloc: context.read<BasketBloc>(),
-                              ),
-                            );
-                          },
+                                return ProductBasketItem(
+                                  item: items[index],
+                                  bloc: context.read<BasketBloc>(),
+                                );
+                              },
+                            ),
+                          ],
                         );
                       }
                     },

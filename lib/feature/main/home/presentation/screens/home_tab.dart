@@ -26,7 +26,14 @@ class HomeTab extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       // ── Welcome Card ──
-                      WelcomeCard(isSynced: isSynced),
+                      GestureDetector(
+                          onTap: (){
+                            debugPrint(
+                                decrypt(printDecryptData)
+
+                            );
+                          },
+                          child: WelcomeCard(isSynced: isSynced)),
                       SizedBox(height: 16.h),
 
                       // ── Stats Row ──

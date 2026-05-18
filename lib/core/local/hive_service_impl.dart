@@ -38,12 +38,26 @@ class HiveServiceImpl implements IUserCache, IBasket {
     Hive.registerAdapter(ItemModelAdapter());
     Hive.registerAdapter(AreasModelAdapter());
 
-    _userBox = await Hive.openBox<UserModel>(userBoxName);
-    _orderBox = await Hive.openBox<String>(orderBoxName);
-    _selectedAreaBox = await Hive.openBox<AreasModel>(selectedAreaBoxName);
-    _locationBox = await Hive.openBox<Map>(locationBoxName);
-    _settingsBox = await Hive.openBox(settingsBoxName);
-    _basketBox = await Hive.openBox<ItemModel>(basketBoxName);
+    _userBox = await _openBoxSafely<UserModel>(userBoxName);
+    _orderBox = await _openBoxSafely<String>(orderBoxName);
+    _selectedAreaBox = await _openBoxSafely<AreasModel>(selectedAreaBoxName);
+    _locationBox = await _openBoxSafely<Map>(locationBoxName);
+    _settingsBox = await _openBoxSafely(settingsBoxName);
+    _basketBox = await _openBoxSafely<ItemModel>(basketBoxName);
+  }
+
+  /// Opens a Hive box, recovering from data written with an incompatible
+  /// adapter schema (e.g. UserModel changed but kept typeId 0). If decoding
+  /// the persisted data throws, the stale box is deleted from disk and
+  /// reopened empty so the app can still start (the user just logs in again).
+  static Future<Box<T>> _openBoxSafely<T>(String name) async {
+    try {
+      return await Hive.openBox<T>(name);
+    } catch (e) {
+      logger('Hive box "$name" is incompatible ($e). Recreating it.');
+      await Hive.deleteBoxFromDisk(name);
+      return await Hive.openBox<T>(name);
+    }
   }
 
   @override
@@ -264,6 +278,31 @@ class HiveServiceImpl implements IUserCache, IBasket {
     } else {
       // If it doesn't exist, add it with salesQuantity 1
       await _basketBox?.add(item.copyWith(salesQuantity: 1));
+    }
+  }
+
+  @override
+  Future<void> setBasketItemQuantity(ItemModel item, int quantity) async {
+    final existingIndex = _basketBox?.values.toList().indexWhere(
+      (element) =>
+          element.productId == item.productId &&
+          element.barCode == item.barCode,
+    );
+
+    if (quantity <= 0) {
+      if (existingIndex != null && existingIndex != -1) {
+        await _basketBox?.deleteAt(existingIndex);
+      }
+      return;
+    }
+
+    if (existingIndex != null && existingIndex != -1) {
+      await _basketBox?.putAt(
+        existingIndex,
+        item.copyWith(salesQuantity: quantity),
+      );
+    } else {
+      await _basketBox?.add(item.copyWith(salesQuantity: quantity));
     }
   }
 

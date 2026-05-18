@@ -5,7 +5,6 @@ import '../../../core/extension/context_extension.dart';
 import '../../../core/helper/helper.dart';
 import '../../../core/services/service_locator/services_imports.dart';
 import '../../../core/widgets/custom_snack_bar.dart';
-import '../../../core/widgets/flexible_image.dart';
 import '../../../core/widgets/product_list_wrapper.dart';
 import '../../../core/widgets/pull_to_refresh.dart';
 import '../../auth/presentation/screens/login_screen.dart';

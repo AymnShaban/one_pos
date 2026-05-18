@@ -35,8 +35,8 @@ class GenericDataSource {
     );
     return result.fold((left) => Left(left), (right) {
       try {
-        loggerWarn(decrypt(right["data"], privateKey, publicKey));
-        final data = decrypt(right["data"], privateKey, publicKey);
+        loggerWarn(decrypt(right["data"]));
+        final data = decrypt(right["data"]);
 
         loggerInfo(data.runtimeType);
         final items = (jsonDecode(data) as List)
@@ -70,10 +70,10 @@ class GenericDataSource {
     );
     return result.fold((left) => Left(left), (right) {
       try {
-        loggerWarn(decrypt(right["data"], privateKey, publicKey));
-        final data = decrypt(right["data"], privateKey, publicKey);
+        loggerWarn(decrypt(right["data"]));
+        final data = decrypt(right["data"]);
         loggerInfo(data.runtimeType);
-        if(T == String){
+        if (T == String) {
           return Right(data);
         }
         return Right(fromJson!(jsonDecode(data)));
@@ -104,9 +104,10 @@ class GenericDataSource {
           return Right(null as T);
         } else if (T == String) {
           log('right: $right');
-          if(right["message"] == 'توجد أصناف ليس لها كمية في المخزن لم يتم إضافة الطلبية'){
+          if (right["message"] ==
+              'توجد أصناف ليس لها كمية في المخزن لم يتم إضافة الطلبية') {
             return Right(right["message"] as T);
-          }else {
+          } else {
             return Right(right["data"] as T);
           }
         } else if (T == int) {
@@ -159,8 +160,8 @@ class GenericDataSource {
   }
 
   Future<Map<String, dynamic>> _processFormData(
-      Map<String, dynamic> data,
-      ) async {
+    Map<String, dynamic> data,
+  ) async {
     final processed = <String, dynamic>{};
 
     for (final entry in data.entries) {

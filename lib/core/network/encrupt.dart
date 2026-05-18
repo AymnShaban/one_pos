@@ -3,29 +3,14 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import '../local/hive_service_impl.dart';
 import '../services/service_locator/services_imports.dart';
 
-//test
-// final basicToken = 'Basic ZTBjOWRlMWIyZGUyNmZlMjpnOEV0eXg4VFU1Nzl2RHhKemFOMWxvM3I0NitXSkx2cWIvSU1ZZElVUkhNPQ==';
-// final privateKey = 'c104780a25b4f80c037445dd1f6947e1';
-// final publicKey = 'e0c9de1b2de26fe2';
 
-// // mazyad
-// final basicToken =
-//     'Basic MTE5MTEyODE2MzRlYjVhYTpTZk12SU1FNTlOU05qZEVsdlpqK2NDM0ZuaUJBWTBxRGlSM2xqVnU0RU5ZPQ==';
-// final privateKey = '7a0847a8ed338cff77b74bc74a8061de';
-// final publicKey = '11911281634eb5aa';
-//
 
 final basicToken = 'Basic ${getIt<HiveServiceImpl>().getAuthorization()??""}';
 final privateKey =  getIt<HiveServiceImpl>().getPrivateKey()??"";
 final publicKey = getIt<HiveServiceImpl>().getPublicKey()??"";
 
-//  // alharamayn
-// final basicToken =
-//     'Basic NzNhZDlkN2U4MzI4OWVlNzpaSEltUG5KNXNXUWt5bWFtQm45WnNyeFhuYzRHcWp0SVhIOFZMN0FtWVBRPQ==';
-// final privateKey = '6eaceaec3d66b72db1c0f7c694b963ba';
-// final publicKey = '73ad9d7e83289ee7';
 
-dynamic decrypt(String encryptedText, String privateKey, String publicKey) {
+dynamic decrypt(String encryptedText) {
   final keyObj = encrypt.Key.fromUtf8(privateKey);
   final ivObj = encrypt.IV.fromUtf8(publicKey);
   final encrypter = encrypt.Encrypter(
@@ -45,8 +30,6 @@ dynamic decrypt(String encryptedText, String privateKey, String publicKey) {
 
 String encryptData(
   Map<String, dynamic> data,
-  String privateKey,
-  String publicKey,
 ) {
   final key = encrypt.Key.fromUtf8(privateKey);
   final iv = encrypt.IV.fromUtf8(publicKey);

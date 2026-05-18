@@ -13,7 +13,7 @@ class PaymentButtonSection extends StatelessWidget {
           builder: (context, state) {
             final total = state.items.fold<double>(
               0,
-                  (sum, item) => sum + item.totalSplitPrice,
+              (sum, item) => sum + item.totalSplitPrice,
             );
             return Row(
               children: [
@@ -25,7 +25,9 @@ class PaymentButtonSection extends StatelessWidget {
                       overflow: TextOverflow.clip,
                       style: AppTextTheme.titleLarge.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: context.isDarkMode ? Colors.white : AppColors.black,
+                        color: context.isDarkMode
+                            ? Colors.white
+                            : AppColors.black,
                       ),
                       TextSpan(
                         children: [
@@ -37,7 +39,9 @@ class PaymentButtonSection extends StatelessWidget {
                     Text(
                       'subtotal'.tr(),
                       style: AppTextTheme.captionBold.copyWith(
-                        color: context.isDarkMode ? Colors.white70 : AppColors.grey,
+                        color: context.isDarkMode
+                            ? Colors.white70
+                            : AppColors.grey,
                       ),
                     ),
                   ],
@@ -46,65 +50,31 @@ class PaymentButtonSection extends StatelessWidget {
                 SizedBox(
                   width: 138,
                   height: 45,
-                  child:
-                     ( getIt<IUserCache>().getUserModel()?.fullUserName.isEmpty ?? true)
-                      ? ElevatedButton(
+                  child: ElevatedButton(
                           onPressed: () {
                             // Navigator.push(
                             //   context,
                             //   MaterialPageRoute(
-                            //     builder: (context) =>
-                            //         const AddNewAddressScreen(),
+                            //     builder: (context) => MultiBlocProvider(
+                            //       providers: [
+                            //         BlocProvider(
+                            //           create: (context) =>
+                            //               getIt<OrderBloc>(),
+                            //         ),
+                            //         BlocProvider.value(
+                            //           value: getIt<BasketBloc>(),
+                            //         ),
+                            //       ],
+                            //       child: DeliveryTimeScreen(
+                            //         totalAmount: total,
+                            //       ),
+                            //     ),
                             //   ),
                             // );
                           },
+                          // dont forget to change the total amount validation to total >= 2000
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: total >= 200
-                                ? AppColors.mainAppColor
-                                : AppColors.grey,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25.r),
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'payment'.tr(),
-                              style: AppTextTheme.labelMedium11Bold.copyWith(
-                                color: AppColors.white1,
-                              ),
-                            ),
-                          ),
-                        )
-                      : ElevatedButton(
-                          onPressed: total >= 200
-                              ? () {
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => MultiBlocProvider(
-                                  //       providers: [
-                                  //         BlocProvider(
-                                  //           create: (context) =>
-                                  //               getIt<OrderBloc>(),
-                                  //         ),
-                                  //         BlocProvider.value(
-                                  //           value: getIt<BasketBloc>(),
-                                  //         ),
-                                  //       ],
-                                  //       child: DeliveryTimeScreen(
-                                  //         totalAmount: total,
-                                  //       ),
-                                  //     ),
-                                  //   ),
-                                  // );
-
-                                }
-                              : null,
-                        // dont forget to change the total amount validation to total >= 2000
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: total >= 20
-                                ? AppColors.mainAppColor
-                                : AppColors.grey,
+                            backgroundColor: AppColors.mainAppColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25.r),
                             ),

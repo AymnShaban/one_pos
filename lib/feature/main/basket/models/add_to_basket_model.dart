@@ -6,11 +6,16 @@ class AddToBasketRequest extends Equatable {
   final String productBarcode;
   final ItemModel? item;
 
+  /// When set, the basket line is set to exactly this quantity in one
+  /// operation. When null, the legacy increment-by-1 behavior is used.
+  final int? quantity;
+
   const AddToBasketRequest({
     required this.customerID,
     required this.productID,
     required this.productBarcode,
     this.item,
+    this.quantity,
   });
 
   Map<String, dynamic> toJson() {
@@ -22,7 +27,8 @@ class AddToBasketRequest extends Equatable {
   }
 
   @override
-  List<Object?> get props => [customerID, productID,productBarcode, item];
+  List<Object?> get props =>
+      [customerID, productID, productBarcode, item, quantity];
 }
 class AddToBasketResponse extends Equatable {
   final bool success;

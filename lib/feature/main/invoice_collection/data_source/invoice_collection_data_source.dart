@@ -11,8 +11,7 @@ abstract interface class InvoiceCollectionDataSource {
 }
 
 class InvoiceCollectionDataSourceImpl implements InvoiceCollectionDataSource {
-  final String _privateKey;
-  final String _publicKey;
+
   final String _baseUrl;
   final String _userId;
   final String _ipAddress;
@@ -21,16 +20,14 @@ class InvoiceCollectionDataSourceImpl implements InvoiceCollectionDataSource {
   final String _databaseName;
 
   InvoiceCollectionDataSourceImpl({
-    required String privateKey,
-    required String publicKey,
+
     required String baseUrl,
     required String userId,
     required String ipAddress,
     required String userNameServer,
     required String passwordServer,
     required String databaseName,
-  })  : _privateKey      = privateKey,
-        _publicKey       = publicKey,
+  })  :
         _baseUrl         = baseUrl,
         _userId          = userId,
         _ipAddress       = ipAddress,
@@ -42,8 +39,6 @@ class InvoiceCollectionDataSourceImpl implements InvoiceCollectionDataSource {
   factory InvoiceCollectionDataSourceImpl.fromHive() {
     final hive = HiveServiceImpl.instance;
     return InvoiceCollectionDataSourceImpl(
-      privateKey:     hive.getPrivateKey()     ?? '',
-      publicKey:      hive.getPublicKey()      ?? '',
       baseUrl:        hive.getBaseUrl()        ?? '',
       userId:         hive.getUserId()?.toString() ?? '',
       ipAddress:      hive.getIpAddress()      ?? '',
@@ -54,10 +49,10 @@ class InvoiceCollectionDataSourceImpl implements InvoiceCollectionDataSource {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-  String _decrypt(dynamic data) => decrypt(data, _privateKey, _publicKey);
+  String _decrypt(dynamic data) => decrypt(data,);
 
   String _encrypt(Map<String, dynamic> data) =>
-      encryptData(data, _privateKey, _publicKey);
+      encryptData(data,);
 
   String get _apiBase => 'http://$_ipAddress/$_baseUrl';
 
