@@ -18,9 +18,12 @@ class _SalesTabState extends State<SalesTab> {
 
   @override
   Widget build(BuildContext context) {
-    return ProductListWrapper(
-      child: Scaffold(
-        backgroundColor: const Color(0xffF0F2F8),
+    return BlocProvider<InvoiceSetupBloc>(
+      create: (_) => getIt<InvoiceSetupBloc>()
+        ..add(const LoadInvoiceSetupData(branchId: 0)),
+      child: ProductListWrapper(
+        child: Scaffold(
+        backgroundColor:  AppColors.white,
         bottomNavigationBar: const BasketBottomBar(),
         body: MultiBlocListener(
           listeners: [
@@ -57,6 +60,9 @@ class _SalesTabState extends State<SalesTab> {
               return CustomScrollView(
                 slivers: [
                   HomeAppBar(isOnline: context.read<HomeBloc>().isOnline),
+
+                  // Pattern / Currency / Branch selectors
+                  const SliverToBoxAdapter(child: SalesSetupBar()),
 
                   // Main category chip list
                   SliverToBoxAdapter(
@@ -142,6 +148,7 @@ class _SalesTabState extends State<SalesTab> {
               );
             },
           ),
+        ),
         ),
       ),
     );

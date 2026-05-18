@@ -1,4 +1,17 @@
 {
+  "your_basket": "Votre panier",
+  "view_basket": "Voir le panier",
+  "added_to_cart": "Ajouté au panier",
+  "instead_of": "Au lieu de",
+  "EGP": "EGP",
+  "no_categories": "Aucune catégorie",
+  "no_products": "Aucun produit trouvé",
+  "basket_details": "Détails du panier",
+  "subtotal": "Sous-total",
+  "payment": "Paiement",
+  "price": "Prix",
+  "total": "Total",
+
   "home": {
     "sales": "Ventes",
     "invoices": "Factures",

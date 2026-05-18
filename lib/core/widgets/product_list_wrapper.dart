@@ -1,5 +1,6 @@
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:one_pos/core/models/item_model.dart';
 
 import '../../feature/main/basket/basket_imports.dart';
 // import '../../feature/main/favourite/favorite_imports.dart';
@@ -17,19 +18,6 @@ class ProductListWrapper extends StatefulWidget {
 }
 
 class _ProductListWrapperState extends State<ProductListWrapper> {
-  // Simple debouncing mechanism: track last SnackBar time per product
-  final Map<int, DateTime> _lastSnackBarTime = {};
-  static const _debounceDuration = Duration(seconds: 2);
-
-  bool _shouldShowSnackBar(int productId) {
-    final now = DateTime.now();
-    final lastTime = _lastSnackBarTime[productId];
-    if (lastTime == null || now.difference(lastTime) > _debounceDuration) {
-      _lastSnackBarTime[productId] = now;
-      return true;
-    }
-    return false;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +39,7 @@ class _ProductListWrapperState extends State<ProductListWrapper> {
               }
             },
           ),
-          BlocListener<BasketBloc, BaseState<BasketItemModel>>(
+          BlocListener<BasketBloc, BaseState<ItemModel>>(
             listener: (context, state) {
               if (state.status == Status.success &&
                   state.metadata['action'] == 'add') {

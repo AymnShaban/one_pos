@@ -87,6 +87,8 @@ class ItemModel extends Equatable {
   final String? brandID;
   @HiveField(37)
   final double? customerQuantity;
+  @HiveField(38)
+  final int salesQuantity;
 
   const ItemModel({
     required this.productCode,
@@ -124,6 +126,7 @@ class ItemModel extends Equatable {
     this.unitArName,
     this.brandID,
     this.customerQuantity,
+    this.salesQuantity = 0,
   });
 
   const ItemModel.empty()
@@ -160,7 +163,8 @@ class ItemModel extends Equatable {
         unitValue = null,
         unitArName = null,
         unitEnName = null,
-        customerQuantity =0.0,
+        customerQuantity = 0.0,
+        salesQuantity = 0,
         brandID = null;
 
 
@@ -217,6 +221,7 @@ class ItemModel extends Equatable {
       description9: json['Description9'] ?? '',
       description10: json['Description10'] ?? '',
       brandID: json['BrandID'] ?? '',
+      salesQuantity: json['SalesQuantity'] ?? 0,
     );
   }
 
@@ -256,6 +261,7 @@ class ItemModel extends Equatable {
     String? unitEnName,
     String? brandID,
     double? customerQuantity,
+    int? salesQuantity,
   }) {
     return ItemModel(
       productCode: productCode ?? this.productCode,
@@ -293,6 +299,7 @@ class ItemModel extends Equatable {
       unitEnName: unitEnName ?? this.unitEnName,
       brandID: brandID ?? this.brandID,
       customerQuantity: customerQuantity ?? this.customerQuantity,
+      salesQuantity: salesQuantity ?? this.salesQuantity,
     );
   }
 
@@ -323,6 +330,7 @@ UnitArName: $unitArName
 UnitEnName: $unitEnName
 BrandID: $brandID
 CustomerQuantity: $customerQuantity
+SalesQuantity: $salesQuantity
 ''';
   }
 
@@ -363,6 +371,7 @@ CustomerQuantity: $customerQuantity
       'UnitEnName': unitEnName,
       'BrandID': brandID,
       'CustomerQuantity': customerQuantity,
+      'SalesQuantity': salesQuantity,
     };
   }
 
@@ -424,5 +433,19 @@ CustomerQuantity: $customerQuantity
     unitEnName,
     brandID,
     customerQuantity,
+    salesQuantity,
   ];
+
+  double get totalSplitPrice {
+    final hasDiscount = priceAfterDiscount > 0 && priceAfterDiscount < price;
+    if (hasDiscount && (customerQuantity ?? 0) > 0) {
+      final discountLimit = customerQuantity ?? 0;
+      final discountQty = salesQuantity > discountLimit
+          ? discountLimit
+          : salesQuantity.toDouble();
+      final normalQty = salesQuantity - discountQty;
+      return (discountQty * priceAfterDiscount) + (normalQty * price);
+    }
+    return (priceAfterDiscount > 0 ? priceAfterDiscount : price) * salesQuantity;
+  }
 }

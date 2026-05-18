@@ -12,6 +12,18 @@ class SalesBloc extends Bloc<SalesEvent, BaseState<ItemModel>> {
     _paginationHandler = PaginationHandler(bloc: this);
     on<FilterByCategory>(_onFilterByCategory);
     on<LoadMoreProducts>(_onLoadMore);
+    on<ReloadProducts>(_onReloadProducts);
+  }
+
+  Future<void> _onReloadProducts(
+      ReloadProducts event, Emitter<BaseState<ItemModel>> emit) async {
+    await _paginationHandler.loadFirstPage(
+      (page, limit, [params]) => _dataSource.getProducts(
+        page: page,
+        limit: limit,
+        categoryId: _selectedCategoryId ?? 0,
+      ),
+    );
   }
 
   Future<void> _onFilterByCategory(

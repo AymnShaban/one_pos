@@ -5,6 +5,19 @@
   "nav_reports": "التقارير",
 "nav_settings": "الإعدادات",
 
+  "your_basket": "سلتك",
+  "view_basket": "عرض السلة",
+  "added_to_cart": "تمت الإضافة إلى السلة",
+  "instead_of": "بدلاً من",
+  "EGP": "ج.م",
+  "no_categories": "لا توجد أقسام",
+  "no_products": "لا توجد منتجات",
+  "basket_details": "تفاصيل السلة",
+  "subtotal": "المجموع الفرعي",
+  "payment": "الدفع",
+  "price": "السعر",
+  "total": "الإجمالي",
+
   "auth": {
     "welcome_back": "مرحباً بعودتك",
     "shop_easily_and_enjoy_special_offers": "سجّل دخولك للمتابعة",

@@ -2,9 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../core/helper/helper.dart';
 import '../../feature/auth/presentation/screens/login_screen.dart';
 import '../../feature/main/basket/basket_imports.dart';
-import '../../feature/main/details/manager/product_details_bloc/product_details_bloc.dart';
-import '../../feature/main/details/presentation/screens/details_screen.dart';
-// import '../../feature/main/favourite/favorite_imports.dart';
 import '../models/item_model.dart';
 import '../services/service_locator/services_imports.dart';
 import 'custom_snack_bar.dart';
@@ -65,6 +62,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       customerID: customerModel.id,
       productID: widget.product.productId,
       productBarcode: widget.product.productCode,
+      item: widget.product,
     );
     context.read<AddToBasketBloc>().add(AddToBasket(request));
   }
@@ -82,7 +80,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       return;
     }
 
-    if (_quantity >= 10) {
+    if (_quantity >= 3) {
       await _showQuantityDialog(isFromDecrement: false);
     } else {
       setState(() {
@@ -96,6 +94,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
               customerID: customerModel?.id ?? 0,
               productID: widget.product.productId,
               productBarcode: widget.product.productCode,
+              item: widget.product,
             ),
           ),
         );
@@ -114,17 +113,17 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       return;
     }
 
-    if (_quantity > 15) {
+    if (_quantity > 3) {
       await _showQuantityDialog(isFromDecrement: true);
     } else {
       setState(() {
         _quantity--;
-        // context.read<BasketBloc>().add(
-        //   DeleteBasketItem(
-        //     widget.product.productId,
-        //     widget.product.productCode,
-        //   ),
-        // );
+        context.read<BasketBloc>().add(
+          DeleteBasketItem(
+            widget.product.productId,
+            widget.product.productCode,
+          ),
+        );
       });
     }
   }
@@ -152,149 +151,129 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
         '${widget.product.unitValue ?? ""} ${isArabic ? (widget.product.unitArName ?? widget.product.defaultUnitArName ?? "") : (widget.product.unitEnName ?? widget.product.defaultUnitEnName ?? "")}'
             .trim();
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MultiBlocProvider(
-              providers: [
-                BlocProvider(  create: (context) => getIt<ProductDetailsBloc>(),),
-                BlocProvider.value(  value:getIt<ProductDetailsBloc>(),),
+    return Container(
+      width: itemWidth,
+      decoration: BoxDecoration(
+        color: Colors.transparent, // Replaced shadow/white background with a transparent container
+        border: Border.all(color: Colors.grey.shade300, width: 1),
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Image Container with light grey background
+          Container(
+            height: 140.h,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F5F5),
+              borderRadius: BorderRadius.circular(16.r),
+            ),
+            child: Stack(
+              children: [
+                // Centered Product Image
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(12.w),
+                    child: FlexibleImage(
+                      source: widget.product.productImage ?? '',
+                      height: 100.h,
+                      width: 100.w,
+                      fit: BoxFit.contain,
+                      isProduct: true,
+                    ),
+                  ),
+                ),
 
+                // Out of Stock Overlay
+                if (widget.product.isOutOfStock) _buildOutOfStockBanner(),
+
+                // Bottom Right: Add/Counter Button
+                if (!widget.product.isOutOfStock || _quantity > 0)
+                  Positioned(
+                    bottom: 8.h,
+                    right: 8.w,
+                    child: _buildAdvancedCounterBox(),
+                  ),
               ],
-              child: DetailsScreen(
-                productId: widget.product.productId,
-                initialQuantity: widget.initialQuantity,
-                stockQuantity: widget.product.stockQuantity.toDouble(),
-              ),
             ),
           ),
-        );
-      },
-      child: Container(
-        width: itemWidth,
-        decoration: BoxDecoration(
-          color: Colors
-              .transparent, // Replaced shadow/white background with a transparent container
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Image Container with light grey background
-            Container(
-              height: 140.h,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-              child: Stack(
-                children: [
-                  // Centered Product Image
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(12.w),
-                      child: FlexibleImage(
-                        source: widget.product.productImage ?? '',
-                        height: 100.h,
-                        width: 100.w,
-                        fit: BoxFit.contain,
-                        isProduct: true,
-                      ),
-                    ),
+
+          const SizedBox(height: 8),
+
+          // Below Image Section
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // // Special Offer / Best Seller Badge
+                // if (_hasDiscount)
+                //   Padding(
+                //     padding: EdgeInsets.only(bottom: 6.h),
+                //     child: Container(
+                //       padding: EdgeInsets.symmetric(
+                //         horizontal: 6.w,
+                //         vertical: 3.h,
+                //       ),
+                //       decoration: BoxDecoration(
+                //         color: const Color(0xFFFEF3C7),
+                //         borderRadius: BorderRadius.circular(4.r),
+                //       ),
+                //       child: Text(
+                //         'special_offer'
+                //             .tr(), // Or 'best_seller'.tr() if you prefer that text
+                //         style: TextStyle(
+                //           color: const Color(0xFFD97706),
+                //           fontSize: 10.sp,
+                //           fontWeight: FontWeight.w600,
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+
+                // Product Name
+                Text(
+                  productName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    height: 1.2,
                   ),
+                ),
 
-                  // Out of Stock Overlay
-                  if (widget.product.isOutOfStock) _buildOutOfStockBanner(),
-
-                  // Bottom Right: Add/Counter Button
-                  if (!widget.product.isOutOfStock || _quantity > 0)
-                    Positioned(
-                      bottom: 8.h,
-                      right: 8.w,
-                      child: _buildAdvancedCounterBox(),
-                    ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // Below Image Section
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Special Offer / Best Seller Badge
-                  if (_hasDiscount)
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 6.h),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 6.w,
-                          vertical: 3.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFEF3C7),
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: Text(
-                          'special_offer'
-                              .tr(), // Or 'best_seller'.tr() if you prefer that text
-                          style: TextStyle(
-                            color: const Color(0xFFD97706),
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  // Product Name
+                if (unitString.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  // Subtitle / Weight
                   Text(
-                    productName,
-                    maxLines: 2,
+                    unitString,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w600,
-                      height: 1.2,
+                      color: Colors.grey.shade600,
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w400,
                     ),
-                  ),
-
-                  if (unitString.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    // Subtitle / Weight
-                    Text(
-                      unitString,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-
-                  const SizedBox(height: 6),
-
-                  // Price Section
-                  ProductPriceSection(
-                    price: widget.product.price,
-                    priceAfterDiscount: widget.product.priceAfterDiscount,
-                    hasDiscount: _hasDiscount,
-                    customerQuantity: widget.product.customerQuantity,
                   ),
                 ],
-              ),
+
+                const SizedBox(height: 6),
+
+                // Price Section
+                ProductPriceSection(
+                  price: widget.product.price,
+                  priceAfterDiscount: widget.product.priceAfterDiscount,
+                  hasDiscount: _hasDiscount,
+                  customerQuantity: widget.product.customerQuantity,
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -492,27 +471,28 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
               }
 
               if (mounted) {
-                // context.read<AddToBasketBloc>().add(
-                //   AddToBasket(
-                //     AddToBasketRequest(
-                //       customerID: customerModel.customerId,
-                //       productID: widget.product.productId,
-                //       productBarcode: widget.product.productCode,
-                //     ),
-                //   ),
-                // );
+                context.read<AddToBasketBloc>().add(
+                  AddToBasket(
+                    AddToBasketRequest(
+                      customerID: customerModel.id,
+                      productID: widget.product.productId,
+                      productBarcode: widget.product.productCode,
+                      item: widget.product,
+                    ),
+                  ),
+                );
               }
               _quantity++;
               _isInCart = true;
             } else {
               // Removing from basket
               if (mounted) {
-                // context.read<BasketBloc>().add(
-                //   DeleteBasketItem(
-                //     widget.product.productId,
-                //     widget.product.productCode,
-                //   ),
-                // );
+                context.read<BasketBloc>().add(
+                  DeleteBasketItem(
+                    widget.product.productId,
+                    widget.product.productCode,
+                  ),
+                );
               }
               _quantity--;
             }

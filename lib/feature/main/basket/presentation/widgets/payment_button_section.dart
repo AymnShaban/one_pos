@@ -9,7 +9,7 @@ class PaymentButtonSection extends StatelessWidget {
       alignment: Alignment.bottomRight,
       child: Padding(
         padding: const EdgeInsets.only(right: 12, left: 12),
-        child: BlocBuilder<BasketBloc, BaseState<BasketItemModel>>(
+        child: BlocBuilder<BasketBloc, BaseState<ItemModel>>(
           builder: (context, state) {
             final total = state.items.fold<double>(
               0,

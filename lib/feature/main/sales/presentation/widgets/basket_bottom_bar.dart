@@ -5,7 +5,7 @@ class BasketBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BasketBloc, BaseState<BasketItemModel>>(
+    return BlocBuilder<BasketBloc, BaseState<ItemModel>>(
       builder: (context, state) {
         if (state.items.isEmpty) {
           return const SizedBox.shrink();
@@ -21,7 +21,9 @@ class BasketBottomBar extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const BasketScreen()),
+              MaterialPageRoute(builder: (context) => BlocProvider.value(
+                value: getIt<BasketBloc>(),
+                  child: const BasketScreen())),
             );
           },
           child: Container(

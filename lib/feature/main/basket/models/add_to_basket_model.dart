@@ -4,11 +4,13 @@ class AddToBasketRequest extends Equatable {
   final int customerID;
   final int productID;
   final String productBarcode;
+  final ItemModel? item;
 
   const AddToBasketRequest({
     required this.customerID,
     required this.productID,
     required this.productBarcode,
+    this.item,
   });
 
   Map<String, dynamic> toJson() {
@@ -20,7 +22,7 @@ class AddToBasketRequest extends Equatable {
   }
 
   @override
-  List<Object?> get props => [customerID, productID,productBarcode];
+  List<Object?> get props => [customerID, productID,productBarcode, item];
 }
 class AddToBasketResponse extends Equatable {
   final bool success;

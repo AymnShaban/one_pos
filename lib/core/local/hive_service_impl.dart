@@ -1,12 +1,13 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:one_pos/feature/auth/models/user_model.dart';
 import '../../feature/auth/models/areas_model.dart';
+import '../../feature/main/basket/basket_imports.dart';
 import '../helper/logger.dart';
 import '../models/item_model.dart';
 part 'user_cache_interface.dart';
 part 'paginated_cache_interface.dart';
 
-class HiveServiceImpl implements IUserCache {
+class HiveServiceImpl implements IUserCache, IBasket {
   static const String userBoxName = 'user_box';
   static Box<UserModel>? _userBox;
   static const String currentUserKey = 'current_user';
@@ -25,6 +26,8 @@ class HiveServiceImpl implements IUserCache {
   static const String _userIdKey         = 'user_id';
   static const String _sellerNameKey     = 'seller_name';
   static const String _haveDiscountKey   = 'have_discount';
+  static const String basketBoxName      = 'basket_box';
+  static Box<ItemModel>? _basketBox;
   HiveServiceImpl._();
 
   static final HiveServiceImpl instance = HiveServiceImpl._();
@@ -40,6 +43,7 @@ class HiveServiceImpl implements IUserCache {
     _selectedAreaBox = await Hive.openBox<AreasModel>(selectedAreaBoxName);
     _locationBox = await Hive.openBox<Map>(locationBoxName);
     _settingsBox = await Hive.openBox(settingsBoxName);
+    _basketBox = await Hive.openBox<ItemModel>(basketBoxName);
   }
 
   @override
@@ -237,6 +241,58 @@ class HiveServiceImpl implements IUserCache {
 
   String? getDatabaseName() {
     final config = getAppConfig();
-    return config?['DBName'] as String?;
+    return config?['DBDescription'] as String?;
+  }
+
+  // --- IBasket Implementation ---
+
+  @override
+  Future<void> saveBasketItem(ItemModel item) async {
+    // Check if item already exists in basket by productID and barCode
+    final existingIndex = _basketBox?.values.toList().indexWhere(
+      (element) => element.productId == item.productId && element.barCode == item.barCode
+    );
+
+    if (existingIndex != null && existingIndex != -1) {
+      final existingItem = _basketBox?.getAt(existingIndex);
+      if (existingItem != null) {
+        // If it exists, increment the quantity by 1
+        await _basketBox?.putAt(existingIndex, existingItem.copyWith(
+          salesQuantity: existingItem.salesQuantity + 1,
+        ));
+      }
+    } else {
+      // If it doesn't exist, add it with salesQuantity 1
+      await _basketBox?.add(item.copyWith(salesQuantity: 1));
+    }
+  }
+
+  @override
+  Future<List<ItemModel>> getBasketItems() async {
+    return _basketBox?.values.toList() ?? [];
+  }
+
+  @override
+  Future<void> deleteBasketItem(int productId, String barCode) async {
+    final existingIndex = _basketBox?.values.toList().indexWhere(
+      (element) => element.productId == productId && element.barCode == barCode
+    );
+
+    if (existingIndex != null && existingIndex != -1) {
+      // Check if quantity > 1, decrement it. If 1, remove it.
+      final item = _basketBox?.getAt(existingIndex);
+      if (item != null) {
+        if (item.salesQuantity > 1) {
+           await _basketBox?.putAt(existingIndex, item.copyWith(salesQuantity: item.salesQuantity - 1));
+        } else {
+           await _basketBox?.deleteAt(existingIndex);
+        }
+      }
+    }
+  }
+
+  @override
+  Future<void> clearBasket() async {
+    await _basketBox?.clear();
   }
 }

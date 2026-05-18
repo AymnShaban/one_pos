@@ -1,6 +1,6 @@
 part of '../../basket_imports.dart';
 
-class BasketBloc extends Bloc<BasketEvent, BaseState<BasketItemModel>> {
+class BasketBloc extends Bloc<BasketEvent, BaseState<ItemModel>> {
   final BasketDataSource _basketDataSource;
   final DeleteBasketDataSource _deleteBasketDataSource;
 
@@ -9,7 +9,7 @@ class BasketBloc extends Bloc<BasketEvent, BaseState<BasketItemModel>> {
     required DeleteBasketDataSource deleteBasketDataSource,
   }) : _basketDataSource = basketDataSource,
         _deleteBasketDataSource = deleteBasketDataSource,
-        super(const BaseState<BasketItemModel>()) {
+        super(const BaseState<ItemModel>()) {
     on<FetchBasketItems>(_onFetchBasketItems);
     on<UpdateQuantity>(_onUpdateQuantity);
     on<DeleteBasketItem>(_onDeleteBasketItem);
@@ -18,7 +18,7 @@ class BasketBloc extends Bloc<BasketEvent, BaseState<BasketItemModel>> {
 
   Future<void> _onFetchBasketItems(
       FetchBasketItems event,
-      Emitter<BaseState<BasketItemModel>> emit,
+      Emitter<BaseState<ItemModel>> emit,
       ) async {
     emit(state.copyWith(status: Status.loading, metadata: {'action': 'fetch'}));
 
@@ -48,11 +48,11 @@ class BasketBloc extends Bloc<BasketEvent, BaseState<BasketItemModel>> {
 
   Future<void> _onUpdateQuantity(
       UpdateQuantity event,
-      Emitter<BaseState<BasketItemModel>> emit,
+      Emitter<BaseState<ItemModel>> emit,
       ) async {
     final currentItems = state.items;
     final index = currentItems.indexWhere(
-          (item) => item.productID == event.productId,
+          (item) => item.productId == event.productId,
     );
     if (index >= 0) {
       final newQuantity = event.newQuantity.clamp(0, 100);
@@ -81,14 +81,14 @@ class BasketBloc extends Bloc<BasketEvent, BaseState<BasketItemModel>> {
             state.copyWith(
               status: Status.success,
               items: currentItems
-                  .where((item) => item.productID != event.productId)
+                  .where((item) => item.productId != event.productId)
                   .toList(),
               metadata: {'action': 'update', 'productId': event.productId},
             ),
           ),
         );
       } else {
-        final updatedItems = List<BasketItemModel>.from(currentItems);
+        final updatedItems = List<ItemModel>.from(currentItems);
         updatedItems[index] = updatedItems[index].copyWith(
           salesQuantity: newQuantity,
         );
@@ -105,7 +105,7 @@ class BasketBloc extends Bloc<BasketEvent, BaseState<BasketItemModel>> {
 
   Future<void> _onDeleteBasketItem(
       DeleteBasketItem event,
-      Emitter<BaseState<BasketItemModel>> emit,
+      Emitter<BaseState<ItemModel>> emit,
       ) async {
     emit(
       state.copyWith(
@@ -131,7 +131,7 @@ class BasketBloc extends Bloc<BasketEvent, BaseState<BasketItemModel>> {
           (_) {
         final currentItems = state.items;
         final index = currentItems.indexWhere(
-              (item) => item.productID == event.productId,
+              (item) => item.productId == event.productId,
         );
         if (index >= 0) {
           final currentQuantity = currentItems[index].salesQuantity;
@@ -141,13 +141,13 @@ class BasketBloc extends Bloc<BasketEvent, BaseState<BasketItemModel>> {
               state.copyWith(
                 status: Status.success,
                 items: currentItems
-                    .where((item) => item.productID != event.productId)
+                    .where((item) => item.productId != event.productId)
                     .toList(),
                 metadata: {'action': 'delete', 'productId': event.productId},
               ),
             );
           } else {
-            final updatedItems = List<BasketItemModel>.from(currentItems);
+            final updatedItems = List<ItemModel>.from(currentItems);
             updatedItems[index] = updatedItems[index].copyWith(
               salesQuantity: newQuantity,
             );
@@ -166,7 +166,7 @@ class BasketBloc extends Bloc<BasketEvent, BaseState<BasketItemModel>> {
 
   Future<void> _onClearBasket(
       ClearBasket event,
-      Emitter<BaseState<BasketItemModel>> emit,
+      Emitter<BaseState<ItemModel>> emit,
       ) async {
     emit(BaseState());
   }

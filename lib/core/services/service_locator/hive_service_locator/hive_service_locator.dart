@@ -6,6 +6,7 @@ class HiveServiceLocator {
       () => HiveServiceImpl.instance,
     );
     getIt.registerLazySingleton<IUserCache>(() => HiveServiceImpl.instance);
+    getIt.registerLazySingleton<IBasket>(() => HiveServiceImpl.instance);
     getIt.registerLazySingleton<IPaginatedCache<ItemModel>>(() => GenericPaginatedCache<ItemModel>(HiveServiceImpl.instance));
   }
 }

@@ -57,26 +57,13 @@ class _BasketScreenState extends State<BasketScreen> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                BlocBuilder<BasketBloc, BaseState<BasketItemModel>>(
-                  builder: (context, state) {
-                    final total = state.items.fold<double>(
-                        0, (sum, item) => sum + item.totalSplitPrice
-                    );
-
-                    // Show widget only if total is below minimum (2000)
-                    if (total < 200 && state.items.isNotEmpty) {
-                      return const OrderMinimumWidget();
-                    }
-                    return const SizedBox.shrink(); // Hide when total >= 2000
-                  },
-                ),
 
                 SizedBox(height: 12.h),
 
                 // const PlaceDetailsWidget(),
 
                 ProductListWrapper(
-                  child: BlocBuilder<BasketBloc, BaseState<BasketItemModel>>(
+                  child: BlocBuilder<BasketBloc, BaseState<ItemModel>>(
                     buildWhen: (previous, current) =>
                     current.status != previous.status ||
                         current.items != previous.items,

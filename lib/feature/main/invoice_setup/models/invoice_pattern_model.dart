@@ -16,8 +16,8 @@ class InvoicePatternModel extends Equatable {
   factory InvoicePatternModel.fromJson(Map<String, dynamic> json) {
     return InvoicePatternModel(
       patternId:     json['InvoicePatternID'] ?? json['PatternID'] ?? 0,
-      patternArName: json['ArabicPatternName'] ?? json['PatternArName'] ?? '',
-      patternEnName: json['EnglishPatternName'] ?? json['PatternEnName'] ?? '',
+      patternArName: json['ArabicPatternName'] ?? json['PatternArName'] ?? json['PatternName'] ?? '',
+      patternEnName: json['EnglishPatternName'] ?? json['PatternEnName'] ?? json['PatternName'] ?? '',
       isPriceQuote:  json['IsPriceQuote'] == true || json['IsPriceQuote'] == 1,
     );
   }

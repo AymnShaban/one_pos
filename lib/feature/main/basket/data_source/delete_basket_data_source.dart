@@ -5,33 +5,17 @@ abstract interface class DeleteBasketDataSource {
 }
 
 class DeleteBasketDataSourceImpl implements DeleteBasketDataSource {
+  final IBasket _basketCache;
 
-  final GenericDataSource _genericDataSource;
-
-  DeleteBasketDataSourceImpl(this._genericDataSource);
+  DeleteBasketDataSourceImpl(this._basketCache);
 
   @override
-  Future<Either<Failure, void>> deleteBasketItem(int productId,String barCode) async {
-    final customerId = getIt<IUserCache>().getUserModel()!.id;
-    final queryParameters = {
-      'CustomerID': customerId.toString(),
-      'ProductID': productId.toString(),
-      "BarCode":  barCode.toString()
-    };
-
-    final result = await _genericDataSource.postData<void>(
-      endpoint: EndPoints.deleteOneItemFromBasket,
-      queryParameters: queryParameters,
-    );
-    return result.fold(
-          (failure) => Left(failure),
-          (response) {
-        try {
-          return const Right(null); // Success, return void
-        } catch (e) {
-          return Left(ParsingFailure(message: 'Failed to delete basket item: ${e.toString()}'));
-        }
-      },
-    );
+  Future<Either<Failure, void>> deleteBasketItem(int productId, String barCode) async {
+    try {
+      await _basketCache.deleteBasketItem(productId, barCode);
+      return const Right(null);
+    } catch (e) {
+      return Left(CacheFailure(message: 'Failed to delete from local basket: ${e.toString()}'));
+    }
   }
 }

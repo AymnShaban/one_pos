@@ -1,36 +1,25 @@
 part of '../basket_imports.dart';
 
 abstract interface class BasketDataSource {
-  Future<Either<Failure, List<BasketItemModel>>> getBasketItems();
+  Future<Either<Failure, List<ItemModel>>> getBasketItems();
 }
 
 
 class BasketDataSourceImpl implements BasketDataSource {
-  final GenericDataSource _genericDataSource;
+  final IBasket _basketCache;
 
-  BasketDataSourceImpl(this._genericDataSource);
+  BasketDataSourceImpl(this._basketCache);
 
   @override
-  Future<Either<Failure, List<BasketItemModel>>> getBasketItems() async {
-    final result = await _genericDataSource.fetchData<BasketItemModel>(
-      endpoint: EndPoints.getCustomerBasket,
-      fromJson: BasketItemModel.fromJson,
-      queryParameters: {
-        'CustomerID': getIt<IUserCache>().getUserModel()?.id,
+  Future<Either<Failure, List<ItemModel>>> getBasketItems() async {
+    try {
+      final items = await _basketCache.getBasketItems();
+      if (items.isEmpty) {
+        return Left(ParsingFailure(message: 'Basket is empty'));
       }
-    );
-    return result.fold(
-          (failure) => Left(failure),
-          (items) {
-        try {
-          if (items.isEmpty) {
-            return Left(ParsingFailure(message: 'Basket is empty'));
-          }
-          return Right(items);
-        } catch (e) {
-          return Left(ParsingFailure(message: 'Failed to process basket items: ${e.toString()}'));
-        }
-      },
-    );
+      return Right(items);
+    } catch (e) {
+      return Left(CacheFailure(message: 'Failed to fetch local basket items: ${e.toString()}'));
+    }
   }
 }

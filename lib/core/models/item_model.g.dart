@@ -52,13 +52,14 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       unitArName: fields[34] as String?,
       brandID: fields[36] as String?,
       customerQuantity: fields[37] as double?,
+      salesQuantity: fields[38] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, ItemModel obj) {
     writer
-      ..writeByte(35)
+      ..writeByte(36)
       ..writeByte(0)
       ..write(obj.productCode)
       ..writeByte(1)
@@ -128,7 +129,9 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       ..writeByte(36)
       ..write(obj.brandID)
       ..writeByte(37)
-      ..write(obj.customerQuantity);
+      ..write(obj.customerQuantity)
+      ..writeByte(38)
+      ..write(obj.salesQuantity);
   }
 
   @override

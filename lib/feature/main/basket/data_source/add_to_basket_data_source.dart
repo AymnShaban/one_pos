@@ -5,26 +5,21 @@ abstract interface class AddToBasketDataSource {
 }
 // feature/main/details/data_source/add_to_basket_data_source.dart
 class AddToBasketDataSourceImpl implements AddToBasketDataSource {
-  final GenericDataSource _genericDataSource;
+  final IBasket _basketCache;
 
-  AddToBasketDataSourceImpl(this._genericDataSource);
+  AddToBasketDataSourceImpl(this._basketCache);
 
   @override
   Future<Either<Failure, void>> addToBasket(AddToBasketRequest request) async {
-    final result = await _genericDataSource.postData<void>(
-      endpoint: EndPoints.addToBasket,
-      data: request.toJson(),
-
-    );
-    return result.fold(
-          (failure) => Left(failure),
-          (response) {
-        try {
-          return const Right(null); // Success, return void
-        } catch (e) {
-          return Left(ParsingFailure(message: 'Failed to process add to basket response: ${e.toString()}'));
-        }
-      },
-    );
+    try {
+      if (request.item != null) {
+        await _basketCache.saveBasketItem(request.item!);
+        return const Right(null);
+      } else {
+        return Left(ParsingFailure(message: 'Product info missing for local storage'));
+      }
+    } catch (e) {
+      return Left(CacheFailure(message: 'Failed to save to local basket: ${e.toString()}'));
+    }
   }
 }

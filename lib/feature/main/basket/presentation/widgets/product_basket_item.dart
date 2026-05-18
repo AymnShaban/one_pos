@@ -1,7 +1,7 @@
 part of '../../basket_imports.dart';
 
 class ProductBasketItem extends StatefulWidget {
-  final BasketItemModel item;
+  final ItemModel item;
   final BasketBloc bloc;
 
   const ProductBasketItem({super.key, required this.item, required this.bloc});
@@ -28,8 +28,9 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
         AddToBasket(
           AddToBasketRequest(
             customerID: customerModel.id,
-            productID: widget.item.productID,
+            productID: widget.item.productId,
             productBarcode: barcode,
+            item: widget.item,
           ),
         ),
       );
@@ -53,7 +54,7 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
       if (widget.item.salesQuantity > 0) {
         setState(() => _isProcessing = true);
         context.read<BasketBloc>().add(
-          DeleteBasketItem(widget.item.productID, barcode.toString()),
+          DeleteBasketItem(widget.item.productId, barcode.toString()),
         );
         // Refresh basket to update the counter
         context.read<BasketBloc>().add(const FetchBasketItems());
@@ -119,8 +120,9 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
                   AddToBasket(
                     AddToBasketRequest(
                       customerID: customerModel.id,
-                      productID: widget.item.productID,
+                      productID: widget.item.productId,
                       productBarcode: widget.item.barCode,
+                      item: widget.item,
                     ),
                   ),
                 );
@@ -129,7 +131,7 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
               // Removing from basket
               if (mounted) {
                 context.read<BasketBloc>().add(
-                  DeleteBasketItem(widget.item.productID, widget.item.barCode),
+                  DeleteBasketItem(widget.item.productId, widget.item.barCode),
                 );
               }
             }
@@ -154,7 +156,7 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
     for (int i = 0; i < widget.item.salesQuantity; i++) {
       if (mounted) {
         context.read<BasketBloc>().add(
-          DeleteBasketItem(widget.item.productID, widget.item.barCode),
+          DeleteBasketItem(widget.item.productId, widget.item.barCode),
         );
       }
     }
@@ -167,7 +169,7 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
-        BlocListener<BasketBloc, BaseState<BasketItemModel>>(
+        BlocListener<BasketBloc, BaseState<ItemModel>>(
           listener: (context, state) {
             if (state.status == Status.success ||
                 state.status == Status.failure) {
@@ -187,7 +189,7 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
       child: Padding(
         padding: const EdgeInsets.only(right: 12, left: 12),
         child: Dismissible(
-          key: ValueKey(widget.item.productID),
+          key: ValueKey(widget.item.productId),
           onDismissed: (direction) async {
             if (direction == DismissDirection.endToStart ||
                 direction == DismissDirection.startToEnd) {
@@ -257,7 +259,7 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Text(
-                          '${"the_last_price_was".tr()} ${((widget.item.discountPercent * widget.item.price) - widget.item.price).toStringAsFixed(2)} ${"EGP".tr()}',
+                          '${"the_last_price_was".tr()} ${(( (widget.item.offerPercentage ?? 0) * widget.item.price) - widget.item.price).toStringAsFixed(2)} ${"EGP".tr()}',
                           style: AppTextTheme.caption.copyWith(
                             color: Colors.white,
                           ),
@@ -284,7 +286,7 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.item.productName,
+                              widget.item.productArName,
                               style: AppTextTheme.caption,
                             ),
                             SizedBox(height: 5.h),
@@ -479,7 +481,7 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
     final hasDiscount =
         widget.item.priceAfterDiscount > 0 &&
             widget.item.priceAfterDiscount < widget.item.price;
-    final limit = widget.item.customerQuantity;
+    final limit = widget.item.customerQuantity ?? 0.0;
     final salesQty = widget.item.salesQuantity;
 
     if (hasDiscount && limit > 0 && salesQty > limit) {

@@ -20,8 +20,8 @@ class CurrencyModel extends Equatable {
   factory CurrencyModel.fromJson(Map<String, dynamic> json) {
     return CurrencyModel(
       currencyId:     json['CurrencyID']      ?? 0,
-      currencyArName: json['ArabicName']       ?? json['CurrencyArName'] ?? '',
-      currencyEnName: json['EnglishName']      ?? json['CurrencyEnName'] ?? '',
+      currencyArName: json['ArabicName']       ?? json['CurrencyArName'] ?? json['CurrencyName']  ?? '',
+      currencyEnName: json['EnglishName']      ?? json['CurrencyEnName'] ?? json['CurrencyEName'] ?? '',
       currencySymbol: json['CurrencySymbol']   ?? '',
       rate:           (json['Rate'] as num?)?.toDouble() ?? 1.0,
       isDefault:      json['IsDefault'] == true || json['IsDefault'] == 1,

@@ -14,10 +14,10 @@ class ProductItemSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<BasketBloc, BaseState<BasketItemModel>, int?>(
+    return BlocSelector<BasketBloc, BaseState<ItemModel>, int?>(
       selector: (state) {
         final basketItem = state.items.firstWhereOrNull(
-              (item) => item.productID == product.productId,
+              (item) => item.productId == product.productId,
         );
         return basketItem?.salesQuantity;
       },

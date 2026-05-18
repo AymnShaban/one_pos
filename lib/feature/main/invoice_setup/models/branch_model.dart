@@ -13,9 +13,9 @@ class BranchModel extends Equatable {
 
   factory BranchModel.fromJson(Map<String, dynamic> json) {
     return BranchModel(
-      branchId:     json['CompanyBranchID'] ?? json['BranchID'] ?? 0,
-      branchArName: json['ArabicBranchName'] ?? json['BranchArName'] ?? '',
-      branchEnName: json['EnglishBranchName'] ?? json['BranchEnName'] ?? '',
+      branchId:     json['CompanyBranchID'] ?? json['BranchID'] ?? json['ID'] ?? 0,
+      branchArName: json['ArabicBranchName'] ?? json['BranchArName'] ?? json['BraName'] ?? '',
+      branchEnName: json['EnglishBranchName'] ?? json['BranchEnName'] ?? json['BranchEName'] ?? '',
     );
   }
 

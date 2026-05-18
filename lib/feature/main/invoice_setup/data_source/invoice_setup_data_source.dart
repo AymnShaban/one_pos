@@ -22,8 +22,22 @@ class InvoiceSetupDataSourceImpl
 
   @override
   Future<Either<Failure, List<BranchModel>>> getBranches() {
+    // NOTE: /api/CompanyBranch/GetBranches returns 404. The working endpoint
+    // (mirrors the invoice_collection feature) is GetCompanyBranchesByUserID
+    // and needs the user id + server credentials from the activation config.
+    final hive = HiveServiceImpl.instance;
     return _genericDataSource.fetchData<BranchModel>(
-      endpoint:  EndPoints.getBranches,
+      // getCompanyBranchesByUser has no leading slash (it's consumed by the
+      // invoice_collection feature's own Dio); the shared Dio concatenates
+      // baseUrl + path, so force the slash to avoid ".../TheOneApiapi/...".
+      endpoint: '/${EndPoints.getCompanyBranchesByUser}',
+      queryParameters: {
+        'UserID':       hive.getUserId(),
+        'serverName':   hive.getIpAddress(),
+        'UserName':     hive.getServerUserName(),
+        'UserPassword': hive.getServerPassword(),
+        'DBName':       hive.getDatabaseName(),
+      },
       fromJson:  BranchModel.fromJson,
     );
   }

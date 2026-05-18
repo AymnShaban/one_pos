@@ -18,3 +18,9 @@ class FilterByCategory extends SalesEvent {
 class LoadMoreProducts extends SalesEvent {
   const LoadMoreProducts();
 }
+
+/// Re-fetch the first page for the currently selected category.
+/// Used when the active branch changes in the sales tab.
+class ReloadProducts extends SalesEvent {
+  const ReloadProducts();
+}

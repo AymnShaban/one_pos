@@ -5,6 +5,19 @@
   "nav_reports": "Reports",
   "nav_settings": "Settings",
 
+  "your_basket": "Your Basket",
+  "view_basket": "View Basket",
+  "added_to_cart": "Added to cart",
+  "instead_of": "Instead of",
+  "EGP": "EGP",
+  "no_categories": "No categories",
+  "no_products": "No products found",
+  "basket_details": "Basket Details",
+  "subtotal": "Subtotal",
+  "payment": "Payment",
+  "price": "Price",
+  "total": "Total",
+
   "auth": {
     "welcome_back": "Welcome Back",
     "shop_easily_and_enjoy_special_offers": "Sign in to continue",

@@ -22,9 +22,9 @@ class OrderMinimumWidget extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.only(right: 5, top: 10, left: 5),
-          child: BlocBuilder<BasketBloc, BaseState<BasketItemModel>>(
+          child: BlocBuilder<BasketBloc, BaseState<ItemModel>>(
             builder: (context, state) {
-              final total = state.items.fold<double>(0, (sum, item) => sum + ((item.priceAfterDiscount > 0 ? item.priceAfterDiscount : item.price) * item.salesQuantity));
+              final total = state.items.fold<double>(0, (sum, item) => sum + item.totalSplitPrice);
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
