@@ -21,5 +21,12 @@ class BasketServiceLocator {
     getIt.registerLazySingleton<AddToBasketBloc>(
           () => AddToBasketBloc(addToBasketDataSource: getIt<AddToBasketDataSource>()),
     );
+
+    getIt.registerLazySingleton<AccountSearchDataSource>(
+      () => AccountSearchDataSourceImpl(getIt<GenericDataSource>()),
+    );
+    getIt.registerFactory<AccountSearchBloc>(
+      () => AccountSearchBloc(dataSource: getIt<AccountSearchDataSource>()),
+    );
   }
 }

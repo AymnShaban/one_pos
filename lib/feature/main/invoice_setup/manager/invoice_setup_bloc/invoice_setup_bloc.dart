@@ -3,8 +3,7 @@ part of '../../invoice_setup_imports.dart';
 // ── State ─────────────────────────────────────────────────────────────────────
 
 // ── Bloc ──────────────────────────────────────────────────────────────────────
-class InvoiceSetupBloc
-    extends Bloc<InvoiceSetupEvent, InvoiceSetupState> {
+class InvoiceSetupBloc extends Bloc<InvoiceSetupEvent, InvoiceSetupState> {
   final InvoiceSetupDataSource _dataSource;
 
   InvoiceSetupBloc({required InvoiceSetupDataSource dataSource})
@@ -92,9 +91,8 @@ class InvoiceSetupBloc
       selectedPatternId: -1,
     ));
 
-    final result = event.isPriceQuote
-        ? await _dataSource.getQuotePatterns(branchId: event.branchId)
-        : await _dataSource.getInvoicePatterns(branchId: event.branchId);
+    final result =
+        await _dataSource.getInvoicePatterns(branchId: event.branchId);
 
     result.fold(
           (failure) => emit(state.copyWith(

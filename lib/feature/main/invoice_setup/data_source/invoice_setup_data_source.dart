@@ -7,9 +7,6 @@ abstract interface class InvoiceSetupDataSource {
     required int branchId,
   });
 
-  Future<Either<Failure, List<InvoicePatternModel>>> getQuotePatterns({
-    required int branchId,
-  });
 
   Future<Either<Failure, List<CurrencyModel>>> getCurrencies();
 }
@@ -53,16 +50,7 @@ class InvoiceSetupDataSourceImpl
     );
   }
 
-  @override
-  Future<Either<Failure, List<InvoicePatternModel>>> getQuotePatterns({
-    required int branchId,
-  }) {
-    return _genericDataSource.fetchData<InvoicePatternModel>(
-      endpoint:        EndPoints.getQuotePatterns,
-      queryParameters: {'BranchID': branchId},
-      fromJson:        InvoicePatternModel.fromJson,
-    );
-  }
+
 
   @override
   Future<Either<Failure, List<CurrencyModel>>> getCurrencies() {

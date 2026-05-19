@@ -12,6 +12,8 @@ class EndPoints {
 
   // ── Existing endpoints ────────────────────────────────
   static const String register = "/api/Customer/AddCustomer";
+  static const String getAllCustomersByName =
+      '/api/Accounts/GetAllCustomersAccountByName';
 
 
   static String productDetails = "/api/Product/GetProductById";
@@ -102,9 +104,10 @@ class EndPoints {
 
   // Invoice Collection
   static const String getBranches = '/api/CompanyBranch/GetBranches';
-  static const String getInvoicePatterns = '/api/InvoicePattern/GetByBranch';
+  static const String getInvoicePatterns = '/api/InvoiceSetting/GetSalesTypes';
   static const String getQuotePatterns = '/api/InvoicePattern/GetQuoteByBranch';
   static const String getCurrencies = '/api/Currencies';
+ // [{"CurrencyID":1,"CurrencyName":"دينار كويتي","CurrencyEName":"Kuwait Dinar","PartName":"فلس","PartEName":"Fils","PartPrecition":1000,"Rate":1.0,"CurrencySymbol":"د.ك.","TotCurrencyName":"دنانير","TotCurrencyEName":"Dinars","TotPartName":"فلسات","TotPartEName":"Fils","PricesDigits":"0.000"}]
 
   static const String getReceiptsVouchersTypesByBranch =
       'api/VoucherSettings/GetReceiptsVouchersTypesByBranchID';
