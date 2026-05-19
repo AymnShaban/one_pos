@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
+import 'package:one_pos/feature/main/basket/presentation/widgets/basket_pos_summary_widgets/editable_small_box.dart';
 import '../../../core/constant/end_points.dart';
 import '../../../core/models/item_model.dart';
 import '../../../core/extension/context_extension.dart';
@@ -34,3 +35,9 @@ part 'manager/account_search_bloc/account_search_bloc.dart';
 part 'manager/account_search_bloc/account_search_event.dart';
 part 'manager/pay_ways_bloc/pay_ways_bloc.dart';
 part 'manager/pay_ways_bloc/pay_ways_event.dart';
+part 'presentation/widgets/basket_pos_summary_widgets/build_account_search.dart';
+part 'presentation/widgets/basket_pos_summary_widgets/build_totals_section.dart';
+part 'presentation/widgets/basket_pos_summary_widgets/build_quantity_section.dart';
+part 'presentation/widgets/basket_pos_summary_widgets/build_payment_input_section.dart';
+part 'presentation/widgets/basket_pos_summary_widgets/build_payments_table.dart';
+part 'presentation/widgets/basket_pos_summary_widgets/build_balance_summary.dart';
