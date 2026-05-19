@@ -28,5 +28,12 @@ class BasketServiceLocator {
     getIt.registerFactory<AccountSearchBloc>(
       () => AccountSearchBloc(dataSource: getIt<AccountSearchDataSource>()),
     );
+
+    getIt.registerLazySingleton<PayWaysDataSource>(
+      () => PayWaysDataSourceImpl(getIt<GenericDataSource>()),
+    );
+    getIt.registerFactory<PayWaysBloc>(
+      () => PayWaysBloc(dataSource: getIt<PayWaysDataSource>()),
+    );
   }
 }

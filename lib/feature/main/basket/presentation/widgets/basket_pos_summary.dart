@@ -11,11 +11,26 @@ class _BasketPosSummaryState extends State<BasketPosSummary> {
   double _discountPercent = 0.0;
   bool _isDiscountAddition =
       false; // true = addition, false = subtraction (discount)
-  double _paidAmount = 0.0;
   String _receiptNumber = '';
-  String _selectedPaymentMethod = 'Cash';
+  PayWayModel? _selectedPayWay;
   CustomerAccountModel? _selectedAccount;
   final List<Map<String, dynamic>> _payments = [];
+
+  late final PayWaysBloc _payWaysBloc;
+  final TextEditingController _paidController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _payWaysBloc = getIt<PayWaysBloc>()..add(const FetchPayWays());
+  }
+
+  @override
+  void dispose() {
+    _payWaysBloc.close();
+    _paidController.dispose();
+    super.dispose();
+  }
 
   Future<void> _openCustomerSearch() async {
     final result = await showDialog<CustomerAccountModel>(
@@ -236,6 +251,7 @@ class _BasketPosSummaryState extends State<BasketPosSummary> {
   }
 
   Widget _buildPaymentInputSection(double remaining) {
+    final isAr = context.locale.languageCode == 'ar';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -243,12 +259,9 @@ class _BasketPosSummaryState extends State<BasketPosSummary> {
           children: [
             Expanded(
               flex: 2,
-              child: _labeledDropdown(
+              child: _payWayDropdown(
                 'new_invoice.payment_method'.tr(),
-                ['Cash', 'Visa', 'Bank'],
-                (val) {
-                  setState(() => _selectedPaymentMethod = val!);
-                },
+                isAr,
               ),
             ),
             SizedBox(width: 8.w),
@@ -265,8 +278,9 @@ class _BasketPosSummaryState extends State<BasketPosSummary> {
               flex: 1,
               child: _labeledInput(
                 'new_invoice.paid'.tr(),
-                (val) => _paidAmount = double.tryParse(val) ?? 0,
+                (_) {},
                 remaining.toStringAsFixed(2),
+                controller: _paidController,
               ),
             ),
           ],
@@ -274,15 +288,19 @@ class _BasketPosSummaryState extends State<BasketPosSummary> {
         SizedBox(height: 12.h),
         ElevatedButton(
           onPressed: () {
-            if (_paidAmount > 0) {
-              setState(() {
-                _payments.add({
-                  'method': _selectedPaymentMethod,
-                  'amount': _paidAmount,
-                  'receipt': _receiptNumber,
-                });
+            // Use the amount the user typed; only fall back to the remaining
+            // amount when the field is left empty.
+            final typed = double.tryParse(_paidController.text.trim());
+            final amount =
+                (typed != null && typed > 0) ? typed : remaining;
+            if (amount <= 0) return;
+            setState(() {
+              _payments.add({
+                'method': _selectedPayWay?.displayName(isAr) ?? '',
+                'amount': amount,
+                'receipt': _receiptNumber,
               });
-            }
+            });
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.mainAppColor,
@@ -496,7 +514,12 @@ class _BasketPosSummaryState extends State<BasketPosSummary> {
     );
   }
 
-  Widget _labeledInput(String label, Function(String) onChanged, String hint) {
+  Widget _labeledInput(
+    String label,
+    Function(String) onChanged,
+    String hint, {
+    TextEditingController? controller,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -513,6 +536,7 @@ class _BasketPosSummaryState extends State<BasketPosSummary> {
             border: Border.all(color: Colors.grey.shade300),
           ),
           child: TextField(
+            controller: controller,
             style: AppTextTheme.captionBold,
             textAlign: TextAlign.center,
             decoration: InputDecoration(
@@ -527,11 +551,7 @@ class _BasketPosSummaryState extends State<BasketPosSummary> {
     );
   }
 
-  Widget _labeledDropdown(
-    String label,
-    List<String> options,
-    Function(String?) onChanged,
-  ) {
+  Widget _payWayDropdown(String label, bool isAr) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -548,21 +568,66 @@ class _BasketPosSummaryState extends State<BasketPosSummary> {
             borderRadius: BorderRadius.circular(8.r),
             border: Border.all(color: Colors.grey.shade300),
           ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              style: AppTextTheme.caption,
-              value: _selectedPaymentMethod,
-              isExpanded: true,
-              items: options
-                  .map(
-                    (o) => DropdownMenuItem(
-                      value: o,
-                      child: Text(o, style: AppTextTheme.caption),
-                    ),
-                  )
-                  .toList(),
-              onChanged: onChanged,
-            ),
+          child: BlocBuilder<PayWaysBloc, BaseState<PayWayModel>>(
+            bloc: _payWaysBloc,
+            builder: (context, state) {
+              if (state.status == Status.loading) {
+                return Center(
+                  child: SizedBox(
+                    width: 16.w,
+                    height: 16.w,
+                    child: const CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                );
+              }
+
+              final ways = state.items;
+              if (ways.isEmpty) {
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    state.status == Status.failure
+                        ? 'common.error'.tr()
+                        : 'no_products'.tr(),
+                    style: AppTextTheme.caption,
+                  ),
+                );
+              }
+
+              // Default to the first way once data arrives.
+              if (_selectedPayWay == null) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted && _selectedPayWay == null) {
+                    setState(() => _selectedPayWay = ways.first);
+                  }
+                });
+              }
+              final selected = ways.contains(_selectedPayWay)
+                  ? _selectedPayWay
+                  : ways.first;
+
+              return DropdownButtonHideUnderline(
+                child: DropdownButton<PayWayModel>(
+                  style: AppTextTheme.caption,
+                  value: selected,
+                  isExpanded: true,
+                  items: ways
+                      .map(
+                        (p) => DropdownMenuItem(
+                          value: p,
+                          child: Text(
+                            p.displayName(isAr),
+                            style: AppTextTheme.caption,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (val) =>
+                      setState(() => _selectedPayWay = val),
+                ),
+              );
+            },
           ),
         ),
       ],
