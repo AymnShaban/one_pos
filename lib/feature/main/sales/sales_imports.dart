@@ -12,6 +12,7 @@ import '../basket/basket_imports.dart';
 import '../home/home_imports.dart';
 import '../home/presentation/widgets/home_app_bar.dart';
 import '../invoice_setup/invoice_setup_imports.dart';
+import '../new_invoice/new_invoice_imports.dart';
 
 part 'manager/sales_bloc/sales_bloc.dart';
 part 'manager/sales_bloc/sales_event.dart';

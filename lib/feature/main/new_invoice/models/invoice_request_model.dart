@@ -17,6 +17,7 @@ class CreateInvoiceRequest extends Equatable {
   final List<PayReceiptModel> payWays;
   final String address;
   final String createdBy;
+  final num prePaid;
   final double latitude;
   final double longitude;
 
@@ -37,6 +38,7 @@ class CreateInvoiceRequest extends Equatable {
     required this.payWays,
     this.address = '',
     this.createdBy = '',
+    this.prePaid = 0,
     this.latitude = 0,
     this.longitude = 0,
   });
@@ -46,7 +48,7 @@ class CreateInvoiceRequest extends Equatable {
     'InvoiceDate':        invoiceDate,
     'CompanyBranchID':    companyBranchId,
     'Remainder':          remainder,
-    'PrePaid':            0,
+    'PrePaid':            prePaid,
     'CurrencyID':         currencyId,
     'Rate':               currencyRate,
     'CustomerID':         customerId,
@@ -84,6 +86,7 @@ class EditInvoiceRequest extends Equatable {
   final List<CartItemModel> items;
   final List<PayReceiptModel> payWays;
   final String createdBy;
+  final num prePaid;
 
   const EditInvoiceRequest({
     required this.invoiceId,
@@ -102,6 +105,7 @@ class EditInvoiceRequest extends Equatable {
     required this.items,
     required this.payWays,
     this.createdBy = '',
+    this.prePaid   = 0,
   });
 
   Map<String, dynamic> toJson() => {
@@ -112,7 +116,7 @@ class EditInvoiceRequest extends Equatable {
     'PayingType':         payingType,
     'Remainder':          remainder,
     'CurrencyID':         currencyId,
-    'PrePaid':            0,
+    'PrePaid':            prePaid,
     'Rate':               currencyRate,
     'CustomerID':         customerId,
     'TotalValue':         totalValue,

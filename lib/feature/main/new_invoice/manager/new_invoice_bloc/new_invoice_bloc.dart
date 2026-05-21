@@ -61,6 +61,7 @@ class NewInvoiceBloc extends Bloc<NewInvoiceEvent, NewInvoiceState> {
     on<UpdatePatternId>(_onUpdatePattern);
     on<UpdateBranchId>(_onUpdateBranch);
     on<UpdateCurrency>(_onUpdateCurrency);
+    on<CreateInvoiceFromSales>(_onCreateFromSales);
   }
 
   Future<void> _onLoadPayWays(
@@ -148,5 +149,54 @@ class NewInvoiceBloc extends Bloc<NewInvoiceEvent, NewInvoiceState> {
       currencyId:   event.currencyId,
       currencyRate: event.rate,
     ));
+  }
+
+  Future<void> _onCreateFromSales(
+      CreateInvoiceFromSales event,
+      Emitter<NewInvoiceState> emit,
+      ) async {
+    emit(state.copyWith(submitStatus: Status.loading));
+
+    final items = event.basketItems.asMap().entries.map((entry) {
+      return entry.value.toCartItem(rowNumber: entry.key + 1);
+    }).toList();
+
+    final request = CreateInvoiceRequest(
+      invoicePatternId: event.patternId,
+      invoiceDate: DateFormat('yyyy/MM/dd', 'en_US').format(DateTime.now()),
+      companyBranchId: event.branchId,
+      remainder: 0,
+      currencyId: event.currencyId,
+      currencyRate: event.rate.toDouble(),
+      customerId: event.customerId,
+      totalValue: event.totalValue,
+      totalAddition: 0,
+      totalDiscount: 0,
+      finalValue: event.totalValue,
+      payingType: 0, // Cache ?
+      prePaid: event.totalValue,
+      createdBy: event.createdBy,
+      items: items,
+      payWays: [
+        PayReceiptModel(
+          payingValue: event.totalValue,
+          payingType: 0,
+          payWayName: 'Cash',
+          payWayEnName: 'Cash',
+        ),
+      ],
+    );
+
+    final result = await _dataSource.createInvoice(request);
+    result.fold(
+          (failure) => emit(state.copyWith(
+        submitStatus: Status.failure,
+        errorMessage: failure.message,
+      )),
+          (data) => emit(state.copyWith(
+        submitStatus: Status.success,
+        successData:  data,
+      )),
+    );
   }
 }

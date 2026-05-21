@@ -111,6 +111,21 @@ class _BasketScreenState extends State<BasketScreen> {
                 const BasketPosSummary(),
                 SizedBox(height: 20.h),
                 const PaymentButtonSection(),
+                SizedBox(height: 10.h),
+                BlocListener<NewInvoiceBloc, NewInvoiceState>(
+                  listener: (context, state) {
+                    if (state.submitStatus == Status.loading) {
+                      // Optionally show a loading dialog or overlay
+                    } else if (state.submitStatus == Status.success) {
+                      showCustomSnackBar(context, 'invoice_created_successfully'.tr(),);
+                      context.read<BasketBloc>().add(const FetchBasketItems()); // Clear or refresh basket
+                      Navigator.pop(context);
+                    } else if (state.submitStatus == Status.failure) {
+                      showCustomSnackBar(context, state.errorMessage ?? 'error'.tr(),);
+                    }
+                  },
+                  child: const SizedBox.shrink(),
+                ),
                 SizedBox(height: 40.h),
               ],
             ),

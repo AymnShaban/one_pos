@@ -2,6 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/adapters.dart';
 
+import '../../feature/main/new_invoice/new_invoice_imports.dart';
+
 part 'item_model.g.dart';
 
 @HiveType(typeId: 2)
@@ -447,5 +449,18 @@ SalesQuantity: $salesQuantity
       return (discountQty * priceAfterDiscount) + (normalQty * price);
     }
     return (priceAfterDiscount > 0 ? priceAfterDiscount : price) * salesQuantity;
+  }
+
+  CartItemModel toCartItem({int rowNumber = 1}) {
+    return CartItemModel(
+      productId: productId,
+      productArName: productArName,
+      productEnName: productEnName,
+      defaultUnitName: defaultUnitArName ?? '',
+      price: priceAfterDiscount > 0 ? priceAfterDiscount : price,
+      stockQuantity: stockQuantity,
+      quantity: salesQuantity,
+      rowNumber: rowNumber,
+    );
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constant/app_colors.dart';
 import 'custom_language.dart';
 
-void showCustomSnackBar(BuildContext context, String text) {
+void showCustomSnackBar(BuildContext context, String text ) {
   if (context.mounted) {
     NavigationService.scaffoldMessengerKey.currentState?.showSnackBar(
 

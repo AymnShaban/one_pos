@@ -21,9 +21,16 @@ class BasketBottomBar extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => BlocProvider.value(
-                value: getIt<BasketBloc>(),
-                  child: const BasketScreen())),
+              MaterialPageRoute(
+                builder: (context) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider.value(value: getIt<BasketBloc>()),
+                    BlocProvider.value(value: getIt<InvoiceSetupBloc>()),
+                    BlocProvider.value(value: getIt<NewInvoiceBloc>()),
+                  ],
+                  child: const BasketScreen(),
+                ),
+              ),
             );
           },
           child: Container(

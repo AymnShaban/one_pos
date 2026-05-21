@@ -1,5 +1,4 @@
 part of '../../basket_imports.dart';
-
 class PaymentButtonSection extends StatelessWidget {
   const PaymentButtonSection({super.key});
 
@@ -20,8 +19,37 @@ class PaymentButtonSection extends StatelessWidget {
             height: 54.h,
             child: ElevatedButton(
               onPressed: () {
-                // Payment logic here
-                showCustomSnackBar(context, 'Processing Payment...');
+                final basketState = context.read<BasketBloc>().state;
+                final setupState = context.read<InvoiceSetupBloc>().state;
+                final user = getIt<IUserCache>().getUserModel();
+
+                if (setupState.selectedPattern == null) {
+                  showCustomSnackBar(context, 'Please select an invoice pattern');
+                  return;
+                }
+
+                if (setupState.selectedCurrency == null) {
+                  showCustomSnackBar(context, 'Please select a currency');
+                  return;
+                }
+
+                if (user == null) {
+                  showCustomSnackBar(context, 'User not authenticated');
+                  return;
+                }
+
+                context.read<NewInvoiceBloc>().add(
+                  CreateInvoiceFromSales(
+                    basketItems:  basketState.items,
+                    patternId:    setupState.selectedPattern!.patternId,
+                    branchId:     setupState.selectedBranch?.branchId ?? 1,
+                    currencyId:   setupState.selectedCurrency!.currencyId,
+                    rate:         setupState.selectedCurrency!.rate,
+                    totalValue:   total,
+                    createdBy:    user.fullUserName,
+                    customerId:   basketState.metadata['CustomerID'] as int?,
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.mainAppColor,

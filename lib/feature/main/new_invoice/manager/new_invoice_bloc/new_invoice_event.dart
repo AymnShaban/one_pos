@@ -59,3 +59,28 @@ class UpdateCurrency extends NewInvoiceEvent {
   @override
   List<Object?> get props => [currencyId, rate];
 }
+
+class CreateInvoiceFromSales extends NewInvoiceEvent {
+  final List<ItemModel> basketItems;
+  final int patternId;
+  final int branchId;
+  final int currencyId;
+  final double rate;
+  final int? customerId;
+  final double totalValue;
+  final String createdBy;
+
+  const CreateInvoiceFromSales({
+    required this.basketItems,
+    required this.patternId,
+    required this.branchId,
+    required this.currencyId,
+    required this.rate,
+    required this.totalValue,
+    required this.createdBy,
+    this.customerId,
+  });
+
+  @override
+  List<Object?> get props => [basketItems, patternId, branchId, currencyId, rate, customerId, totalValue, createdBy];
+}
