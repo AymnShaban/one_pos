@@ -74,39 +74,55 @@ class _BasketPosSummaryState extends State<BasketPosSummary> {
         );
         final remainingAmount = netAmount - totalPaid;
 
-        return Container(
-          margin: EdgeInsets.all(12.w),
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color: context.isDarkMode ? AppColors.codGray : Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: Colors.grey.shade300),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+        return Column(
+          children: [
+            Container(
+              margin: EdgeInsets.all(12.w),
+              padding: EdgeInsets.all(16.w),
+              decoration: BoxDecoration(
+                color: context.isDarkMode
+                    ? AppColors.codGray
+                    : Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(color: Colors.grey.shade300),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildAccountSearch(),
-              SizedBox(height: 4.h),
-              _buildTotalsSection(totalAmount, netAmount, discountAmount),
-              SizedBox(height: 8.h),
-              _buildQuantitySection(totalQuantity, itemCount),
-              SizedBox(height: 16.h),
-              _buildPaymentInputSection(remainingAmount),
-              if (_payments.isNotEmpty) ...[
-                SizedBox(height: 16.h),
-                _buildPaymentsTable(),
-              ],
-              SizedBox(height: 16.h),
-              _buildBalanceSummary(totalPaid, remainingAmount),
-            ],
-          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildAccountSearch(),
+                  SizedBox(height: 4.h),
+                  _buildTotalsSection(totalAmount, netAmount, discountAmount),
+                  SizedBox(height: 8.h),
+                  _buildQuantitySection(totalQuantity, itemCount),
+                  SizedBox(height: 16.h),
+                  _buildPaymentInputSection(remainingAmount),
+                  if (_payments.isNotEmpty) ...[
+                    SizedBox(height: 16.h),
+                    _buildPaymentsTable(),
+                  ],
+                  SizedBox(height: 16.h),
+                  _buildBalanceSummary(totalPaid, remainingAmount),
+                ],
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.w),
+              child: _buildCheckoutButton(
+                subtotal: totalAmount,
+                finalValue: netAmount,
+                adjustmentAmount: discountAmount,
+                remaining: remainingAmount,
+              ),
+            ),
+          ],
         );
       },
     );

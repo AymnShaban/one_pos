@@ -39,19 +39,30 @@ extension PaymentInputSectionExt on _BasketPosSummaryState {
         SizedBox(height: 12.h),
         ElevatedButton(
           onPressed: () {
+            if (_selectedPayWay == null) {
+              showCustomSnackBar(
+                context,
+                'new_invoice.enter_payment_method_and_amount'.tr(),
+              );
+              return;
+            }
             // Use the amount the user typed; only fall back to the remaining
             // amount when the field is left empty.
             final typed = double.tryParse(_paidController.text.trim());
             final amount =
                 (typed != null && typed > 0) ? typed : remaining;
             if (amount <= 0) return;
+            final receipt =
+                _receiptNumber.trim().isEmpty ? '-' : _receiptNumber.trim();
             updateState(() {
               _payments.add({
-                'method': _selectedPayWay?.displayName(isAr) ?? '',
+                'payWay': _selectedPayWay,
+                'method': _selectedPayWay!.displayName(isAr),
                 'amount': amount,
-                'receipt': _receiptNumber,
+                'receipt': receipt,
               });
             });
+            _paidController.clear();
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.mainAppColor,

@@ -168,6 +168,9 @@ class BasketBloc extends Bloc<BasketEvent, BaseState<ItemModel>> {
       ClearBasket event,
       Emitter<BaseState<ItemModel>> emit,
       ) async {
-    emit(BaseState());
+    // Wipe the local Hive cache so a later fetch can't reload the sold items,
+    // then reset to an empty state.
+    await _deleteBasketDataSource.clearBasket();
+    emit(const BaseState());
   }
 }

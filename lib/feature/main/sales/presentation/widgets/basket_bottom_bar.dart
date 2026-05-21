@@ -19,13 +19,20 @@ class BasketBottomBar extends StatelessWidget {
 
         return GestureDetector(
           onTap: () {
+            // Capture the sales tab's setup bloc from THIS context (which is
+            // under its provider) so the pattern / currency / branch the user
+            // picked carries into the basket. Reading it inside the route
+            // builder below would fail — that context is rooted at the
+            // Navigator, above this provider. (It's a factory in getIt, so
+            // getIt<>() would also just create an empty one.)
+            final setupBloc = context.read<InvoiceSetupBloc>();
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MultiBlocProvider(
+                builder: (_) => MultiBlocProvider(
                   providers: [
                     BlocProvider.value(value: getIt<BasketBloc>()),
-                    BlocProvider.value(value: getIt<InvoiceSetupBloc>()),
+                    BlocProvider.value(value: setupBloc),
                     BlocProvider.value(value: getIt<NewInvoiceBloc>()),
                   ],
                   child: const BasketScreen(),

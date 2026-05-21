@@ -43,3 +43,4 @@ part 'presentation/widgets/basket_pos_summary_widgets/build_quantity_section.dar
 part 'presentation/widgets/basket_pos_summary_widgets/build_payment_input_section.dart';
 part 'presentation/widgets/basket_pos_summary_widgets/build_payments_table.dart';
 part 'presentation/widgets/basket_pos_summary_widgets/build_balance_summary.dart';
+part 'presentation/widgets/basket_pos_summary_widgets/build_checkout_button.dart';

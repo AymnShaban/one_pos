@@ -109,8 +109,6 @@ class _BasketScreenState extends State<BasketScreen> {
 
                 // Conditionally show OrderMinimumWidget only when total < 2000
                 const BasketPosSummary(),
-                SizedBox(height: 20.h),
-                const PaymentButtonSection(),
                 SizedBox(height: 10.h),
                 BlocListener<NewInvoiceBloc, NewInvoiceState>(
                   listener: (context, state) {
@@ -118,7 +116,7 @@ class _BasketScreenState extends State<BasketScreen> {
                       // Optionally show a loading dialog or overlay
                     } else if (state.submitStatus == Status.success) {
                       showCustomSnackBar(context, 'invoice_created_successfully'.tr(),);
-                      context.read<BasketBloc>().add(const FetchBasketItems()); // Clear or refresh basket
+                      context.read<BasketBloc>().add(const ClearBasket()); // Empty the basket after a successful sale
                       Navigator.pop(context);
                     } else if (state.submitStatus == Status.failure) {
                       showCustomSnackBar(context, state.errorMessage ?? 'error'.tr(),);

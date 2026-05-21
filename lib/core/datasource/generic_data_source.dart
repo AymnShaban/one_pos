@@ -104,12 +104,16 @@ class GenericDataSource {
           return Right(null as T);
         } else if (T == String) {
           log('right: $right');
-          if (right["message"] ==
-              'توجد أصناف ليس لها كمية في المخزن لم يتم إضافة الطلبية') {
-            return Right(right["message"] as T);
-          } else {
-            return Right(right["data"] as T);
+          // A successful create returns the invoice object (it carries an
+          // InvoiceID). Business-rule rejections — e.g. "توجد أصناف ليس لها
+          // كمية في المخزن لم يتم إضافة الفاتورة" — come back as a plain
+          // (non-JSON) message that the api consumer wrapped as
+          // {'message': ...}. Surface those as a failure so the caller does
+          // not mistake them for a created invoice.
+          if (right['InvoiceID'] == null && right['message'] is String) {
+            return Left(ServerFailure(message: right['message'] as String));
           }
+          return Right(jsonEncode(right) as T);
         } else if (T == int) {
           return Right(right['result'] ?? 0 as T);
         } else {
