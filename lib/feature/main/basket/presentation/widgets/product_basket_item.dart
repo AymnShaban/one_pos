@@ -154,7 +154,6 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
     final isAr = context.locale.languageCode == 'ar';
     final item = widget.item;
     final name = isAr ? item.productArName : item.productEnName;
-    final discountPct = item.offerPercentage ?? 0;
 
     return MultiBlocListener(
       listeners: [
@@ -240,13 +239,21 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
               child: Row(
                 children: [
                   _cell(name, flex: 3, align: TextAlign.start, bold: true),
-                  _cell(
-                    '${discountPct.toStringAsFixed(0)}%',
+                  _editableCell(
                     flex: 2,
-                    color: AppColors.red,
+                    value: _fmt(_currentDiscountPercent),
+                    onChanged: _onDiscountChanged,
                   ),
-                  _cell('${item.salesQuantity}', flex: 1),
-                  _cell(item.price.toStringAsFixed(2), flex: 2),
+                  _editableCell(
+                    flex: 1,
+                    value: _fmt(item.salesQuantity),
+                    onChanged: _onQtyChanged,
+                  ),
+                  _editableCell(
+                    flex: 2,
+                    value: item.price.toStringAsFixed(2),
+                    onChanged: _onPriceChanged,
+                  ),
                   _cell(item.totalSplitPrice.toStringAsFixed(3), flex: 2),
                   _cell(item.stockQuantity.toStringAsFixed(0), flex: 2),
                   _cell('-', flex: 2),
@@ -255,6 +262,68 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// Current line discount derived from price vs price-after-discount.
+  /// A price-after-discount of 0 (or >= price) means "no discount".
+  double get _currentDiscountPercent {
+    final price = widget.item.price;
+    final pad = widget.item.priceAfterDiscount;
+    return (price > 0 && pad > 0 && pad < price) ? (1 - pad / price) * 100 : 0;
+  }
+
+  /// Show whole numbers plainly (3) and cap fractions at two decimals
+  /// (35.7133 → 35.71, 2.5 → 2.5) — no trailing zeros.
+  String _fmt(num v) {
+    if (v == v.roundToDouble()) return v.toInt().toString();
+    var s = v.toStringAsFixed(2);
+    if (s.contains('.')) {
+      s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+    }
+    return s;
+  }
+
+  void _dispatchEdit(ItemModel updated) {
+    context.read<BasketBloc>().add(EditBasketItem(updated));
+  }
+
+  void _onQtyChanged(String value) {
+    final q = double.tryParse(value.trim());
+    if (q == null || q <= 0) return;
+    _dispatchEdit(widget.item.copyWith(salesQuantity: q));
+  }
+
+  void _onDiscountChanged(String value) {
+    final d = double.tryParse(value.trim());
+    if (d == null || d < 0 || d > 100) return;
+    final price = widget.item.price;
+    // Bake the discount into priceAfterDiscount; clearing it (0%) restores the
+    // full price. totalSplitPrice / toCartItem both read priceAfterDiscount.
+    final pad = d <= 0 ? price : price * (1 - d / 100);
+    _dispatchEdit(widget.item.copyWith(priceAfterDiscount: pad));
+  }
+
+  void _onPriceChanged(String value) {
+    final p = double.tryParse(value.trim());
+    if (p == null || p <= 0) return;
+    // Keep the current discount % when the unit price changes.
+    final d = _currentDiscountPercent;
+    final pad = d <= 0 ? p : p * (1 - d / 100);
+    _dispatchEdit(widget.item.copyWith(price: p, priceAfterDiscount: pad));
+  }
+
+  Widget _editableCell({
+    required int flex,
+    required String value,
+    required ValueChanged<String> onChanged,
+  }) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 2.w),
+        child: EditableSmallBox(value: value, onChanged: onChanged),
       ),
     );
   }

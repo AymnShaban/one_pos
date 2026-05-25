@@ -1,4 +1,5 @@
 
+import 'package:flutter/services.dart';
 import '../../../../../../core/helper/helper.dart';
 
 /// Small numeric box that shows an externally-computed [value] but is also
@@ -9,7 +10,14 @@ class EditableSmallBox extends StatefulWidget {
   final String value;
   final Function(String) onChanged;
 
-  const EditableSmallBox({required this.value, required this.onChanged});
+  /// Max digits allowed after the decimal point (e.g. 35.71, not 35.7133).
+  final int decimals;
+
+  const EditableSmallBox({
+    required this.value,
+    required this.onChanged,
+    this.decimals = 2,
+  });
 
   @override
   State<EditableSmallBox> createState() => _EditableSmallBoxState();
@@ -57,6 +65,7 @@ class _EditableSmallBoxState extends State<EditableSmallBox> {
         style: AppTextTheme.captionBold,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         textAlign: TextAlign.center,
+        inputFormatters: [_DecimalTextInputFormatter(widget.decimals)],
         decoration: const InputDecoration(
           border: InputBorder.none,
           isDense: true,
@@ -65,5 +74,23 @@ class _EditableSmallBoxState extends State<EditableSmallBox> {
         onChanged: widget.onChanged,
       ),
     );
+  }
+}
+
+/// Rejects any edit that would put more than [decimalRange] digits after the
+/// decimal point (and more than one dot), so the field stays like 35.71.
+class _DecimalTextInputFormatter extends TextInputFormatter {
+  final int decimalRange;
+
+  _DecimalTextInputFormatter(this.decimalRange);
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.isEmpty) return newValue;
+    final regExp = RegExp('^\\d*\\.?\\d{0,$decimalRange}\$');
+    return regExp.hasMatch(newValue.text) ? newValue : oldValue;
   }
 }

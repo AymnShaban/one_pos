@@ -331,6 +331,19 @@ class HiveServiceImpl implements IUserCache, IBasket {
   }
 
   @override
+  Future<void> updateBasketItem(ItemModel item) async {
+    final existingIndex = _basketBox?.values.toList().indexWhere(
+      (element) =>
+          element.productId == item.productId &&
+          element.barCode == item.barCode,
+    );
+
+    if (existingIndex != null && existingIndex != -1) {
+      await _basketBox?.putAt(existingIndex, item);
+    }
+  }
+
+  @override
   Future<void> clearBasket() async {
     await _basketBox?.clear();
   }

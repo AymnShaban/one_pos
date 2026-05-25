@@ -106,10 +106,16 @@ class NewInvoiceBloc extends Bloc<NewInvoiceEvent, NewInvoiceState> {
     emit(state.copyWith(submitStatus: Status.loading));
     final result = await _dataSource.createInvoice(event.request);
     result.fold(
-          (failure) => emit(state.copyWith(
-        submitStatus: Status.failure,
-        errorMessage: failure.message,
-      )),
+          (failure) {
+            // failure.message is already the decrypted server text (e.g.
+            // "توجد أصناف ليس لها كمية في المخزن لم يتم إضافة الفاتورة"); do NOT
+            // decrypt again or it becomes the "Error...." fallback.
+            debugPrint('Invoice submission failed: ${failure.message}');
+            emit(state.copyWith(
+              submitStatus: Status.failure,
+              errorMessage: failure.message,
+            ));
+          },
           (data) => emit(state.copyWith(
         submitStatus: Status.success,
         successData:  data,

@@ -90,7 +90,7 @@ class ItemModel extends Equatable {
   @HiveField(37)
   final double? customerQuantity;
   @HiveField(38)
-  final int salesQuantity;
+  final num salesQuantity;
 
   const ItemModel({
     required this.productCode,
@@ -263,7 +263,7 @@ class ItemModel extends Equatable {
     String? unitEnName,
     String? brandID,
     double? customerQuantity,
-    int? salesQuantity,
+    num? salesQuantity,
   }) {
     return ItemModel(
       productCode: productCode ?? this.productCode,

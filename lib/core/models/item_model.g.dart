@@ -52,7 +52,7 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       unitArName: fields[34] as String?,
       brandID: fields[36] as String?,
       customerQuantity: fields[37] as double?,
-      salesQuantity: fields[38] as int,
+      salesQuantity: (fields[38] as num?) ?? 0,
     );
   }
 

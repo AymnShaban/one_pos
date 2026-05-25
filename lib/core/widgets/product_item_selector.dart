@@ -19,7 +19,9 @@ class ProductItemSelector extends StatelessWidget {
         final basketItem = state.items.firstWhereOrNull(
               (item) => item.productId == product.productId,
         );
-        return basketItem?.salesQuantity;
+        // The tile badge / stepper is whole-unit; basket lines may hold a
+        // fractional quantity, so round down for the indicator.
+        return basketItem?.salesQuantity.toInt();
       },
       builder: (context, quantity) {
         return EnhancedProductItem(

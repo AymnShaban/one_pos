@@ -38,3 +38,14 @@ class ClearBasket extends BasketEvent {
   @override
   List<Object?> get props => [];
 }
+
+/// Inline edit of a single line (quantity / price / discount). Carries the
+/// full updated [item]; the bloc persists it and swaps it into the list.
+class EditBasketItem extends BasketEvent {
+  final ItemModel item;
+
+  const EditBasketItem(this.item);
+
+  @override
+  List<Object?> get props => [item];
+}

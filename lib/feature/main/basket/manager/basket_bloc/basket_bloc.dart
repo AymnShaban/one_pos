@@ -14,6 +14,30 @@ class BasketBloc extends Bloc<BasketEvent, BaseState<ItemModel>> {
     on<UpdateQuantity>(_onUpdateQuantity);
     on<DeleteBasketItem>(_onDeleteBasketItem);
     on<ClearBasket>(_onClearBasket);
+    on<EditBasketItem>(_onEditBasketItem);
+  }
+
+  Future<void> _onEditBasketItem(
+      EditBasketItem event,
+      Emitter<BaseState<ItemModel>> emit,
+      ) async {
+    // Persist the edited line to the local cache, then swap it into the list
+    // in place so totals and the invoice pick up the new values.
+    await _basketDataSource.updateBasketItem(event.item);
+
+    final updatedItems = state.items
+        .map((it) =>
+            it.productId == event.item.productId &&
+                    it.barCode == event.item.barCode
+                ? event.item
+                : it)
+        .toList();
+
+    emit(state.copyWith(
+      status: Status.success,
+      items: updatedItems,
+      metadata: {'action': 'edit', 'productId': event.item.productId},
+    ));
   }
 
   Future<void> _onFetchBasketItems(

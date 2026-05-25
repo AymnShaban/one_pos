@@ -2,6 +2,7 @@ part of '../basket_imports.dart';
 
 abstract interface class BasketDataSource {
   Future<Either<Failure, List<ItemModel>>> getBasketItems();
+  Future<Either<Failure, void>> updateBasketItem(ItemModel item);
 }
 
 
@@ -20,6 +21,16 @@ class BasketDataSourceImpl implements BasketDataSource {
       return Right(items);
     } catch (e) {
       return Left(CacheFailure(message: 'Failed to fetch local basket items: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateBasketItem(ItemModel item) async {
+    try {
+      await _basketCache.updateBasketItem(item);
+      return const Right(null);
+    } catch (e) {
+      return Left(CacheFailure(message: 'Failed to update local basket item: ${e.toString()}'));
     }
   }
 }

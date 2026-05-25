@@ -9,5 +9,9 @@ abstract interface class IBasket {
 
   Future<List<ItemModel>> getBasketItems();
   Future<void> deleteBasketItem(int productId, String barCode);
+
+  /// Replaces the stored line for [item] (matched by product + barcode) with
+  /// the given snapshot — used for inline edits of quantity / price / discount.
+  Future<void> updateBasketItem(ItemModel item);
   Future<void> clearBasket();
 }
