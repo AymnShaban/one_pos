@@ -30,6 +30,18 @@
   "Quantity is high. Enter the desired total quantity:": "Quantity is high. Enter the desired total quantity:",
   "Quantity is high. Enter the desired total quantity": "Quantity is high. Enter the desired total quantity",
   "max_quantity_reached": "Max quantity reached",
+  "product_name": "Product",
+  "stock_quantity": "Stock",
+  "real_quantity": "Real Qty",
+  "result": "Result",
+  "product_not_found": "Product not found",
+  "stock_taking_button": "Stock Taking",
+  "scan_barcode": "Scan Barcode",
+  "no_products_to_export": "No products to export",
+  "total_quantity": "Total Quantity",
+  "item_count": "Item Count",
+  "clear_invoice": "Clear",
+  "export_excel": "Export to Excel",
 
   "auth": {
     "welcome_back": "Welcome Back",

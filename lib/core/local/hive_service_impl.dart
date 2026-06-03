@@ -1,13 +1,16 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:one_pos/feature/auth/models/user_model.dart';
 import '../../feature/auth/models/areas_model.dart';
+import '../../feature/barren/domain/entities/invoice_product.dart';
 import '../../feature/main/basket/basket_imports.dart';
+import '../entity/barren_invoice_model.dart';
 import '../helper/logger.dart';
 import '../models/item_model.dart';
 part 'user_cache_interface.dart';
 part 'paginated_cache_interface.dart';
+part 'invoice_cache.dart';
 
-class HiveServiceImpl implements IUserCache, IBasket {
+class HiveServiceImpl implements IUserCache, IBasket , InvoiceCache {
   static const String userBoxName = 'user_box';
   static Box<UserModel>? _userBox;
   static const String currentUserKey = 'current_user';
@@ -27,6 +30,11 @@ class HiveServiceImpl implements IUserCache, IBasket {
   static const String _sellerNameKey     = 'seller_name';
   static const String _haveDiscountKey   = 'have_discount';
   static const String basketBoxName      = 'basket_box';
+  // Invoice cache
+  static const String invoiceBoxName = 'invoice_box';
+  static Box<BarrenInvoiceModel>? _invoiceBox;
+  static const String currentInvoiceKey = 'current_invoice';
+
   static Box<ItemModel>? _basketBox;
   HiveServiceImpl._();
 
@@ -37,6 +45,9 @@ class HiveServiceImpl implements IUserCache, IBasket {
     Hive.registerAdapter(UserModelAdapter());
     Hive.registerAdapter(ItemModelAdapter());
     Hive.registerAdapter(AreasModelAdapter());
+    // Barren stock-taking persistence
+    Hive.registerAdapter(InvoiceProductAdapter());
+    Hive.registerAdapter(BarrenInvoiceModelAdapter());
 
     _userBox = await _openBoxSafely<UserModel>(userBoxName);
     _orderBox = await _openBoxSafely<String>(orderBoxName);
@@ -44,6 +55,7 @@ class HiveServiceImpl implements IUserCache, IBasket {
     _locationBox = await _openBoxSafely<Map>(locationBoxName);
     _settingsBox = await _openBoxSafely(settingsBoxName);
     _basketBox = await _openBoxSafely<ItemModel>(basketBoxName);
+    _invoiceBox = await _openBoxSafely<BarrenInvoiceModel>(invoiceBoxName);
   }
 
   /// Opens a Hive box, recovering from data written with an incompatible
@@ -347,4 +359,25 @@ class HiveServiceImpl implements IUserCache, IBasket {
   Future<void> clearBasket() async {
     await _basketBox?.clear();
   }
+
+
+  // --- IInvoiceCache Implementation ---
+
+  @override
+  Future<void> cacheInvoice(BarrenInvoiceModel invoice) async {
+    await _invoiceBox?.put(currentInvoiceKey, invoice);
+    logger('Cached barren invoice with ${invoice.products.length} items');
+  }
+
+  @override
+  BarrenInvoiceModel? getInvoice() {
+    return _invoiceBox?.get(currentInvoiceKey);
+  }
+
+  @override
+  Future<void> clearInvoice() async {
+    await _invoiceBox?.delete(currentInvoiceKey);
+    logger('Cleared cached invoice');
+  }
+
 }

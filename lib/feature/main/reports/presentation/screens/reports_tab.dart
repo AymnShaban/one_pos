@@ -33,6 +33,7 @@ class _ReportsTabState extends State<ReportsTab> {
                   padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
                   child: Column(
                     children: [
+                      _StockTakingButton(), // Temporary prominent entry point to the stock-taking screen while it's in development. To be replaced with a more subtle link once the feature is complete.
                       // Report type selector
                       ReportTypeSelector(selected: bloc.selectedType),
                       SizedBox(height: 14.h),
@@ -72,6 +73,12 @@ class _ReportsTabState extends State<ReportsTab> {
                           if (report.topProducts.isNotEmpty)
                             TopProductsList(products: report.topProducts),
                           SizedBox(height: 14.h),
+                          // Entry point into the Barren stock-taking screen,
+                          // only visible on the items report.
+                          if (bloc.selectedType == ReportType.itemsReport) ...[
+                            const _StockTakingButton(),
+                            SizedBox(height: 14.h),
+                          ],
                         ],
                     ],
                   ),
@@ -117,6 +124,50 @@ class _ReportsTabState extends State<ReportsTab> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// Full-width جرد button that opens the Barren stock-taking screen with a
+/// fresh [InvoiceCubit] provided. Matches the style of the existing export
+/// PDF button so it visually belongs on the reports view.
+class _StockTakingButton extends StatelessWidget {
+  const _StockTakingButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52.h,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BlocProvider<InvoiceCubit>(
+                create: (_) => getIt<InvoiceCubit>(),
+                child: const BarrenStockTakingScreen(),
+              ),
+            ),
+          );
+        },
+        icon: const Icon(Icons.inventory_2_rounded, color: Colors.white),
+        label: Text(
+          'stock_taking_button'.tr(),
+          style: TextStyle(
+            fontSize: 15.sp,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xff40C057),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14.r),
+          ),
+          elevation: 0,
+        ),
       ),
     );
   }

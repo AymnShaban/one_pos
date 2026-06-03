@@ -7,6 +7,7 @@ import '../../../feature/auth/bloc/governorates_bloc/governorates_bloc.dart';
 import '../../../feature/auth/bloc/log_in_bloc/log_in_bloc.dart';
 import '../../../feature/auth/data_source/auth_data_source.dart';
 import '../../../feature/auth/data_source/login_data_source.dart';
+import '../../../feature/barren/presentation/cubit/invoice_cubit.dart';
 import '../../../feature/main/basket/basket_imports.dart';
 import '../../../feature/main/home/home_imports.dart';
 import '../../../feature/main/invoice_collection/invoice_collection_imports.dart';
@@ -27,6 +28,7 @@ import '../../network/encrupt.dart';
 
 
 part 'auth_service_locator/auth_service_locator.dart';
+part 'barren_service_locator/barren_service_locator.dart';
 part 'basket_service_locator/basket_service_locator.dart';
 part 'hive_service_locator/hive_service_locator.dart';
 part 'home_service_locator/home_service_locator.dart';
