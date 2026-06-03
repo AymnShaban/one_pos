@@ -211,33 +211,46 @@ class _BarrenStockTakingScreenState extends State<BarrenStockTakingScreen> {
           }
         },
         child: Padding(
-          padding: EdgeInsets.all(20.w),
+          padding: EdgeInsets.all(6.w),
           child: Column(
             children: [
-              BarcodeSearchField(
-                controller: _barcodeController,
-                focusNode: _barcodeFocusNode,
-                onScanPressed: () => _openScanner(context),
-                onBarcodeEntered: (barcode) {
-                  _processScannedBarcode(barcode);
-                },
+              Row(
+                // space between the search field and the scan button
+                children: [
+
+                  Expanded(
+                    child: QuantityInputSection(
+                      controller: _quantityController,
+                      focusNode: _quantityFocusNode,
+                      onAddPressed: _addProductManually,
+                      onBarcodePressed: () {
+                        _quantityFocusNode.requestFocus();
+                      },
+                      onSubmitted: (_) {
+                        _quantityFocusNode.requestFocus();
+                      },
+                    ),
+                  ),
+
+                  Expanded(
+                    child: BarcodeSearchField(
+                      controller: _barcodeController,
+                      focusNode: _barcodeFocusNode,
+                      onScanPressed: () => _openScanner(context),
+                      onBarcodeEntered: (barcode) {
+                        _processScannedBarcode(barcode);
+                      },
+                    ),
+                  ),
+
+
+                ],
               ),
 
-              SizedBox(height: 16.h),
+              SizedBox(height: 4.h),
 
-              QuantityInputSection(
-                controller: _quantityController,
-                focusNode: _quantityFocusNode,
-                onAddPressed: _addProductManually,
-                onBarcodePressed: () {
-                  _quantityFocusNode.requestFocus();
-                },
-                onSubmitted: (_) {
-                  _quantityFocusNode.requestFocus();
-                },
-              ),
 
-              SizedBox(height: 12.h),
+
 
               // Thin progress bar while the API barcode lookup is in flight.
               BlocBuilder<InvoiceCubit, InvoiceState>(
@@ -276,7 +289,7 @@ class _BarrenStockTakingScreenState extends State<BarrenStockTakingScreen> {
                 ),
               ),
 
-              SizedBox(height: 20.h),
+              SizedBox(height: 10.h),
 
               BlocBuilder<InvoiceCubit, InvoiceState>(
                 builder: (context, state) {
@@ -293,7 +306,6 @@ class _BarrenStockTakingScreenState extends State<BarrenStockTakingScreen> {
                 },
               ),
 
-              SizedBox(height: 20.h),
 
               BlocBuilder<InvoiceCubit, InvoiceState>(
                 builder: (context, state) {

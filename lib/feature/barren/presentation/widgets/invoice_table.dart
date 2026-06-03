@@ -23,7 +23,6 @@ class InvoiceTable extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F8F8),
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: products.isEmpty

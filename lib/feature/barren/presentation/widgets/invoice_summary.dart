@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:one_pos/core/helper/helper.dart';
 
 /// Invoice summary section showing totals
 class InvoiceSummary extends StatelessWidget {
@@ -28,7 +29,7 @@ class InvoiceSummary extends StatelessWidget {
         // Divider
         Container(
           width: 1,
-          height: 40.h,
+          height: 30.h,
           color: Colors.black12,
         ),
         
@@ -57,19 +58,12 @@ class _SummaryItem extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 16.sp,
-            color: Colors.black54,
-          ),
+          style: AppTextTheme.caption,
         ),
         SizedBox(height: 8.h),
         Text(
           value,
-          style: TextStyle(
-            fontSize: 28.sp,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
+          style: AppTextTheme.body2Bold,
         ),
       ],
     );

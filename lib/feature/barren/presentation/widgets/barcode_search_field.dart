@@ -31,6 +31,8 @@ class _BarcodeSearchFieldState extends State<BarcodeSearchField> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
+            width: 30,
+            height: 30,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12.r),
@@ -43,16 +45,19 @@ class _BarcodeSearchFieldState extends State<BarcodeSearchField> {
               ],
             ),
             child: IconButton(
+              padding: EdgeInsets.zero,
               icon: Icon(
                 Icons.qr_code_scanner,
-                size: 24.sp,
+                size: 18.sp,
                 color: Colors.black87,
               ),
               onPressed: widget.onScanPressed,
             ),
           ),
+          SizedBox(width: 6.w),
           SizedBox(
-            width: 200,
+            width: 100,
+            height: 35,
             child: TextField(
               controller: widget.controller,
               focusNode: widget.focusNode,
@@ -70,8 +75,7 @@ class _BarcodeSearchFieldState extends State<BarcodeSearchField> {
                 hintText: 'scan_barcode'.tr(),
                 hintStyle:AppTextTheme.caption.copyWith(color: Colors.black45),
                 contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20.w,
-                  vertical: 10.h,
+                  horizontal: 10.w,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),

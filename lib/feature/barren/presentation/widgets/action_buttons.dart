@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:one_pos/core/helper/helper.dart';
 
 /// Action buttons for export and clear invoice
 class ActionButtons extends StatelessWidget {
@@ -24,35 +23,26 @@ class ActionButtons extends StatelessWidget {
           child: OutlinedButton(
             onPressed: isLoading ? null : onClearPressed,
             style: OutlinedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 18.h),
-              side: const BorderSide(
-                color: Color(0xFFE57373),
-                width: 2,
-              ),
+              side: const BorderSide(color: Color(0xFFE57373), width: 2),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.r),
               ),
             ),
             child: Text(
               'clear_invoice'.tr(),
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFFE57373),
-              ),
+              style: AppTextTheme.body1,
             ),
           ),
         ),
-        
+
         SizedBox(width: 16.w),
-        
+
         // Export Excel button (yellow)
         Expanded(
           child: ElevatedButton(
             onPressed: isLoading ? null : onExportPressed,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFE8D952),
-              padding: EdgeInsets.symmetric(vertical: 18.h),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.r),
               ),
@@ -69,11 +59,7 @@ class ActionButtons extends StatelessWidget {
                   )
                 : Text(
                     'export_excel'.tr(),
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
+                    style: AppTextTheme.body1,
                   ),
           ),
         ),

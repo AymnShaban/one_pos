@@ -23,39 +23,41 @@ class QuantityInputSection extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Add button
           GestureDetector(
+
             onTap: onAddPressed,
             child: Container(
-              width: 45.w,
-              height: 35.h,
+              width: 30.w,
+              height: 30.h,
               decoration: BoxDecoration(
                 color: const Color(0xFFD4A5A5),
                 borderRadius: BorderRadius.circular(12.r),
               ),
-              child: Icon(Icons.add, color: Colors.white, size: 32.sp),
+              child: Icon(Icons.add, color: Colors.white, size: 18.sp),
             ),
           ),
-          SizedBox(width: 12.w),
-          if (onBarcodePressed != null)
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(12.r),
-                  bottomLeft: Radius.circular(12.r),
-                ),
-              ),
-              child: IconButton(
-                icon: Icon(Icons.qr_code_scanner,
-                    size: 24.sp, color: Colors.black54),
-                onPressed: onBarcodePressed,
-                padding: EdgeInsets.zero,
-              ),
-            ),
-          Expanded(
+          SizedBox(width: 6.w),
+          // if (onBarcodePressed != null)
+          //   Container(
+          //     decoration: BoxDecoration(
+          //       color: Colors.white,
+          //       borderRadius: BorderRadius.only(
+          //         topLeft: Radius.circular(12.r),
+          //         bottomLeft: Radius.circular(12.r),
+          //       ),
+          //     ),
+          //     child: IconButton(
+          //       icon: Icon(Icons.qr_code_scanner,
+          //           size: 24.sp, color: Colors.black54),
+          //       onPressed: onBarcodePressed,
+          //       padding: EdgeInsets.zero,
+          //     ),
+          //   ),
+          SizedBox(
+            width: 100.w,
+            height: 35,
             child: TextField(
               controller: controller,
               focusNode: focusNode, // ← added

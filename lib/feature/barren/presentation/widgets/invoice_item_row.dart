@@ -110,6 +110,7 @@ class _InvoiceItemRowState extends State<InvoiceItemRow> {
             offset: const Offset(0, 2),
           ),
         ],
+        border: Border.all(color: Colors.grey.shade200, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
