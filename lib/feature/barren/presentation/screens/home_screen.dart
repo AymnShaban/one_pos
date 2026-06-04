@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 
+import '../../../../core/extension/context_extension.dart';
 import '../cubit/invoice_cubit.dart';
 import '../cubit/invoice_state.dart';
 import '../widgets/barcode_scanner_view.dart';
@@ -91,17 +92,12 @@ class _BarrenStockTakingScreenState extends State<BarrenStockTakingScreen> {
     final quantity = double.tryParse(_quantityController.text) ?? 1.0;
     context.read<InvoiceCubit>().addProduct(trimmed, realQuantity: quantity);
 
+    // Feedback (success / "not found" / error) is emitted by the cubit
+    // *after* the API search resolves and shown by the BlocListener below.
+    // Do NOT show a snackbar here — at this point we don't yet know whether
+    // the product exists.
     _barcodeController.clear();
     _quantityController.text = '1';
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('تم إضافة المنتج: $trimmed'),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-
     _quantityFocusNode.requestFocus();
   }
 
@@ -193,19 +189,54 @@ class _BarrenStockTakingScreenState extends State<BarrenStockTakingScreen> {
         ),
       ),
       body: BlocListener<InvoiceCubit, InvoiceState>(
+        // Only fire on transitions we want to surface:
+        //   - Any error (not-found / export cancelled / export failed)
+        //   - Export success
+        //   - The InvoiceSearching → InvoiceLoaded edge (the API just added
+        //     a product). Plain Loaded ↔ Loaded transitions from editing
+        //     real-qty or deleting must NOT trigger the success snackbar.
+        listenWhen: (prev, curr) =>
+            curr is InvoiceError ||
+            curr is InvoiceExported ||
+            (prev is InvoiceSearching && curr is InvoiceLoaded),
         listener: (context, state) {
-          if (state is InvoiceExported) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('export_success'.tr()),
-                backgroundColor: Colors.green,
+          if (state is InvoiceError) {
+            context.showTopSnackBar(
+              backgroundColor: const Color(0xFFC62828),
+              icon: Icons.error_outline,
+              child: Text(
+                state.message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             );
-          } else if (state is InvoiceError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
+          } else if (state is InvoiceExported) {
+            context.showTopSnackBar(
+              backgroundColor: const Color(0xFF2E7D32),
+              icon: Icons.check_circle_outline,
+              child: Text(
+                'export_success'.tr(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            );
+          } else if (state is InvoiceLoaded && state.products.isNotEmpty) {
+            // We just transitioned out of InvoiceSearching, so the most
+            // recent line is the one the API enriched and appended.
+            final added = state.products.last;
+            context.showTopSnackBar(
+              backgroundColor: const Color(0xFF2E7D32),
+              icon: Icons.check_circle_outline,
+              child: Text(
+                '${'product_added'.tr()}: ${added.displayName(context.isArabic)}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             );
           }

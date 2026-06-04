@@ -35,6 +35,7 @@ class NewInvoiceDataSourceImpl implements NewInvoiceDataSource {
   @override
   Future<Either<Failure, String>> createInvoice(
       CreateInvoiceRequest request) {
+    debugPrint("Creating invoice with data: ${request.toJson()}");
     return _genericDataSource.postData<String>(
       endpoint: EndPoints.createSalesInvoice,
       data:     request.toJson(),
