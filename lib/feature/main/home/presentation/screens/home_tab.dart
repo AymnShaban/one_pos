@@ -161,7 +161,14 @@ class HomeTab extends StatelessWidget {
                             ),
                           ),
                           SizedBox(width: 12.w),
-                          Expanded(child: SizedBox()),
+                          Expanded(
+                            child: ActionCard(
+                              label: 'home.invoice_collection'.tr(),
+                              icon: Icons.monetization_on,
+                              color: AppColors.tealAccentColor,
+                              onTap: () => _openInvoiceCollection(context),
+                            ),
+                          ),
                         ],
                       ),
                       SizedBox(height: 20.h),
@@ -205,6 +212,28 @@ class HomeTab extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Opens the Purchase Invoice screen with all the providers it needs:
+/// `SalesBloc` + main / sub category blocs for the catalogue, the shared
+/// `InvoiceSetupBloc` for branch + currency, and the purchase-specific
+/// `PurchaseInvoiceBloc` + `PurchaseCartBloc`. Patterns + pay-ways are
+/// loaded eagerly via `..add(...)` on the bloc create.
+
+/// Opens the Invoice Collection screen with the providers it needs.
+/// `LoadCollectionSetupData` is dispatched by the screen's own
+/// `initState` (see InvoiceCollectionScreen) — do NOT also fire it here,
+/// or the setup endpoints get hit twice on every entry.
+void _openInvoiceCollection(BuildContext context) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => BlocProvider(
+        create: (_) => getIt<InvoiceCollectionBloc>(),
+        child: const InvoiceCollectionScreen(),
+      ),
+    ),
+  );
 }
 
 class _SectionHeader extends StatelessWidget {

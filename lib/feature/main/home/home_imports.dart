@@ -12,6 +12,7 @@ import 'package:one_pos/feature/main/settings/settings_imports.dart';
 import '../../../core/helper/helper.dart';
 import '../../../core/network/encrupt.dart';
 import '../../../core/services/service_locator/services_imports.dart';
+import '../invoice_collection/invoice_collection_imports.dart';
 import '../invoices/invoices_imports.dart';
 import '../reports/reports_imports.dart';
 import '../sales/sales_imports.dart';

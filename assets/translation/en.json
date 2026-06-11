@@ -80,6 +80,7 @@
     "manage_invoices": "Manage Invoices",
     "reports": "Reports",
     "customers": "Customers",
+    "invoice_collection" : "Invoice Collection",
     "pos_subtitle": "Point of Sale"
   },
 
@@ -198,6 +199,14 @@
     "total": "Total"
   },
 
+  "purchase_invoice": {
+    "title": "Purchase Invoice",
+    "invoice_number": "Purchase Invoice No.",
+    "purchase_type": "Purchase Type",
+    "review": "Review",
+    "order_saved_successfully": "Purchase invoice saved successfully"
+  },
+
   "new_invoice": {
     "title": "New Sales Invoice",
     "seller": "Seller",
@@ -260,7 +269,7 @@
     "branch":             "Branch",
     "select_branch":      "Select Branch",
     "date":               "Date",
-    "credit_account":     "Credit Account",
+    "credit_account":     "Debit Account",
     "collection_method":  "Collection Method",
     "payment_method":     "Payment Method",
     "currency":           "Currency",
@@ -276,7 +285,13 @@
     "description":        "Description",
     "enter_description":  "Enter description here",
     "save":               "Save",
-    "saved_successfully": "Voucher saved successfully"
+    "saved_successfully": "Voucher saved successfully",
+    "invoice_picker_title": "Find Invoice",
+    "search_invoices_hint": "Search by invoice number or customer",
+    "invoice_no":           "Invoice No",
+    "account":              "Account",
+    "total":                "Total",
+    "remaining":            "Remaining"
   }
 
 }

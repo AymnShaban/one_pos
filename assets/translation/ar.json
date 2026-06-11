@@ -78,6 +78,7 @@
     "manage_invoices": "إدارة الفواتير",
     "reports": "التقارير",
     "customers": "العملاء",
+    "invoice_collection": "تحصيل فاتورة",
     "pos_subtitle": "نقطة البيع الواحد"
   },
   "sales": {
@@ -190,6 +191,14 @@
     "EGP": "ج.م",
     "total": "الإجمالي"
   },
+  "purchase_invoice": {
+    "title": "فاتورة مشتريات",
+    "invoice_number": "رقم فاتورة المشتريات",
+    "purchase_type": "نوع المشتريات",
+    "review": "مراجعة",
+    "order_saved_successfully": "تم حفظ فاتورة المشتريات بنجاح"
+  },
+
   "new_invoice": {
     "title": "فاتورة مبيعات جديدة",
     "seller": "البائع",
@@ -250,7 +259,7 @@
     "branch": "الفرع",
     "select_branch": "اختر الفرع",
     "date": "التاريخ",
-    "credit_account": "الحساب الدائن",
+    "credit_account": "الحساب المدين",
     "collection_method": "طريقة التحصيل",
     "payment_method": "طريقة الدفع",
     "currency": "العملة",
@@ -266,6 +275,12 @@
     "description": "البيان",
     "enter_description": "أدخل البيان هنا",
     "save": "حفظ",
-    "saved_successfully": "تم حفظ السند بنجاح"
+    "saved_successfully": "تم حفظ السند بنجاح",
+    "invoice_picker_title": "البحث عن فاتورة",
+    "search_invoices_hint": "بحث برقم الفاتورة أو الحساب",
+    "invoice_no": "رقم الفاتورة",
+    "account": "الحساب",
+    "total": "الإجمالي",
+    "remaining": "الباقي"
   }
 }

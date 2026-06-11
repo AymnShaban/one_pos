@@ -101,6 +101,10 @@ class EndPoints {
   static const String createSalesInvoice = '/api/SalesInvoice/Create';
   static const String editSalesInvoice = '/api/SalesInvoice/Edit';
   static const String getPayWays = '/api/PayWays';
+  // Purchase-invoice-specific pattern list. Submission itself reuses the sales
+  // create endpoint above — only the JSON `PurchaseInvoicePayWays` key differs.
+  static const String getPurchasesTypes =
+      '/api/InvoiceSetting/GetPurchasesTypes';
 
   // Invoice Collection
   static const String getBranches = '/api/CompanyBranch/GetBranches';
@@ -116,6 +120,14 @@ class EndPoints {
       'api/CompanyBranches/GetCompanyBranchesByUserID';
 
   static const String invoiceCollecting = 'api/Voucher/InvoiceCollecting';
+  // Invoice picker for the collection screen — three search modes mirror
+  // the old InvoiceSearchCubit.
+  static const String getAllSalesInvoicesByCustomerId =
+      'api/SalesInvoice/GetAllSalesInvoicesByCustomerID';
+  static const String getSalesInvoiceByNumber =
+      'api/SalesInvoice/GetSalesInvoiceByNumber';
+  static const String getSalesInvoiceByCustomerName =
+      'api/SalesInvoice/GetSalesInvoiceByCustomerName';
 
   static const String updateInvoiceCollecting =
       'api/Voucher/UpdateInvoiceCollecting';

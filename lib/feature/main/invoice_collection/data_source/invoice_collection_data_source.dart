@@ -1,157 +1,160 @@
 part of '../invoice_collection_imports.dart';
 
 abstract interface class InvoiceCollectionDataSource {
-  Future<List<BondTypeModel>> getBondTypes();
-  Future<List<BondTypeModel>> getBondTypesByBranch(int branchId);
-  Future<List<Map<String, dynamic>>> getBranches();
-  Future<List<Map<String, dynamic>>> getCurrencies();
-  Future<List<Map<String, dynamic>>> getPayWays();
-  Future<VoucherResponseModel> addCollection(CollectionRequestModel request);
-  Future<VoucherResponseModel> editCollection(CollectionRequestModel request);
+  Future<Either<Failure, List<BondTypeModel>>> getBondTypes();
+  Future<Either<Failure, List<BondTypeModel>>> getBondTypesByBranch(
+      int branchId);
+  Future<Either<Failure, List<Map<String, dynamic>>>> getBranches();
+  Future<Either<Failure, List<Map<String, dynamic>>>> getCurrencies();
+  Future<Either<Failure, List<Map<String, dynamic>>>> getPayWays();
+
+  Future<Either<Failure, VoucherResponseModel>> addCollection(
+      CollectionRequestModel request);
+  Future<Either<Failure, VoucherResponseModel>> editCollection(
+      CollectionRequestModel request);
+
+  // ── Invoice picker (the "فاتورة" button on the collection screen). The
+  // three modes mirror the old InvoiceSearchCubit so by-number / by-name /
+  // all-for-customer all stay accessible.
+  Future<Either<Failure, List<CollectionInvoiceRowModel>>>
+      searchInvoicesByNumber(String invoiceNo);
+  Future<Either<Failure, List<CollectionInvoiceRowModel>>>
+      searchInvoicesByCustomerName(String name);
+  Future<Either<Failure, List<CollectionInvoiceRowModel>>>
+      getInvoicesByCustomer(int customerId);
 }
 
+/// Routes every call through [GenericDataSource] so the shared Dio's auth
+/// header + encryption interceptor are honoured — same convention every
+/// other data source in the app follows. The old implementation built its
+/// own `Dio(BaseOptions(baseUrl: ...))` which skipped both.
 class InvoiceCollectionDataSourceImpl implements InvoiceCollectionDataSource {
+  final GenericDataSource _generic;
 
-  final String _baseUrl;
-  final String _userId;
-  final String _ipAddress;
-  final String _userNameServer;
-  final String _passwordServer;
-  final String _databaseName;
+  InvoiceCollectionDataSourceImpl(this._generic);
 
-  InvoiceCollectionDataSourceImpl({
+  @override
+  Future<Either<Failure, List<BondTypeModel>>> getBondTypes() {
+    return _generic.fetchData<BondTypeModel>(
+      endpoint: '/${EndPoints.getReceiptsVouchersTypes}',
+      fromJson: BondTypeModel.fromJson,
+    );
+  }
 
-    required String baseUrl,
-    required String userId,
-    required String ipAddress,
-    required String userNameServer,
-    required String passwordServer,
-    required String databaseName,
-  })  :
-        _baseUrl         = baseUrl,
-        _userId          = userId,
-        _ipAddress       = ipAddress,
-        _userNameServer  = userNameServer,
-        _passwordServer  = passwordServer,
-        _databaseName    = databaseName;
+  @override
+  Future<Either<Failure, List<BondTypeModel>>> getBondTypesByBranch(
+      int branchId) {
+    return _generic.fetchData<BondTypeModel>(
+      endpoint: '/${EndPoints.getReceiptsVouchersTypesByBranch}',
+      queryParameters: {'BranchID': branchId},
+      fromJson: BondTypeModel.fromJson,
+    );
+  }
 
-  // ── Factory from Hive ─────────────────────────────────────────────────────
-  factory InvoiceCollectionDataSourceImpl.fromHive() {
+  @override
+  Future<Either<Failure, List<Map<String, dynamic>>>> getBranches() {
+    // Same per-user query params used by InvoiceSetupBloc — the server
+    // resolves the branch list from these plus the auth header.
     final hive = HiveServiceImpl.instance;
-    return InvoiceCollectionDataSourceImpl(
-      baseUrl:        hive.getBaseUrl()        ?? '',
-      userId:         hive.getUserId()?.toString() ?? '',
-      ipAddress:      hive.getIpAddress()      ?? '',
-      userNameServer: hive.getServerUserName() ?? '',
-      passwordServer: hive.getServerPassword() ?? '',
-      databaseName:   hive.getDatabaseName()   ?? '',
+    return _generic.fetchData<Map<String, dynamic>>(
+      endpoint: '/${EndPoints.getCompanyBranchesByUser}',
+      queryParameters: {
+        'UserID': hive.getUserId(),
+        'serverName': hive.getIpAddress(),
+        'UserName': hive.getServerUserName(),
+        'UserPassword': hive.getServerPassword(),
+        'DBName': hive.getDatabaseName(),
+      },
+      fromJson: (json) => json,
     );
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-  String _decrypt(dynamic data) => decrypt(data,);
-
-  String _encrypt(Map<String, dynamic> data) =>
-      encryptData(data,);
-
-  String get _apiBase => 'http://$_ipAddress/$_baseUrl';
-
-  Future<dynamic> _get(String endpoint,
-      {Map<String, dynamic>? queryParams}) async {
-    final dio = Dio(BaseOptions(baseUrl: _apiBase));
-    final response = await dio.get(endpoint, queryParameters: queryParams);
-    return response.data;
-  }
-
-  Future<dynamic> _post(String endpoint, dynamic data) async {
-    final dio = Dio(BaseOptions(baseUrl: _apiBase));
-    final response = await dio.post(endpoint,
-        data: jsonEncode(data),
-        options: Options(
-            headers: {'Content-Type': 'application/json'}));
-    return response.data;
-  }
-
-  Future<dynamic> _put(String endpoint, dynamic data) async {
-    final dio = Dio(BaseOptions(baseUrl: _apiBase));
-    final response = await dio.put(endpoint,
-        data: jsonEncode(data),
-        options: Options(
-            headers: {'Content-Type': 'application/json'}));
-    return response.data;
-  }
-
-  List<Map<String, dynamic>> _decryptList(dynamic data) {
-    final decrypted = _decrypt(data);
-    return (jsonDecode(decrypted) as List<dynamic>)
-        .map((e) => e as Map<String, dynamic>)
-        .toList();
-  }
-
-  // ── Endpoints ─────────────────────────────────────────────────────────────
   @override
-  Future<List<BondTypeModel>> getBondTypes() async {
-    final data = await _get(EndPoints.getReceiptsVouchersTypes);
-    return _decryptList(data)
-        .map((e) => BondTypeModel.fromJson(e))
-        .toList();
-  }
-
-  @override
-  Future<List<BondTypeModel>> getBondTypesByBranch(int branchId) async {
-    final data = await _get(
-      EndPoints.getReceiptsVouchersTypesByBranch,
-      queryParams: {'BranchID': branchId},
+  Future<Either<Failure, List<Map<String, dynamic>>>> getCurrencies() {
+    return _generic.fetchData<Map<String, dynamic>>(
+      endpoint: EndPoints.getCurrencies,
+      fromJson: (json) => json,
     );
-    return _decryptList(data)
-        .map((e) => BondTypeModel.fromJson(e))
-        .toList();
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getBranches() async {
-    final data = await _get(
-      EndPoints.getCompanyBranchesByUser,
-      queryParams: {
-        'UserID':        _userId,
-        'serverName':    _ipAddress,
-        'UserName':      _userNameServer,
-        'UserPassword':  _passwordServer,
-        'DBName':        _databaseName,
+  Future<Either<Failure, List<Map<String, dynamic>>>> getPayWays() {
+    return _generic.fetchData<Map<String, dynamic>>(
+      endpoint: EndPoints.getPayWays,
+      fromJson: (json) => json,
+    );
+  }
+
+  @override
+  Future<Either<Failure, VoucherResponseModel>> addCollection(
+      CollectionRequestModel request) async {
+    final result = await _generic.postData<String>(
+      endpoint: '/${EndPoints.invoiceCollecting}',
+      data: request.toMap(),
+    );
+    return result.fold(
+      (failure) => Left(failure),
+      (jsonStr) {
+        try {
+          final map = jsonDecode(jsonStr) as Map<String, dynamic>;
+          return Right(VoucherResponseModel.fromJson(map));
+        } catch (e) {
+          return Left(ParsingFailure(
+              message: 'Could not parse voucher response: $e'));
+        }
       },
     );
-    return _decryptList(data);
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getCurrencies() async {
-    final data = await _get(EndPoints.getCurrencies);
-    return _decryptList(data);
-  }
-
-  @override
-  Future<List<Map<String, dynamic>>> getPayWays() async {
-    final data = await _get(EndPoints.getPayWays);
-    return _decryptList(data);
-  }
-
-  @override
-  Future<VoucherResponseModel> addCollection(
+  Future<Either<Failure, VoucherResponseModel>> editCollection(
       CollectionRequestModel request) async {
-    final encrypted = _encrypt(request.toMap());
-    final data = await _post(EndPoints.invoiceCollecting, encrypted);
-    final decrypted = _decrypt(data);
-    final json = jsonDecode(decrypted) as Map<String, dynamic>;
-    return VoucherResponseModel.fromJson(json);
+    final result = await _generic.updateData<String>(
+      endpoint: '/${EndPoints.updateInvoiceCollecting}',
+      data: request.toMap(),
+    );
+    return result.fold(
+      (failure) => Left(failure),
+      (jsonStr) {
+        try {
+          final map = jsonDecode(jsonStr) as Map<String, dynamic>;
+          return Right(VoucherResponseModel.fromJson(map));
+        } catch (e) {
+          return Left(ParsingFailure(
+              message: 'Could not parse voucher response: $e'));
+        }
+      },
+    );
+  }
+
+  // ── Invoice picker ────────────────────────────────────────────────────
+  @override
+  Future<Either<Failure, List<CollectionInvoiceRowModel>>>
+      searchInvoicesByNumber(String invoiceNo) {
+    return _generic.fetchData<CollectionInvoiceRowModel>(
+      endpoint: '/${EndPoints.getSalesInvoiceByNumber}',
+      queryParameters: {'InvoiceNo': invoiceNo},
+      fromJson: CollectionInvoiceRowModel.fromJson,
+    );
   }
 
   @override
-  Future<VoucherResponseModel> editCollection(
-      CollectionRequestModel request) async {
-    final encrypted = _encrypt(request.toMap());
-    final data = await _put(EndPoints.updateInvoiceCollecting, encrypted);
-    final decrypted = _decrypt(data);
-    final json = jsonDecode(decrypted) as Map<String, dynamic>;
-    return VoucherResponseModel.fromJson(json);
+  Future<Either<Failure, List<CollectionInvoiceRowModel>>>
+      searchInvoicesByCustomerName(String name) {
+    return _generic.fetchData<CollectionInvoiceRowModel>(
+      endpoint: '/${EndPoints.getSalesInvoiceByCustomerName}',
+      queryParameters: {'CustomerName': name},
+      fromJson: CollectionInvoiceRowModel.fromJson,
+    );
+  }
+
+  @override
+  Future<Either<Failure, List<CollectionInvoiceRowModel>>>
+      getInvoicesByCustomer(int customerId) {
+    return _generic.fetchData<CollectionInvoiceRowModel>(
+      endpoint: '/${EndPoints.getAllSalesInvoicesByCustomerId}',
+      queryParameters: {'CustomerID': customerId},
+      fromJson: CollectionInvoiceRowModel.fromJson,
+    );
   }
 }

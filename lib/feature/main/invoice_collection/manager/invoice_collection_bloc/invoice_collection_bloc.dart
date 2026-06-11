@@ -1,7 +1,5 @@
 part of '../../invoice_collection_imports.dart';
 
-
-// ── Bloc ──────────────────────────────────────────────────────────────────────
 class InvoiceCollectionBloc
     extends Bloc<InvoiceCollectionEvent, InvoiceCollectionState> {
   final InvoiceCollectionDataSource _dataSource;
@@ -20,207 +18,212 @@ class InvoiceCollectionBloc
     on<EditCollection>(_onEdit);
   }
 
-  // ── Load all setup data ───────────────────────────────────────────────────
+  // ── Load all setup data ────────────────────────────────────────────────
   Future<void> _onLoadSetup(
-      LoadCollectionSetupData event,
-      Emitter<InvoiceCollectionState> emit,
-      ) async {
+    LoadCollectionSetupData event,
+    Emitter<InvoiceCollectionState> emit,
+  ) async {
     emit(state.copyWith(
-      branchesStatus:   Status.loading,
+      branchesStatus: Status.loading,
       currenciesStatus: Status.loading,
-      payWaysStatus:    Status.loading,
-      bondTypesStatus:  Status.loading,
+      payWaysStatus: Status.loading,
+      bondTypesStatus: Status.loading,
     ));
 
-    // ── Branches ──
-    try {
-      final branches = await _dataSource.getBranches();
-      final firstBranchId =
-      branches.isNotEmpty ? branches.first['ID'] as int : 0;
-      emit(state.copyWith(
-        branchesStatus:   Status.success,
-        branches:         branches,
-        selectedBranchId: firstBranchId,
-      ));
-
-      // Load bond types for the first branch
-      if (firstBranchId != 0) {
-        _loadBondTypes(firstBranchId, emit);
-      }
-    } catch (e) {
-      emit(state.copyWith(
+    // ── Branches ──────────────────────────────────────────────────────
+    final branchesResult = await _dataSource.getBranches();
+    int firstBranchId = 0;
+    branchesResult.fold(
+      (failure) => emit(state.copyWith(
         branchesStatus: Status.failure,
-        errorMessage:   e.toString(),
-      ));
+        errorMessage: failure.message,
+      )),
+      (branches) {
+        firstBranchId = branches.isNotEmpty ? (branches.first['ID'] ?? 0) : 0;
+        emit(state.copyWith(
+          branchesStatus: Status.success,
+          branches: branches,
+          selectedBranchId: firstBranchId,
+        ));
+      },
+    );
+    if (firstBranchId != 0) {
+      await _loadBondTypes(firstBranchId, emit);
     }
 
-    // ── Currencies ──
-    try {
-      final currencies = await _dataSource.getCurrencies();
-      final defaultCurrency = currencies.isNotEmpty ? currencies.first : null;
-      emit(state.copyWith(
-        currenciesStatus:     Status.success,
-        currencies:           currencies,
-        selectedCurrencyId:   defaultCurrency?['CurrencyID'] ?? 0,
-        selectedCurrencyRate: (defaultCurrency?['Rate'] ?? 1.0).toDouble(),
-      ));
-    } catch (e) {
-      emit(state.copyWith(
+    // ── Currencies ────────────────────────────────────────────────────
+    final currenciesResult = await _dataSource.getCurrencies();
+    currenciesResult.fold(
+      (failure) => emit(state.copyWith(
         currenciesStatus: Status.failure,
-        errorMessage:     e.toString(),
-      ));
-    }
+        errorMessage: failure.message,
+      )),
+      (currencies) {
+        final defaultCurrency =
+            currencies.isNotEmpty ? currencies.first : null;
+        emit(state.copyWith(
+          currenciesStatus: Status.success,
+          currencies: currencies,
+          selectedCurrencyId: defaultCurrency?['CurrencyID'] ?? 0,
+          selectedCurrencyRate:
+              (defaultCurrency?['Rate'] ?? 1.0).toDouble(),
+        ));
+      },
+    );
 
-    // ── Pay Ways ──
-    try {
-      final payWays = await _dataSource.getPayWays();
-      emit(state.copyWith(
+    // ── Pay ways ──────────────────────────────────────────────────────
+    final payWaysResult = await _dataSource.getPayWays();
+    payWaysResult.fold(
+      (failure) => emit(state.copyWith(
+        payWaysStatus: Status.failure,
+        errorMessage: failure.message,
+      )),
+      (payWays) => emit(state.copyWith(
         payWaysStatus: Status.success,
-        payWays:       payWays,
+        payWays: payWays,
         selectedCodePw: payWays.isNotEmpty
             ? (payWays.first['Code_PW'] as num).toInt()
             : 0,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        payWaysStatus: Status.failure,
-        errorMessage:  e.toString(),
-      ));
-    }
+      )),
+    );
   }
 
   Future<void> _loadBondTypes(
-      int branchId,
-      Emitter<InvoiceCollectionState> emit,
-      ) async {
-    try {
-      final bondTypes = await _dataSource.getBondTypesByBranch(branchId);
-      final first = bondTypes.isNotEmpty ? bondTypes.first : null;
-      emit(state.copyWith(
-        bondTypesStatus:     Status.success,
-        bondTypes:           bondTypes,
-        selectedVoucherType: first?.voucherType ?? 0,
-        selectedBankName:    first?.customerName ?? '',
-      ));
-    } catch (e) {
-      // Fallback to global bond types
-      try {
-        final bondTypes = await _dataSource.getBondTypes();
-        final first = bondTypes.isNotEmpty ? bondTypes.first : null;
-        emit(state.copyWith(
-          bondTypesStatus:     Status.success,
-          bondTypes:           bondTypes,
-          selectedVoucherType: first?.voucherType ?? 0,
-          selectedBankName:    first?.customerName ?? '',
-        ));
-      } catch (e2) {
-        emit(state.copyWith(
-          bondTypesStatus: Status.failure,
-          errorMessage:    e2.toString(),
-        ));
-      }
-    }
+    int branchId,
+    Emitter<InvoiceCollectionState> emit,
+  ) async {
+    final result = await _dataSource.getBondTypesByBranch(branchId);
+    await result.fold(
+      // Fall back to the global voucher-types list when the per-branch
+      // endpoint fails — matches the old cubit's nested try/catch.
+      (_) async {
+        final globalResult = await _dataSource.getBondTypes();
+        globalResult.fold(
+          (failure) => emit(state.copyWith(
+            bondTypesStatus: Status.failure,
+            errorMessage: failure.message,
+          )),
+          (bondTypes) => _emitBondTypes(bondTypes, emit),
+        );
+      },
+      (bondTypes) async => _emitBondTypes(bondTypes, emit),
+    );
   }
 
-  // ── Branch changed → reload bond types ───────────────────────────────────
+  void _emitBondTypes(
+      List<BondTypeModel> bondTypes, Emitter<InvoiceCollectionState> emit) {
+    final first = bondTypes.isNotEmpty ? bondTypes.first : null;
+    emit(state.copyWith(
+      bondTypesStatus: Status.success,
+      bondTypes: bondTypes,
+      selectedVoucherType: first?.voucherType ?? 0,
+      selectedBankName: first?.customerName ?? '',
+    ));
+  }
+
+  // ── Branch changed → reload bond types ───────────────────────────────
   Future<void> _onBranchChanged(
-      CollectionBranchChanged event,
-      Emitter<InvoiceCollectionState> emit,
-      ) async {
+    CollectionBranchChanged event,
+    Emitter<InvoiceCollectionState> emit,
+  ) async {
     emit(state.copyWith(
       selectedBranchId: event.branchId,
-      bondTypesStatus:  Status.loading,
+      bondTypesStatus: Status.loading,
     ));
     await _loadBondTypes(event.branchId, emit);
   }
 
   void _onCurrencyChanged(
-      CollectionCurrencyChanged event,
-      Emitter<InvoiceCollectionState> emit,
-      ) {
+    CollectionCurrencyChanged event,
+    Emitter<InvoiceCollectionState> emit,
+  ) {
     emit(state.copyWith(
-      selectedCurrencyId:   event.currencyId,
+      selectedCurrencyId: event.currencyId,
       selectedCurrencyRate: event.rate,
     ));
   }
 
   void _onPayWayChanged(
-      CollectionPayWayChanged event,
-      Emitter<InvoiceCollectionState> emit,
-      ) {
+    CollectionPayWayChanged event,
+    Emitter<InvoiceCollectionState> emit,
+  ) {
     emit(state.copyWith(selectedCodePw: event.codePw));
   }
 
   void _onBondTypeChanged(
-      CollectionBondTypeChanged event,
-      Emitter<InvoiceCollectionState> emit,
-      ) {
+    CollectionBondTypeChanged event,
+    Emitter<InvoiceCollectionState> emit,
+  ) {
     emit(state.copyWith(
       selectedVoucherType: event.voucherType,
-      selectedBankName:    event.bankName,
+      selectedBankName: event.bankName,
     ));
   }
 
   void _onInvoiceLinked(
-      CollectionInvoiceLinked event,
-      Emitter<InvoiceCollectionState> emit,
-      ) {
+    CollectionInvoiceLinked event,
+    Emitter<InvoiceCollectionState> emit,
+  ) {
     emit(state.copyWith(
-      invoiceId:    event.invoiceId,
-      invoiceNo:    event.invoiceNo,
+      invoiceId: event.invoiceId,
+      invoiceNo: event.invoiceNo,
       voucherValue: event.voucherValue,
       customerName: event.customerName,
-      acId:         event.acId,
+      acId: event.acId,
     ));
   }
 
   void _onCustomerSearched(
-      CollectionCustomerSearched event,
-      Emitter<InvoiceCollectionState> emit,
-      ) {
+    CollectionCustomerSearched event,
+    Emitter<InvoiceCollectionState> emit,
+  ) {
     emit(state.copyWith(
-      acId:         event.acId,
+      acId: event.acId,
       customerName: event.acName,
     ));
   }
 
-  // ── Submit ────────────────────────────────────────────────────────────────
+  // ── Submit ────────────────────────────────────────────────────────────
   Future<void> _onSubmit(
-      SubmitCollection event,
-      Emitter<InvoiceCollectionState> emit,
-      ) async {
+    SubmitCollection event,
+    Emitter<InvoiceCollectionState> emit,
+  ) async {
     emit(state.copyWith(submitStatus: Status.loading));
-    try {
-      final voucher = await _dataSource.addCollection(event.request);
-      emit(state.copyWith(
-        submitStatus:    Status.success,
+    final result = await _dataSource.addCollection(event.request);
+    result.fold(
+      (failure) {
+        // failure.message is the decrypted server text (e.g. "Not Found
+        // Voucher" or an Arabic business error) — postData<String> already
+        // hands those back as Left(ServerFailure).
+        debugPrint('Invoice collection submission failed: ${failure.message}');
+        emit(state.copyWith(
+          submitStatus: Status.failure,
+          errorMessage: failure.message,
+        ));
+      },
+      (voucher) => emit(state.copyWith(
+        submitStatus: Status.success,
         voucherResponse: voucher,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        submitStatus: Status.failure,
-        errorMessage: e.toString(),
-      ));
-    }
+      )),
+    );
   }
 
-  // ── Edit ──────────────────────────────────────────────────────────────────
+  // ── Edit (defined but unused in the first cut) ───────────────────────
   Future<void> _onEdit(
-      EditCollection event,
-      Emitter<InvoiceCollectionState> emit,
-      ) async {
+    EditCollection event,
+    Emitter<InvoiceCollectionState> emit,
+  ) async {
     emit(state.copyWith(submitStatus: Status.loading));
-    try {
-      final voucher = await _dataSource.editCollection(event.request);
-      emit(state.copyWith(
-        submitStatus:    Status.success,
-        voucherResponse: voucher,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
+    final result = await _dataSource.editCollection(event.request);
+    result.fold(
+      (failure) => emit(state.copyWith(
         submitStatus: Status.failure,
-        errorMessage: e.toString(),
-      ));
-    }
+        errorMessage: failure.message,
+      )),
+      (voucher) => emit(state.copyWith(
+        submitStatus: Status.success,
+        voucherResponse: voucher,
+      )),
+    );
   }
 }

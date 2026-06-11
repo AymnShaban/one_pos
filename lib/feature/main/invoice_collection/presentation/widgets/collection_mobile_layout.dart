@@ -21,11 +21,14 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
   String _creationDate = _today();
   String _checkDueDate = _today();
 
+  /// Server expects yyyy/MM/dd (matches the old project's
+  /// `DateFormat('yyyy/MM/dd', 'en_US')` on both `CreationDateTime` and
+  /// `CheckDueDate`). Sending dd/MM/yyyy gets the request rejected with 400.
   static String _today() {
     final now = DateTime.now();
-    return '${now.day.toString().padLeft(2, '0')}/'
+    return '${now.year}/'
         '${now.month.toString().padLeft(2, '0')}/'
-        '${now.year}';
+        '${now.day.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -180,11 +183,23 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                         SizedBox(width: 8.w),
                         ElevatedButton.icon(
                           onPressed: () async {
-                            // Navigate to customer search — same pattern as old app
-                            // final result = await Navigator.push(...)
-                            // context.read<InvoiceCollectionBloc>().add(
-                            //   CollectionCustomerSearched(acId, acName));
-                            // _creditController.text = result['AcountName'];
+                            // Reuse the basket's CustomerSearchDialog — it
+                            // already wraps itself in BlocProvider<
+                            // AccountSearchBloc> and returns the picked
+                            // CustomerAccountModel via Navigator.pop.
+                            final picked = await showDialog<CustomerAccountModel>(
+                              context: context,
+                              builder: (_) => const CustomerSearchDialog(),
+                            );
+                            if (picked == null || !context.mounted) return;
+                            final name = picked.displayName(isAr);
+                            context
+                                .read<InvoiceCollectionBloc>()
+                                .add(CollectionCustomerSearched(
+                                  acId: picked.accountId,
+                                  acName: name,
+                                ));
+                            _creditController.text = name;
                           },
                           icon: const Icon(Icons.search, color: Colors.white),
                           label: Text(
@@ -341,11 +356,48 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                           flex: 2,
                           child: ElevatedButton.icon(
                             onPressed: () async {
-                              // Navigate to InvoiceSearchScreen
-                              // final result = await Navigator.push(...)
-                              // context.read<InvoiceCollectionBloc>().add(
-                              //   CollectionInvoiceLinked(...));
-                              // _localValueCtrl.text = result['TotalValue'];
+                              // Spin up a fresh InvoiceSearchBloc for the
+                              // picker route and seed it with an "all for
+                              // customer" load so the list isn't empty on
+                              // first render. -1 = no customer filter (the
+                              // old InvoiceSearchCubit convention).
+                              final initialCustomerId = state.acId == 0
+                                  ? -1
+                                  : state.acId.toInt();
+                              final searchBloc =
+                                  GetIt.instance<InvoiceSearchBloc>();
+                              final row = await Navigator.push<
+                                  CollectionInvoiceRowModel?>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BlocProvider.value(
+                                    value: searchBloc
+                                      ..add(LoadAllInvoicesForCustomer(
+                                          initialCustomerId)),
+                                    child: InvoicePickerScreen(
+                                      initialCustomerId: initialCustomerId,
+                                    ),
+                                  ),
+                                ),
+                              );
+                              if (row == null || !context.mounted) return;
+                              final customerLabel = isAr
+                                  ? row.customerArName
+                                  : row.customerEnName;
+                              context
+                                  .read<InvoiceCollectionBloc>()
+                                  .add(CollectionInvoiceLinked(
+                                    invoiceId: row.invoiceId,
+                                    invoiceNo: row.invoiceNo,
+                                    voucherValue: row.totalValue,
+                                    customerName: customerLabel,
+                                    acId: row.customerId,
+                                  ));
+                              _localValueCtrl.text =
+                                  row.totalValue.toStringAsFixed(2);
+                              _localValue2Ctrl.text =
+                                  row.totalValue.toStringAsFixed(2);
+                              _creditController.text = customerLabel;
                             },
                             icon: const Icon(Icons.receipt_long,
                                 color: Colors.white),
@@ -561,7 +613,22 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                                 onPressed: () {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
-                                    _submit(context, state);
+                                    // The enclosing BlocBuilder uses
+                                    // buildWhen on submitStatus, so the
+                                    // `state` it captured was the initial
+                                    // all-zeros snapshot from before
+                                    // LoadCollectionSetupData populated
+                                    // branches / currencies / voucher type
+                                    // and before the customer + invoice
+                                    // were picked. Reading the live state
+                                    // here guarantees the request body
+                                    // carries the user's actual choices
+                                    // (BranchId, CurrencyId, VoucherType,
+                                    // AcId, InvoiceID, InvoiceNo).
+                                    final live = context
+                                        .read<InvoiceCollectionBloc>()
+                                        .state;
+                                    _submit(context, live);
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -733,10 +800,11 @@ class _DateButton extends StatelessWidget {
           lastDate:     DateTime(2100),
         );
         if (picked != null) {
+          // yyyy/MM/dd — see `_today()` in CollectionMobileLayout.
           onPicked(
-            '${picked.day.toString().padLeft(2, '0')}/'
+            '${picked.year}/'
                 '${picked.month.toString().padLeft(2, '0')}/'
-                '${picked.year}',
+                '${picked.day.toString().padLeft(2, '0')}',
           );
         }
       },
