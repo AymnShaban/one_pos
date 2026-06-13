@@ -1,4 +1,5 @@
 part of '../../invoice_collection_imports.dart';
+
 class CollectionMobileLayout extends StatefulWidget {
   final Map<String, dynamic>? editCollection;
 
@@ -9,14 +10,14 @@ class CollectionMobileLayout extends StatefulWidget {
 }
 
 class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
-  final _formKey           = GlobalKey<FormState>();
-  final _creditController  = TextEditingController();
-  final _localValueCtrl    = TextEditingController();
-  final _localValue2Ctrl   = TextEditingController();
-  final _keyNetCtrl        = TextEditingController();
-  final _agreementNoCtrl   = TextEditingController();
-  final _checkNumberCtrl   = TextEditingController();
-  final _noteCtrl          = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _creditController = TextEditingController();
+  final _localValueCtrl = TextEditingController();
+  final _localValue2Ctrl = TextEditingController();
+  final _keyNetCtrl = TextEditingController();
+  final _agreementNoCtrl = TextEditingController();
+  final _checkNumberCtrl = TextEditingController();
+  final _noteCtrl = TextEditingController();
 
   String _creationDate = _today();
   String _checkDueDate = _today();
@@ -40,14 +41,15 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
   void _prefillEdit() {
     final e = widget.editCollection;
     if (e == null) return;
-    _creditController.text  = e['BankAcName']?.toString()    ?? '';
-    _localValueCtrl.text    = e['VoucherValue']?.toString()  ?? '';
-    _localValue2Ctrl.text   = e['VoucherValue']?.toString()  ?? '';
-    _noteCtrl.text          = e['Notes']?.toString()         ?? '';
+    _creditController.text = e['BankAcName']?.toString() ?? '';
+    _localValueCtrl.text = e['VoucherValue']?.toString() ?? '';
+    _localValue2Ctrl.text = e['VoucherValue']?.toString() ?? '';
+    _noteCtrl.text = e['Notes']?.toString() ?? '';
     if (e['VoucherAccounts'] != null &&
         (e['VoucherAccounts'] as List).isNotEmpty) {
-      _keyNetCtrl.text       = e['VoucherAccounts'][0]['KeyNet']?.toString()      ?? '';
-      _agreementNoCtrl.text  = e['VoucherAccounts'][0]['AgreementNo']?.toString() ?? '';
+      _keyNetCtrl.text = e['VoucherAccounts'][0]['KeyNet']?.toString() ?? '';
+      _agreementNoCtrl.text =
+          e['VoucherAccounts'][0]['AgreementNo']?.toString() ?? '';
     }
   }
 
@@ -67,22 +69,22 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
     final isEdit = widget.editCollection != null;
 
     final request = CollectionRequestModel(
-      branchId:         state.selectedBranchId,
+      branchId: state.selectedBranchId,
       creationDateTime: _creationDate,
-      codePw:           state.selectedCodePw,
-      currencyId:       state.selectedCurrencyId,
-      currencyRate:     state.selectedCurrencyRate,
-      voucherValue:     _localValue2Ctrl.text,
-      checkNumber:      _checkNumberCtrl.text.isEmpty ? '0' : _checkNumberCtrl.text,
-      checkDueDate:     _checkDueDate,
-      notes:            _noteCtrl.text,
-      voucherType:      state.selectedVoucherType,
-      invoiceId:        state.invoiceId,
-      invoiceNo:        state.invoiceNo,
-      acId:             state.acId,
-      agreementNo:      num.tryParse(_agreementNoCtrl.text) ?? 0,
-      keyNet:           num.tryParse(_keyNetCtrl.text)      ?? 0,
-      voucherNumber:    isEdit ? widget.editCollection!['VoucherNumber'] : null,
+      codePw: state.selectedCodePw,
+      currencyId: state.selectedCurrencyId,
+      currencyRate: state.selectedCurrencyRate,
+      voucherValue: _localValue2Ctrl.text,
+      checkNumber: _checkNumberCtrl.text.isEmpty ? '0' : _checkNumberCtrl.text,
+      checkDueDate: _checkDueDate,
+      notes: _noteCtrl.text,
+      voucherType: state.selectedVoucherType,
+      invoiceId: state.invoiceId,
+      invoiceNo: state.invoiceNo,
+      acId: state.acId,
+      agreementNo: num.tryParse(_agreementNoCtrl.text) ?? 0,
+      keyNet: num.tryParse(_keyNetCtrl.text) ?? 0,
+      voucherNumber: isEdit ? widget.editCollection!['VoucherNumber'] : null,
     );
 
     context.read<InvoiceCollectionBloc>().add(
@@ -103,8 +105,7 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
             children: [
               // ── Header box ──────────────────────────────────────────────
               Container(
-                padding:
-                EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
                 decoration: BoxDecoration(
                   color: const Color(0xff006296),
                   borderRadius: BorderRadius.circular(12.r),
@@ -122,30 +123,34 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                             child: state.branchesStatus == Status.loading
                                 ? _loadingField()
                                 : _buildDropdown<Map<String, dynamic>>(
-                              value: state.selectedBranch,
-                              hint:  'invoice_collection.select_branch'.tr(),
-                              items: state.branches
-                                  .map(
-                                    (b) => DropdownMenuItem(
-                                  value: b,
-                                  child: Text(
-                                    isAr
-                                        ? b['BraName'] ?? ''
-                                        : b['BraEName'] ?? '',
-                                    overflow: TextOverflow.ellipsis,
+                                    value: state.selectedBranch,
+                                    hint: 'invoice_collection.select_branch'
+                                        .tr(),
+                                    items: state.branches
+                                        .map(
+                                          (b) => DropdownMenuItem(
+                                            value: b,
+                                            child: Text(
+                                              isAr
+                                                  ? b['BraName'] ?? ''
+                                                  : b['BraEName'] ?? '',
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                    onChanged: (v) {
+                                      if (v != null) {
+                                        context
+                                            .read<InvoiceCollectionBloc>()
+                                            .add(
+                                              CollectionBranchChanged(
+                                                v['ID'] as int,
+                                              ),
+                                            );
+                                      }
+                                    },
                                   ),
-                                ),
-                              )
-                                  .toList(),
-                              onChanged: (v) {
-                                if (v != null) {
-                                  context
-                                      .read<InvoiceCollectionBloc>()
-                                      .add(CollectionBranchChanged(
-                                      v['ID'] as int));
-                                }
-                              },
-                            ),
                           ),
                         ),
                         SizedBox(width: 12.w),
@@ -155,7 +160,7 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                             'invoice_collection.date'.tr(),
                             color: Colors.white,
                             child: _DateButton(
-                              value:    _creationDate,
+                              value: _creationDate,
                               onPicked: (d) =>
                                   setState(() => _creationDate = d),
                             ),
@@ -176,7 +181,7 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                             color: Colors.white,
                             child: _textField(
                               controller: _creditController,
-                              readOnly:   true,
+                              readOnly: true,
                             ),
                           ),
                         ),
@@ -187,32 +192,37 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                             // already wraps itself in BlocProvider<
                             // AccountSearchBloc> and returns the picked
                             // CustomerAccountModel via Navigator.pop.
-                            final picked = await showDialog<CustomerAccountModel>(
-                              context: context,
-                              builder: (_) => const CustomerSearchDialog(),
-                            );
+                            final picked =
+                                await showDialog<CustomerAccountModel>(
+                                  context: context,
+                                  builder: (_) => const CustomerSearchDialog(),
+                                );
                             if (picked == null || !context.mounted) return;
                             final name = picked.displayName(isAr);
-                            context
-                                .read<InvoiceCollectionBloc>()
-                                .add(CollectionCustomerSearched(
-                                  acId: picked.accountId,
-                                  acName: name,
-                                ));
+                            context.read<InvoiceCollectionBloc>().add(
+                              CollectionCustomerSearched(
+                                acId: picked.accountId,
+                                acName: name,
+                              ),
+                            );
                             _creditController.text = name;
                           },
                           icon: const Icon(Icons.search, color: Colors.white),
                           label: Text(
                             'common.search'.tr(),
-                            style: AppTextTheme.caption
-                                .copyWith(color: Colors.white),
+                            style: AppTextTheme.caption.copyWith(
+                              color: Colors.white,
+                            ),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xff186FDC),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.r)),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
                             padding: EdgeInsets.symmetric(
-                                horizontal: 12.w, vertical: 12.h),
+                              horizontal: 12.w,
+                              vertical: 12.h,
+                            ),
                             elevation: 0,
                           ),
                         ),
@@ -230,39 +240,48 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                             child: state.payWaysStatus == Status.loading
                                 ? _loadingField()
                                 : _buildDropdown<Map<String, dynamic>>(
-                              value: state.payWays
-                                  .where((p) =>
-                              (p['Code_PW'] as num).toInt() ==
-                                  state.selectedCodePw)
-                                  .isNotEmpty
-                                  ? state.payWays.firstWhere((p) =>
-                              (p['Code_PW'] as num).toInt() ==
-                                  state.selectedCodePw)
-                                  : null,
-                              hint: 'invoice_collection.payment_method'.tr(),
-                              items: state.payWays
-                                  .map(
-                                    (p) => DropdownMenuItem(
-                                  value: p,
-                                  child: Text(
-                                    isAr
-                                        ? p['Name_PW'] ?? ''
-                                        : p['EName_PW'] ?? '',
-                                    overflow: TextOverflow.ellipsis,
+                                    value:
+                                        state.payWays
+                                            .where(
+                                              (p) =>
+                                                  (p['Code_PW'] as num)
+                                                      .toInt() ==
+                                                  state.selectedCodePw,
+                                            )
+                                            .isNotEmpty
+                                        ? state.payWays.firstWhere(
+                                            (p) =>
+                                                (p['Code_PW'] as num).toInt() ==
+                                                state.selectedCodePw,
+                                          )
+                                        : null,
+                                    hint: 'invoice_collection.payment_method'
+                                        .tr(),
+                                    items: state.payWays
+                                        .map(
+                                          (p) => DropdownMenuItem(
+                                            value: p,
+                                            child: Text(
+                                              isAr
+                                                  ? p['Name_PW'] ?? ''
+                                                  : p['EName_PW'] ?? '',
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                    onChanged: (v) {
+                                      if (v != null) {
+                                        context
+                                            .read<InvoiceCollectionBloc>()
+                                            .add(
+                                              CollectionPayWayChanged(
+                                                (v['Code_PW'] as num).toInt(),
+                                              ),
+                                            );
+                                      }
+                                    },
                                   ),
-                                ),
-                              )
-                                  .toList(),
-                              onChanged: (v) {
-                                if (v != null) {
-                                  context
-                                      .read<InvoiceCollectionBloc>()
-                                      .add(CollectionPayWayChanged(
-                                      (v['Code_PW'] as num)
-                                          .toInt()));
-                                }
-                              },
-                            ),
                           ),
                         ),
                         SizedBox(width: 12.w),
@@ -273,34 +292,36 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                             child: state.currenciesStatus == Status.loading
                                 ? _loadingField()
                                 : _buildDropdown<Map<String, dynamic>>(
-                              value: state.selectedCurrency,
-                              hint: 'invoice_collection.currency'.tr(),
-                              items: state.currencies
-                                  .map(
-                                    (c) => DropdownMenuItem(
-                                  value: c,
-                                  child: Text(
-                                    isAr
-                                        ? c['CurrencyName'] ?? ''
-                                        : c['CurrencyEName'] ?? '',
-                                    overflow: TextOverflow.ellipsis,
+                                    value: state.selectedCurrency,
+                                    hint: 'invoice_collection.currency'.tr(),
+                                    items: state.currencies
+                                        .map(
+                                          (c) => DropdownMenuItem(
+                                            value: c,
+                                            child: Text(
+                                              isAr
+                                                  ? c['CurrencyName'] ?? ''
+                                                  : c['CurrencyEName'] ?? '',
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                    onChanged: (v) {
+                                      if (v != null) {
+                                        context
+                                            .read<InvoiceCollectionBloc>()
+                                            .add(
+                                              CollectionCurrencyChanged(
+                                                currencyId:
+                                                    v['CurrencyID'] as int,
+                                                rate: (v['Rate'] as num)
+                                                    .toDouble(),
+                                              ),
+                                            );
+                                      }
+                                    },
                                   ),
-                                ),
-                              )
-                                  .toList(),
-                              onChanged: (v) {
-                                if (v != null) {
-                                  context
-                                      .read<InvoiceCollectionBloc>()
-                                      .add(CollectionCurrencyChanged(
-                                    currencyId:
-                                    v['CurrencyID'] as int,
-                                    rate: (v['Rate'] as num)
-                                        .toDouble(),
-                                  ));
-                                }
-                              },
-                            ),
                           ),
                         ),
                       ],
@@ -346,8 +367,8 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                             color: Colors.white,
                             child: _textField(
                               controller: _localValueCtrl,
-                              readOnly:   true,
-                              hint:       state.voucherValue.toString(),
+                              readOnly: true,
+                              hint: state.voucherValue.toString(),
                             ),
                           ),
                         ),
@@ -366,52 +387,63 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                                   : state.acId.toInt();
                               final searchBloc =
                                   GetIt.instance<InvoiceSearchBloc>();
-                              final row = await Navigator.push<
-                                  CollectionInvoiceRowModel?>(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => BlocProvider.value(
-                                    value: searchBloc
-                                      ..add(LoadAllInvoicesForCustomer(
-                                          initialCustomerId)),
-                                    child: InvoicePickerScreen(
-                                      initialCustomerId: initialCustomerId,
+                              final row =
+                                  await Navigator.push<
+                                    CollectionInvoiceRowModel?
+                                  >(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => BlocProvider.value(
+                                        value: searchBloc
+                                          ..add(
+                                            LoadAllInvoicesForCustomer(
+                                              initialCustomerId,
+                                            ),
+                                          ),
+                                        child: InvoicePickerScreen(
+                                          initialCustomerId: initialCustomerId,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              );
+                                  );
                               if (row == null || !context.mounted) return;
                               final customerLabel = isAr
                                   ? row.customerArName
                                   : row.customerEnName;
-                              context
-                                  .read<InvoiceCollectionBloc>()
-                                  .add(CollectionInvoiceLinked(
-                                    invoiceId: row.invoiceId,
-                                    invoiceNo: row.invoiceNo,
-                                    voucherValue: row.totalValue,
-                                    customerName: customerLabel,
-                                    acId: row.customerId,
-                                  ));
-                              _localValueCtrl.text =
-                                  row.totalValue.toStringAsFixed(2);
-                              _localValue2Ctrl.text =
-                                  row.totalValue.toStringAsFixed(2);
+                              context.read<InvoiceCollectionBloc>().add(
+                                CollectionInvoiceLinked(
+                                  invoiceId: row.invoiceId,
+                                  invoiceNo: row.invoiceNo,
+                                  voucherValue: row.totalValue,
+                                  customerName: customerLabel,
+                                  acId: row.customerId,
+                                ),
+                              );
+                              _localValueCtrl.text = row.totalValue
+                                  .toStringAsFixed(2);
+                              _localValue2Ctrl.text = row.totalValue
+                                  .toStringAsFixed(2);
                               _creditController.text = customerLabel;
                             },
-                            icon: const Icon(Icons.receipt_long,
-                                color: Colors.white),
+                            icon: const Icon(
+                              Icons.receipt_long,
+                              color: Colors.white,
+                            ),
                             label: Text(
                               'invoice_collection.in_voice'.tr(),
-                              style: AppTextTheme.caption
-                                  .copyWith(color: Colors.white),
+                              style: AppTextTheme.caption.copyWith(
+                                color: Colors.white,
+                              ),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xff186FDC),
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.r)),
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 12.w, vertical: 12.h),
+                                horizontal: 12.w,
+                                vertical: 12.h,
+                              ),
                               elevation: 0,
                             ),
                           ),
@@ -425,8 +457,7 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
 
               // ── Details box ──────────────────────────────────────────────
               Container(
-                padding:
-                EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
                 decoration: BoxDecoration(
                   color: const Color(0xffEDF3FB),
                   borderRadius: BorderRadius.circular(12.r),
@@ -440,56 +471,57 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                       child: state.bondTypesStatus == Status.loading
                           ? _loadingField()
                           : _buildDropdown<BondTypeModel>(
-                        value: state.bondTypes
-                            .where((b) =>
-                        b.voucherType ==
-                            state.selectedVoucherType)
-                            .isNotEmpty
-                            ? state.bondTypes.firstWhere((b) =>
-                        b.voucherType ==
-                            state.selectedVoucherType)
-                            : null,
-                        hint: 'invoice_collection.type_of_receipt'.tr(),
-                        items: state.bondTypes
-                            .map(
-                              (b) => DropdownMenuItem(
-                            value: b,
-                            child: Text(
-                              isAr ? b.arabicName : b.englishName,
-                              overflow: TextOverflow.ellipsis,
+                              value:
+                                  state.bondTypes
+                                      .where(
+                                        (b) =>
+                                            b.voucherType ==
+                                            state.selectedVoucherType,
+                                      )
+                                      .isNotEmpty
+                                  ? state.bondTypes.firstWhere(
+                                      (b) =>
+                                          b.voucherType ==
+                                          state.selectedVoucherType,
+                                    )
+                                  : null,
+                              hint: 'invoice_collection.type_of_receipt'.tr(),
+                              items: state.bondTypes
+                                  .map(
+                                    (b) => DropdownMenuItem(
+                                      value: b,
+                                      child: Text(
+                                        isAr ? b.arabicName : b.englishName,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (v) {
+                                if (v != null) {
+                                  context.read<InvoiceCollectionBloc>().add(
+                                    CollectionBondTypeChanged(
+                                      voucherType: v.voucherType,
+                                      bankName: v.customerName ?? v.arabicName,
+                                    ),
+                                  );
+                                }
+                              },
                             ),
-                          ),
-                        )
-                            .toList(),
-                        onChanged: (v) {
-                          if (v != null) {
-                            context
-                                .read<InvoiceCollectionBloc>()
-                                .add(CollectionBondTypeChanged(
-                              voucherType: v.voucherType,
-                              bankName:
-                              v.customerName ?? v.arabicName,
-                            ));
-                          }
-                        },
-                      ),
                     ),
                     SizedBox(height: 8.h),
 
                     // Bank name (read-only)
-                    _textField(
-                      readOnly: true,
-                      hint: state.selectedBankName,
-                    ),
+                    _textField(readOnly: true, hint: state.selectedBankName),
                     SizedBox(height: 8.h),
 
                     // Local value 2
                     _buildLabel(
                       'invoice_collection.local_value'.tr(),
                       child: _textField(
-                        controller:   _localValue2Ctrl,
+                        controller: _localValue2Ctrl,
                         keyboardType: TextInputType.number,
-                        validator:    (v) => (v == null || v.isEmpty)
+                        validator: (v) => (v == null || v.isEmpty)
                             ? 'common.required'.tr()
                             : null,
                       ),
@@ -503,7 +535,7 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                           child: _buildLabel(
                             'invoice_collection.knet_number'.tr(),
                             child: _textField(
-                              controller:   _keyNetCtrl,
+                              controller: _keyNetCtrl,
                               keyboardType: TextInputType.number,
                             ),
                           ),
@@ -513,7 +545,7 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                           child: _buildLabel(
                             'invoice_collection.approval_number'.tr(),
                             child: _textField(
-                              controller:   _agreementNoCtrl,
+                              controller: _agreementNoCtrl,
                               keyboardType: TextInputType.number,
                             ),
                           ),
@@ -529,7 +561,7 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                           child: _buildLabel(
                             'invoice_collection.check_number'.tr(),
                             child: _textField(
-                              controller:   _checkNumberCtrl,
+                              controller: _checkNumberCtrl,
                               keyboardType: TextInputType.number,
                             ),
                           ),
@@ -539,7 +571,7 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                           child: _buildLabel(
                             'invoice_collection.due_date'.tr(),
                             child: _DateButton(
-                              value:    _checkDueDate,
+                              value: _checkDueDate,
                               onPicked: (d) =>
                                   setState(() => _checkDueDate = d),
                             ),
@@ -554,23 +586,28 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                       'invoice_collection.description'.tr(),
                       child: TextField(
                         controller: _noteCtrl,
-                        maxLines:   3,
-                        style: AppTextTheme.caption
-                            .copyWith(color: AppColors.black),
+                        maxLines: 3,
+                        style: AppTextTheme.caption.copyWith(
+                          color: AppColors.black,
+                        ),
                         decoration: InputDecoration(
-                          hintText:  'invoice_collection.enter_description'.tr(),
-                          hintStyle: AppTextTheme.caption
-                              .copyWith(color: AppColors.grey),
-                          filled:    true,
+                          hintText: 'invoice_collection.enter_description'.tr(),
+                          hintStyle: AppTextTheme.caption.copyWith(
+                            color: AppColors.grey,
+                          ),
+                          filled: true,
                           fillColor: AppColors.whiteColor,
                           border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.r)),
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.r),
                             borderSide: BorderSide(
-                                color: AppColors.mainAppColor, width: 1.5),
+                              color: AppColors.mainAppColor,
+                              width: 1.5,
+                            ),
                           ),
-                          isDense:        true,
+                          isDense: true,
                           contentPadding: EdgeInsets.all(10.w),
                         ),
                       ),
@@ -586,71 +623,80 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.black,
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.r)),
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
                               padding: EdgeInsets.symmetric(vertical: 14.h),
                               elevation: 0,
                             ),
                             child: Text(
                               'common.cancel'.tr(),
-                              style: AppTextTheme.body2Bold
-                                  .copyWith(color: AppColors.white),
+                              style: AppTextTheme.body2Bold.copyWith(
+                                color: AppColors.white,
+                              ),
                             ),
                           ),
                         ),
                         SizedBox(width: 12.w),
                         Expanded(
-                          child: BlocBuilder<InvoiceCollectionBloc,
-                              InvoiceCollectionState>(
-                            buildWhen: (p, c) =>
-                            p.submitStatus != c.submitStatus,
-                            builder: (context, state) {
-                              if (state.submitStatus == Status.loading) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-                              return ElevatedButton(
-                                onPressed: () {
-                                  if (_formKey.currentState?.validate() ??
-                                      false) {
-                                    // The enclosing BlocBuilder uses
-                                    // buildWhen on submitStatus, so the
-                                    // `state` it captured was the initial
-                                    // all-zeros snapshot from before
-                                    // LoadCollectionSetupData populated
-                                    // branches / currencies / voucher type
-                                    // and before the customer + invoice
-                                    // were picked. Reading the live state
-                                    // here guarantees the request body
-                                    // carries the user's actual choices
-                                    // (BranchId, CurrencyId, VoucherType,
-                                    // AcId, InvoiceID, InvoiceNo).
-                                    final live = context
-                                        .read<InvoiceCollectionBloc>()
-                                        .state;
-                                    _submit(context, live);
+                          child:
+                              BlocBuilder<
+                                InvoiceCollectionBloc,
+                                InvoiceCollectionState
+                              >(
+                                buildWhen: (p, c) =>
+                                    p.submitStatus != c.submitStatus,
+                                builder: (context, state) {
+                                  if (state.submitStatus == Status.loading) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
                                   }
+                                  return ElevatedButton(
+                                    onPressed: () {
+                                      if (_formKey.currentState?.validate() ??
+                                          false) {
+                                        // The enclosing BlocBuilder uses
+                                        // buildWhen on submitStatus, so the
+                                        // `state` it captured was the initial
+                                        // all-zeros snapshot from before
+                                        // LoadCollectionSetupData populated
+                                        // branches / currencies / voucher type
+                                        // and before the customer + invoice
+                                        // were picked. Reading the live state
+                                        // here guarantees the request body
+                                        // carries the user's actual choices
+                                        // (BranchId, CurrencyId, VoucherType,
+                                        // AcId, InvoiceID, InvoiceNo).
+                                        final live = context
+                                            .read<InvoiceCollectionBloc>()
+                                            .state;
+                                        _submit(context, live);
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          widget.editCollection != null
+                                          ? Colors.orange
+                                          : const Color(0xff1E40AF),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          12.r,
+                                        ),
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 14.h,
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: Text(
+                                      'invoice_collection.save'.tr(),
+                                      style: AppTextTheme.body2Bold.copyWith(
+                                        color: AppColors.white,
+                                      ),
+                                    ),
+                                  );
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                  widget.editCollection != null
-                                      ? Colors.orange
-                                      : const Color(0xff1E40AF),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                      BorderRadius.circular(12.r)),
-                                  padding:
-                                  EdgeInsets.symmetric(vertical: 14.h),
-                                  elevation: 0,
-                                ),
-                                child: Text(
-                                  'invoice_collection.save'.tr(),
-                                  style: AppTextTheme.body2Bold
-                                      .copyWith(color: AppColors.white),
-                                ),
-                              );
-                            },
-                          ),
+                              ),
                         ),
                       ],
                     ),
@@ -665,11 +711,7 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-  Widget _buildLabel(
-      String label, {
-        required Widget child,
-        Color? color,
-      }) {
+  Widget _buildLabel(String label, {required Widget child, Color? color}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -694,19 +736,18 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
     String? Function(String?)? validator,
   }) {
     return TextFormField(
-      controller:   controller,
-      readOnly:     readOnly,
+      controller: controller,
+      readOnly: readOnly,
       keyboardType: keyboardType,
-      validator:    validator,
+      validator: validator,
       style: AppTextTheme.caption.copyWith(color: AppColors.black),
       decoration: InputDecoration(
-        hintText:  hint,
+        hintText: hint,
         hintStyle: AppTextTheme.caption.copyWith(color: AppColors.grey),
-        filled:    true,
+        filled: true,
         fillColor: readOnly ? AppColors.backgroundColor : AppColors.whiteColor,
-        isDense:   true,
-        contentPadding:
-        EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+        isDense: true,
+        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
           borderSide: BorderSide(color: Colors.grey.shade300),
@@ -717,8 +758,7 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
-          borderSide:
-          BorderSide(color: AppColors.mainAppColor, width: 1.5),
+          borderSide: BorderSide(color: AppColors.mainAppColor, width: 1.5),
         ),
       ),
     );
@@ -731,16 +771,15 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
     required ValueChanged<T?> onChanged,
   }) {
     return DropdownButtonFormField<T>(
-      initialValue:      value,
+      initialValue: value,
       isExpanded: true,
       decoration: InputDecoration(
-        hintText:  hint,
+        hintText: hint,
         hintStyle: AppTextTheme.caption.copyWith(color: AppColors.grey),
-        filled:    true,
+        filled: true,
         fillColor: AppColors.whiteColor,
-        isDense:   true,
-        contentPadding:
-        EdgeInsets.symmetric(horizontal: 12.w, vertical: 0),
+        isDense: true,
+        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
           borderSide: BorderSide(color: Colors.grey.shade300),
@@ -751,13 +790,12 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
-          borderSide:
-          BorderSide(color: AppColors.mainAppColor, width: 1.5),
+          borderSide: BorderSide(color: AppColors.mainAppColor, width: 1.5),
         ),
       ),
-      items:     items,
+      items: items,
       onChanged: onChanged,
-      style:     AppTextTheme.caption.copyWith(color: AppColors.black),
+      style: AppTextTheme.caption.copyWith(color: AppColors.black),
     );
   }
 
@@ -765,13 +803,14 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
     return Container(
       height: 40.h,
       decoration: BoxDecoration(
-        color:        AppColors.backgroundColor,
+        color: AppColors.backgroundColor,
         borderRadius: BorderRadius.circular(8.r),
-        border:       Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: Colors.grey.shade300),
       ),
       child: Center(
         child: SizedBox(
-          width: 16.w, height: 16.w,
+          width: 16.w,
+          height: 16.w,
           child: CircularProgressIndicator(
             strokeWidth: 2,
             color: AppColors.mainAppColor,
@@ -794,34 +833,39 @@ class _DateButton extends StatelessWidget {
     return InkWell(
       onTap: () async {
         final picked = await showDatePicker(
-          context:      context,
-          initialDate:  DateTime.now(),
-          firstDate:    DateTime(2000),
-          lastDate:     DateTime(2100),
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2100),
         );
         if (picked != null) {
           // yyyy/MM/dd — see `_today()` in CollectionMobileLayout.
           onPicked(
             '${picked.year}/'
-                '${picked.month.toString().padLeft(2, '0')}/'
-                '${picked.day.toString().padLeft(2, '0')}',
+            '${picked.month.toString().padLeft(2, '0')}/'
+            '${picked.day.toString().padLeft(2, '0')}',
           );
         }
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color:        AppColors.backgroundColor,
+          color: AppColors.backgroundColor,
           borderRadius: BorderRadius.circular(8.r),
-          border:       Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: Colors.grey.shade300),
         ),
         child: Row(
           children: [
-            Icon(Icons.calendar_today_outlined,
-                color: AppColors.mainAppColor, size: 14.sp),
+            Icon(
+              Icons.calendar_today_outlined,
+              color: AppColors.mainAppColor,
+              size: 14.sp,
+            ),
             SizedBox(width: 6.w),
-            Text(value,
-                style: AppTextTheme.caption.copyWith(color: AppColors.black)),
+            Text(
+              value,
+              style: AppTextTheme.caption.copyWith(color: AppColors.black),
+            ),
           ],
         ),
       ),

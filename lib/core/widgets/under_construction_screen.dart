@@ -1,97 +1,88 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class UnderConstructionScreen extends StatefulWidget {
-  const UnderConstructionScreen({super.key});
+import '../constant/app_colors.dart';
+import '../theme/app_text_theme.dart';
 
-  @override
-  State<UnderConstructionScreen> createState() => _UnderConstructionScreenState();
-}
+/// Reusable "this screen is under construction" placeholder.
+///
+/// Embeddable inside a tab body (just drop it into the scaffold or a
+/// `SliverFillRemaining`); when [showAppBar] is true it scaffolds itself
+/// into a full route with a back button — handy when navigating to a
+/// not-yet-built feature from an action card.
+///
+/// Translation keys it pulls (already in the bundles): `common.under_construction`,
+/// `common.page_under_development`. Pass [title]/[subtitle] to override
+/// for a specific feature ("Coming in v1.2", etc.).
+class UnderConstructionScreen extends StatelessWidget {
+  final String? title;
+  final String? subtitle;
+  final IconData icon;
+  final bool showAppBar;
 
-class _UnderConstructionScreenState extends State<UnderConstructionScreen>
-    with SingleTickerProviderStateMixin {
-  double _opacity = 0.0;
-  double _scale = 0.8;
-
-  @override
-  void initState() {
-    super.initState();
-
-    Future.delayed(const Duration(milliseconds: 300), () {
-      setState(() {
-        _opacity = 1.0;
-        _scale = 1.0;
-      });
-    });
-  }
+  const UnderConstructionScreen({
+    super.key,
+    this.title,
+    this.subtitle,
+    this.icon = Icons.construction_rounded,
+    this.showAppBar = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: const Text("تحت الإنشاء"),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-      ),
-      body: Center(
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 900),
-          opacity: _opacity,
-          curve: Curves.easeInOut,
-          child: AnimatedScale(
-            scale: _scale,
-            duration: const Duration(milliseconds: 900),
-            curve: Curves.easeOutBack,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.construction_rounded,
-                  size: 120,
-                  color: Colors.blueAccent.shade700,
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  "الصفحة قيد التطوير",
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  "نعمل على تحسين هذه الميزة.\nتابعنا للتحديثات قريباً.",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black54,
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-                  label: const Text(
-                    "العودة",
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
+    final body = Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 96.w,
+              height: 96.w,
+              decoration: BoxDecoration(
+                color: AppColors.mainAppColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 48.sp, color: AppColors.mainAppColor),
             ),
-          ),
+            SizedBox(height: 20.h),
+            Text(
+              title ?? 'common.under_construction'.tr(),
+              textAlign: TextAlign.center,
+              style: AppTextTheme.titleLarge.copyWith(
+                color: const Color(0xff1A1A1A),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              subtitle ?? 'common.page_under_development'.tr(),
+              textAlign: TextAlign.center,
+              style: AppTextTheme.caption.copyWith(
+                color: const Color(0xff8A8F99),
+                fontSize: 13.sp,
+              ),
+            ),
+          ],
         ),
       ),
+    );
+
+    if (!showAppBar) return body;
+
+    return Scaffold(
+      backgroundColor: const Color(0xffF0F2F8),
+      appBar: AppBar(
+        backgroundColor: AppColors.mainAppColor,
+        iconTheme: const IconThemeData(color: Colors.white),
+        centerTitle: true,
+        title: Text(
+          title ?? 'common.under_construction'.tr(),
+          style: AppTextTheme.titleLarge.copyWith(color: Colors.white),
+        ),
+      ),
+      body: body,
     );
   }
 }
