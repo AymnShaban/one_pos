@@ -66,4 +66,5 @@ class AppAssets {
   static const String creditCardIcon = 'assets/icons/credit_card.svg';
   static const String mobileWalletIcon = 'assets/icons/mobile_wallet.svg';
   static const String fawryIcon = 'assets/icons/Fawry.svg';
+  static const String backgroundImage = 'assets/images/background_image.jpg';
 }

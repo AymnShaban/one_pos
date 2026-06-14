@@ -1,5 +1,12 @@
 part of '../../home_imports.dart';
 
+/// Redesigned home tab — gradient blue header (logo + notifications +
+/// hamburger + welcome + date), a row of 4 stat cards (revenue / expenses
+/// / profit / today invoices), a 2×4 grid of "Main Reports" cards, the
+/// live-sales feed, and the two summary charts. Tap any report card to
+/// either switch the bottom-nav tab (Live Sales / Reports) or push a
+/// dedicated feature route (Stock Taking) — anything not yet built lands
+/// on the shared [UnderConstructionScreen].
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
 
@@ -12,246 +19,938 @@ class HomeTab extends StatelessWidget {
           final stats = state.items.isNotEmpty
               ? state.items.first
               : const HomeStatsModel();
-          final isSynced = context.read<HomeBloc>().isSynced;
-
           return CustomScrollView(
             slivers: [
-              // ── AppBar ──
-              HomeAppBar(isOnline: context.read<HomeBloc>().isOnline),
+              // ── Header: logo, bell, hamburger, welcome, date + stats ──
+              SliverToBoxAdapter(child: _HomeHeader(stats: stats)),
 
+              // ── Main Reports grid ────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.all(16.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 8.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // ── Welcome Card ──
-                      GestureDetector(
-                        onTap: () {
-                          debugPrint(decrypt(printDecryptData));
-                        },
-                        child: WelcomeCard(isSynced: isSynced),
-                      ),
-                      SizedBox(height: 16.h),
-
-                      // ── Stats Row ──
-                      Row(
-                        children: [
-                          Expanded(
-                            child: StatsCard(
-                              label: 'home.products'.tr(),
-                              value: '${stats.productsCount}',
-                              badge: 'home.active'.tr(),
-                              badgeColor: Colors.green,
-                              iconColor: const Color(0xff9B59B6),
-                            ),
-                          ),
-                          SizedBox(width: 10.w),
-                          Expanded(
-                            child: StatsCard(
-                              label: 'home.invoices'.tr(),
-                              value: '${stats.invoicesCount}',
-                              badge: '+${stats.invoicesNewCount}',
-                              badgeColor: const Color(0xff3B5BDB),
-                              iconColor: const Color(0xff4DABF7),
-                            ),
-                          ),
-                          SizedBox(width: 10.w),
-                          Expanded(
-                            child: StatsCard(
-                              label: 'home.today_sales'.tr(),
-                              value: stats.todaySales.toStringAsFixed(0),
-                              badge: '+${stats.salesPercentage}%',
-                              badgeColor: Colors.green,
-                              iconColor: const Color(0xff40C057),
-                              isCurrency: true,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20.h),
-
-                      // ── Sales Section ──
-                      _SectionHeader(title: 'home.sales'.tr()),
-                      SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ActionCard(
-                              label: 'home.new_sales_invoice'.tr(),
-                              icon: Icons.shopping_cart_rounded,
-                              color: const Color(0xff3B5BDB),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => MultiBlocProvider(
-                                      providers: [
-                                        BlocProvider(
-                                          create: (_) => getIt<SalesBloc>(),
-                                        ),
-                                        BlocProvider(
-                                          create: (_) =>
-                                              getIt<MainCategoryBloc>(),
-                                        ),
-                                        BlocProvider(
-                                          create: (_) =>
-                                              getIt<SubCategoryBloc>(),
-                                        ),
-                                        BlocProvider(
-                                          create: (_) => getIt<HomeBloc>(),
-                                        ),
-                                        BlocProvider.value(
-                                          value: getIt<BasketBloc>(),
-                                        ),
-                                      ],
-                                      child: const SalesTab(),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: ActionCard(
-                              label: 'home.price_quote'.tr(),
-                              icon: Icons.receipt_outlined,
-                              color: const Color(0xff3B5BDB),
-                              onTap: () {},
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20.h),
-
-                      // ── Operations Section ──
-                      _SectionHeader(title: 'home.operations'.tr()),
-                      SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ActionCard(
-                              label: 'home.manage_invoices'.tr(),
-                              icon: Icons.inventory_2_rounded,
-                              color: const Color(0xff40C057),
-                              onTap: () {},
-                            ),
-                          ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: ActionCard(
-                              label: 'home.reports'.tr(),
-                              icon: Icons.trending_up_rounded,
-                              color: const Color(0xff9B59B6),
-                              onTap: () {},
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ActionCard(
-                              label: 'home.customers'.tr(),
-                              icon: Icons.people_alt_rounded,
-                              color: const Color(0xffE67E22),
-                              onTap: () {},
-                            ),
-                          ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: ActionCard(
-                              label: 'home.invoice_collection'.tr(),
-                              icon: Icons.monetization_on,
-                              color: AppColors.tealAccentColor,
-                              onTap: () => _openInvoiceCollection(context),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20.h),
-
-                      // ── Recent Activity ──
-                      _SectionHeader(title: 'home.recent_activity'.tr()),
-                      SizedBox(height: 10.h),
                       Container(
+                        width: 4.w,
+                        height: 18.h,
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Column(
-                          children: const [
-                            RecentActivityItem(
-                              name: 'محمد أحمد',
-                              invoiceId: 'INV-1234',
-                              timeAgo: 'منذ 5 دقائق',
-                              amount: 450,
-                              status: 'مكتمل',
-                            ),
-                            Divider(height: 1, indent: 16, endIndent: 16),
-                            RecentActivityItem(
-                              name: 'فاطمة علي',
-                              invoiceId: 'INV-1233',
-                              timeAgo: 'منذ 15 دقيقة',
-                              amount: 890,
-                              status: 'مكتمل',
-                            ),
-                          ],
+                          color: const Color(0xff3B5BDB),
+                          borderRadius: BorderRadius.circular(2.r),
                         ),
                       ),
-                      SizedBox(height: 24.h),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: Text(
+                          'home.main_reports'.tr(),
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xff1A1A1A),
+                          ),
+                        ),
+                      ),
+                      const Icon(Icons.apps_rounded,
+                          color: Color(0xff8A8F99), size: 18),
                     ],
                   ),
                 ),
               ),
+              SliverPadding(
+                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 10.h,
+                    crossAxisSpacing: 10.w,
+                    childAspectRatio: 1.05,
+                  ),
+                  delegate: SliverChildListDelegate(
+                    _reportCards(context),
+                  ),
+                ),
+              ),
+
+              // ── Live Sales feed ──────────────────────────────────────
+              const SliverToBoxAdapter(child: _LiveSalesSection()),
+
+              // ── Charts ───────────────────────────────────────────────
+              const SliverToBoxAdapter(child: _ChartsSection()),
+
+              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
             ],
           );
         },
       ),
     );
   }
-}
 
-/// Opens the Purchase Invoice screen with all the providers it needs:
-/// `SalesBloc` + main / sub category blocs for the catalogue, the shared
-/// `InvoiceSetupBloc` for branch + currency, and the purchase-specific
-/// `PurchaseInvoiceBloc` + `PurchaseCartBloc`. Patterns + pay-ways are
-/// loaded eagerly via `..add(...)` on the bloc create.
+  List<Widget> _reportCards(BuildContext context) {
+    // Tap actions either flip the bottom-nav tab, push a real screen, or
+    // land on the shared UnderConstructionScreen for features that
+    // aren't built yet.
+    void underConstruction(IconData icon, String title) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => UnderConstructionScreen(
+            title: title,
+            icon: icon,
+            showAppBar: true,
+          ),
+        ),
+      );
+    }
 
-/// Opens the Invoice Collection screen with the providers it needs.
-/// `LoadCollectionSetupData` is dispatched by the screen's own
-/// `initState` (see InvoiceCollectionScreen) — do NOT also fire it here,
-/// or the setup endpoints get hit twice on every entry.
-void _openInvoiceCollection(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => BlocProvider(
-        create: (_) => getIt<InvoiceCollectionBloc>(),
-        child: const InvoiceCollectionScreen(),
+    return [
+      _ReportCard(
+        title: 'home.food_categories_report'.tr(),
+        subtitle: 'home.food_categories_subtitle'.tr(),
+        icon: Icons.local_grocery_store_rounded,
+        color: const Color(0xffE67E22),
+        onTap: () => underConstruction(
+          Icons.local_grocery_store_rounded,
+          'home.food_categories_report'.tr(),
+        ),
       ),
-    ),
-  );
+      _ReportCard(
+        title: 'home.top_selling_items'.tr(),
+        subtitle: 'home.top_selling_subtitle'.tr(),
+        icon: Icons.emoji_events_rounded,
+        color: const Color(0xffF5A623),
+        onTap: () =>
+            context.read<NavBloc>().add(const ChangeNavTab(3)), // Reports
+      ),
+      _ReportCard(
+        title: 'home.live_sales'.tr(),
+        subtitle: 'home.live_sales_subtitle'.tr(),
+        icon: Icons.wifi_tethering_rounded,
+        color: const Color(0xffE74C3C),
+        highlight: true,
+        onTap: () =>
+            context.read<NavBloc>().add(const ChangeNavTab(1)), // Live Sales
+      ),
+      _ReportCard(
+        title: 'home.branches_analysis'.tr(),
+        subtitle: 'home.branches_subtitle'.tr(),
+        icon: Icons.storefront_rounded,
+        color: const Color(0xff9B59B6),
+        onTap: () => underConstruction(
+          Icons.storefront_rounded,
+          'home.branches_analysis'.tr(),
+        ),
+      ),
+      _ReportCard(
+        title: 'home.stock_transfers'.tr(),
+        subtitle: 'home.stock_transfers_subtitle'.tr(),
+        icon: Icons.local_shipping_rounded,
+        color: const Color(0xff27AE60),
+        onTap: () => underConstruction(
+          Icons.local_shipping_rounded,
+          'home.stock_transfers'.tr(),
+        ),
+      ),
+      _ReportCard(
+        title: 'home.stock_taking'.tr(),
+        subtitle: 'home.stock_taking_subtitle'.tr(),
+        icon: Icons.fact_check_rounded,
+        color: const Color(0xff40C057),
+        onTap: () {
+          // Real feature — push the Barren stock-taking screen with its
+          // bloc provided (same wiring used by reports_tab's Stock Taking
+          // button).
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BlocProvider<InvoiceCubit>(
+                create: (_) => GetIt.instance<InvoiceCubit>(),
+                child: const BarrenStockTakingScreen(),
+              ),
+            ),
+          );
+        },
+      ),
+      _ReportCard(
+        title: 'home.expiry_monitoring'.tr(),
+        subtitle: 'home.expiry_subtitle'.tr(),
+        icon: Icons.event_available_rounded,
+        color: const Color(0xff3B5BDB),
+        onTap: () => underConstruction(
+          Icons.event_available_rounded,
+          'home.expiry_monitoring'.tr(),
+        ),
+      ),
+      _ReportCard(
+        title: 'home.sales_reports'.tr(),
+        subtitle: 'home.sales_reports_subtitle'.tr(),
+        icon: Icons.insert_chart_rounded,
+        color: const Color(0xff4DABF7),
+        onTap: () =>
+            context.read<NavBloc>().add(const ChangeNavTab(3)), // Reports
+      ),
+    ];
+  }
 }
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
+// ────────────────────────────────────────────────────────────────────────
+//  Header
+// ────────────────────────────────────────────────────────────────────────
 
-  const _SectionHeader({required this.title});
+class _HomeHeader extends StatelessWidget {
+  final HomeStatsModel stats;
+
+  const _HomeHeader({required this.stats});
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 15.sp,
-          fontWeight: FontWeight.bold,
-          color: const Color(0xff1A1A1A),
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(image: AssetImage(AppAssets.backgroundImage), fit: BoxFit.cover),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 12.h,
+        left: 16.w,
+        right: 16.w,
+        bottom: 16.h,
+      ),
+      child: Column(
+        children: [
+          // Top row: hamburger | logo | notifications
+          Row(
+            children: [
+              const _HeaderIcon(icon: Icons.menu_rounded),
+              const Spacer(),
+              Text(
+                'home.title'.tr(),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const Spacer(),
+              const _HeaderIcon(
+                icon: Icons.notifications_none_rounded,
+                badge: 3,
+              ),
+            ],
+          ),
+          SizedBox(height: 14.h),
+
+          // Welcome line
+          // Row(
+          //   children: [
+          //     Text(
+          //       '👋',
+          //       style: TextStyle(fontSize: 18.sp),
+          //     ),
+          //     SizedBox(width: 6.w),
+          //     Expanded(
+          //       child: Text(
+          //         'home.welcome_admin'.tr(),
+          //         style: AppTextTheme.body2.copyWith(color: AppColors.black)
+          //       ),
+          //     ),
+          //     const Icon(Icons.calendar_today_outlined,
+          //         color: Colors.white70, size: 16),
+          //     SizedBox(width: 4.w),
+          //     Text(
+          //       _today(context),
+          //       style: TextStyle(
+          //         color: Colors.white70,
+          //         fontSize: 12.sp,
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          SizedBox(height: 16.h),
+
+          // 4 stat cards
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  label: 'home.total_revenue'.tr(),
+                  value: stats.totalRevenue,
+                  unit: 'home.riyal_sa'.tr(),
+                  percentage: stats.revenuePercentage,
+                  icon: Icons.attach_money_rounded,
+                  accent: const Color(0xff40C057),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: _StatCard(
+                  label: 'home.total_expenses'.tr(),
+                  value: stats.totalExpenses,
+                  unit: 'home.riyal_sa'.tr(),
+                  percentage: stats.expensesPercentage,
+                  icon: Icons.remove_circle_outline_rounded,
+                  accent: const Color(0xffE74C3C),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: _StatCard(
+                  label: 'home.net_profit'.tr(),
+                  value: stats.netProfit,
+                  unit: 'home.riyal_sa'.tr(),
+                  percentage: stats.profitPercentage,
+                  icon: Icons.account_balance_wallet_outlined,
+                  accent: const Color(0xff3B5BDB),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: _StatCard.count(
+                  label: 'home.today_invoices'.tr(),
+                  value: stats.todayInvoicesCount,
+                  unit: 'home.invoice_unit'.tr(),
+                  icon: Icons.description_outlined,
+                  accent: const Color(0xffF5A623),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // String _today(BuildContext context) {
+  //   final now = DateTime.now();
+  //   return '${now.day}/${now.month}/${now.year}';
+  // }
+}
+
+class _HeaderIcon extends StatelessWidget {
+  final IconData icon;
+  final int? badge;
+
+  const _HeaderIcon({required this.icon, this.badge});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 36.w,
+          height: 36.w,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+          child: Icon(icon, color: Colors.white, size: 20.sp),
         ),
+        if (badge != null && badge! > 0)
+          Positioned(
+            top: -4,
+            right: -4,
+            child: Container(
+              padding: EdgeInsets.all(4.w),
+              constraints: BoxConstraints(minWidth: 16.w, minHeight: 16.w),
+              decoration: const BoxDecoration(
+                color: Color(0xffE74C3C),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  '$badge',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 9.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────
+//  Stat card (top header — money / count variants)
+// ────────────────────────────────────────────────────────────────────────
+
+class _StatCard extends StatelessWidget {
+  final String label;
+  final num value;
+  final String unit;
+  final int? percentage;
+  final IconData icon;
+  final Color accent;
+  final bool isCurrency;
+
+  const _StatCard({
+    required this.label,
+    required this.value,
+    required this.unit,
+    required this.percentage,
+    required this.icon,
+    required this.accent,
+  }) : isCurrency = true;
+
+  const _StatCard.count({
+    required this.label,
+    required this.value,
+    required this.unit,
+    required this.icon,
+    required this.accent,
+  })  : percentage = null,
+        isCurrency = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(10.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // Expanded so the label shrinks / ellipses instead of pushing
+              // the icon past the card's right edge (cards are ~62px wide
+              // on a 360-dp device and the Arabic labels are long).
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextTheme.labelSmall8
+                      .copyWith(color: const Color(0xff8A8F99)),
+                ),
+              ),
+              SizedBox(width: 4.w),
+              Container(
+                width: 22.w,
+                height: 22.w,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: accent, size: 14.sp),
+              ),
+            ],
+          ),
+          SizedBox(height: 6.h),
+          Text(
+            isCurrency
+                ? _formatMoney(value.toDouble())
+                : value.toInt().toString(),
+            style: AppTextTheme.caption,
+          ),
+          Text(
+            unit,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 9.sp,
+              color: const Color(0xff8A8F99),
+            ),
+          ),
+          if (percentage != null) ...[
+            SizedBox(height: 4.h),
+            Text(
+              '+$percentage% ${'home.vs_yesterday'.tr()}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 9.sp,
+                color: accent,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _formatMoney(double v) {
+    // Thousands-grouping for the dashboard.
+    final intPart = v.toInt();
+    final str = intPart.toString();
+    final buf = StringBuffer();
+    for (int i = 0; i < str.length; i++) {
+      buf.write(str[i]);
+      final remaining = str.length - i - 1;
+      if (remaining > 0 && remaining % 3 == 0) buf.write(',');
+    }
+    return buf.toString();
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────
+//  Main Reports grid card
+// ────────────────────────────────────────────────────────────────────────
+
+class _ReportCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+  final bool highlight;
+
+  const _ReportCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+    this.highlight = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16.r),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.r),
+        child: Container(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.r),
+            border: highlight
+                ? Border.all(color: color.withValues(alpha: 0.4), width: 1.5)
+                : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          // Grid uses crossAxisCount=3 with aspectRatio=1.05, so the cell
+          // ends up small. MainAxisSize.min stops the Column claiming full
+          // height (no Spacer-forced growth), the icon shrinks 48→38, and
+          // Flexible around the text widgets lets them collapse / ellipsis
+          // gracefully when the cell can't fit both lines comfortably.
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 38.w,
+                    height: 38.w,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Icon(icon, color: color, size: 20.sp),
+                  ),
+                  if (highlight)
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 5.w, vertical: 1.h),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(6.r),
+                        ),
+                        child: Text(
+                          'LIVE',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 7.sp,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              SizedBox(height: 6.h),
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextTheme.labelSmall9,
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Flexible(
+                child: Text(
+                  subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextTheme.labelSmall8
+                      .copyWith(color: const Color(0xff8A8F99)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────
+//  Live Sales feed
+// ────────────────────────────────────────────────────────────────────────
+
+class _LiveSalesSection extends StatelessWidget {
+  const _LiveSalesSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final samples = [
+      _LiveSale('home.live_sales_now'.tr(), '100043', '09:41 AM', 1.5,
+          Icons.local_drink_outlined),
+      _LiveSale('Khobz', '100045', '09:40 AM', 0.75, Icons.bakery_dining_outlined),
+      _LiveSale('Pepsi', '100042', '09:39 AM', 1.2, Icons.local_drink_outlined),
+    ];
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 8.w,
+                height: 8.w,
+                decoration: const BoxDecoration(
+                  color: Color(0xffE74C3C),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              SizedBox(width: 6.w),
+              Text(
+                'home.live_sales_now'.tr(),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xff1A1A1A),
+                ),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () =>
+                    context.read<NavBloc>().add(const ChangeNavTab(1)),
+                child: Text(
+                  'home.view_all'.tr(),
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    color: const Color(0xff3B5BDB),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: List.generate(samples.length, (i) {
+                final s = samples[i];
+                return Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 12.w, vertical: 10.h),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 36.w,
+                            height: 36.w,
+                            decoration: BoxDecoration(
+                              color: const Color(0xffF0F2F8),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Icon(s.icon,
+                                color: const Color(0xff8A8F99), size: 18.sp),
+                          ),
+                          SizedBox(width: 10.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  s.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xff1A1A1A),
+                                  ),
+                                ),
+                                SizedBox(height: 2.h),
+                                Text(
+                                  '${'new_invoice.product_code'.tr()}: ${s.code}',
+                                  style: TextStyle(
+                                    fontSize: 10.sp,
+                                    color: const Color(0xff8A8F99),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '${s.value.toStringAsFixed(3)} '
+                                '${'common.EGP'.tr()}',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xff40C057),
+                                ),
+                              ),
+                              SizedBox(height: 2.h),
+                              Text(
+                                s.time,
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  color: const Color(0xff8A8F99),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (i != samples.length - 1)
+                      Divider(
+                        height: 1,
+                        indent: 12.w,
+                        endIndent: 12.w,
+                        color: const Color(0xffF0F2F8),
+                      ),
+                  ],
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LiveSale {
+  final String name;
+  final String code;
+  final String time;
+  final double value;
+  final IconData icon;
+  _LiveSale(this.name, this.code, this.time, this.value, this.icon);
+}
+
+// ────────────────────────────────────────────────────────────────────────
+//  Charts section (placeholders — no chart lib in pubspec)
+// ────────────────────────────────────────────────────────────────────────
+
+class _ChartsSection extends StatelessWidget {
+  const _ChartsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    // IntrinsicHeight: the Row sits inside a SliverToBoxAdapter (unbounded
+    // height). With `crossAxisAlignment: stretch` alone the children get an
+    // infinite-height constraint and layout asserts. IntrinsicHeight pins
+    // the row's height to the tallest child first, so stretch then matches
+    // both cards to that bounded height.
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 0),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: _BranchPie()),
+            SizedBox(width: 10.w),
+            Expanded(child: _WeeklyTrend()),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BranchPie extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final slices = [
+      ('home.salmiya'.tr(), 40, const Color(0xff3B5BDB)),
+      ('home.hawalli'.tr(), 30, const Color(0xff9B59B6)),
+      ('home.farwaniya'.tr(), 20, const Color(0xff40C057)),
+      ('home.ahmadi'.tr(), 10, const Color(0xffE67E22)),
+    ];
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'home.branches_distribution'.tr(),
+            maxLines: 2,
+            style: TextStyle(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xff1A1A1A),
+            ),
+          ),
+          SizedBox(height: 12.h),
+          // Stacked horizontal bar — clean placeholder until fl_chart is added.
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6.r),
+            child: SizedBox(
+              height: 12.h,
+              child: Row(
+                children: slices
+                    .map(
+                      (s) => Expanded(
+                        flex: s.$2,
+                        child: Container(color: s.$3),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ),
+          SizedBox(height: 10.h),
+          ...slices.map(
+            (s) => Padding(
+              padding: EdgeInsets.symmetric(vertical: 3.h),
+              child: Row(
+                children: [
+                  Container(
+                    width: 8.w,
+                    height: 8.w,
+                    decoration: BoxDecoration(
+                      color: s.$3,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  SizedBox(width: 6.w),
+                  Expanded(
+                    child: Text(
+                      s.$1,
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        color: const Color(0xff1A1A1A),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '${s.$2}%',
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xff1A1A1A),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WeeklyTrend extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // 7-day mock — replace with real series when a chart library lands.
+    final values = [4.5, 8.5, 11.2, 6.8, 11.0, 7.0, 12.0];
+    final max = values.reduce((a, b) => a > b ? a : b);
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'home.weekly_sales'.tr(),
+            maxLines: 2,
+            style: TextStyle(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xff1A1A1A),
+            ),
+          ),
+          SizedBox(height: 12.h),
+          SizedBox(
+            height: 90.h,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: List.generate(values.length, (i) {
+                final v = values[i];
+                return Expanded(
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
+                    child: Container(
+                      height: (v / max) * 80.h,
+                      decoration: BoxDecoration(
+                        color: const Color(0xff3B5BDB)
+                            .withValues(alpha: 0.5 + (v / max) * 0.5),
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
       ),
     );
   }

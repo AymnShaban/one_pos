@@ -1,19 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
-import 'package:one_pos/core/print_encrypt.dart';
 import 'package:one_pos/feature/main/basket/basket_imports.dart';
-import 'package:one_pos/feature/main/home/presentation/widgets/action_card.dart';
-import 'package:one_pos/feature/main/home/presentation/widgets/home_app_bar.dart';
-import 'package:one_pos/feature/main/home/presentation/widgets/recent_activity_item.dart';
-import 'package:one_pos/feature/main/home/presentation/widgets/stats_card.dart';
-import 'package:one_pos/feature/main/home/presentation/widgets/welcome_card.dart';
 import 'package:one_pos/feature/main/settings/settings_imports.dart';
 
 import '../../../core/helper/helper.dart';
-import '../../../core/network/encrupt.dart';
 import '../../../core/services/service_locator/services_imports.dart';
-import '../invoice_collection/invoice_collection_imports.dart';
-import '../invoices/invoices_imports.dart';
+import '../../../core/widgets/under_construction_screen.dart';
+import '../../barren/presentation/cubit/invoice_cubit.dart';
+import '../../barren/presentation/screens/home_screen.dart'
+    show BarrenStockTakingScreen;
 import '../reports/reports_imports.dart';
 import '../sales/sales_imports.dart';
 
