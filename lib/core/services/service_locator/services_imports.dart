@@ -24,7 +24,6 @@ import '../../helper/sync_manager.dart';
 import '../../http/api_consumer.dart';
 import '../../local/hive_service_impl.dart';
 import '../../models/item_model.dart';
-import '../../network/encrupt.dart';
 
 
 part 'auth_service_locator/auth_service_locator.dart';

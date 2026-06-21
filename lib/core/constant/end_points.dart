@@ -1,13 +1,12 @@
-import 'package:one_pos/core/helper/helper.dart';
-import '../services/service_locator/services_imports.dart';
+
 import 'constants.dart';
 
 class EndPoints {
 
   // mazyad
-  static  String baseUrl = getIt<HiveServiceImpl>().getBaseUrl()??"";
-
-  static const String logIn = '/api/Users/Login';
+  static  String baseUrl = "http://78.89.159.126:9494/TheOneERPAPI";
+  // getIt<HiveServiceImpl>().getBaseUrl()??
+  static const String logIn = '/api/Auth/login';
 
 
   // ── Existing endpoints ────────────────────────────────
@@ -110,7 +109,7 @@ class EndPoints {
   static const String getBranches = '/api/CompanyBranch/GetBranches';
   static const String getInvoicePatterns = '/api/InvoiceSetting/GetSalesTypes';
   static const String getQuotePatterns = '/api/InvoicePattern/GetQuoteByBranch';
-  static const String getCurrencies = '/api/Currencies';
+  static const String getCurrencies = '/api/Currency/GetCurrencies';
  // [{"CurrencyID":1,"CurrencyName":"دينار كويتي","CurrencyEName":"Kuwait Dinar","PartName":"فلس","PartEName":"Fils","PartPrecition":1000,"Rate":1.0,"CurrencySymbol":"د.ك.","TotCurrencyName":"دنانير","TotCurrencyEName":"Dinars","TotPartName":"فلسات","TotPartEName":"Fils","PricesDigits":"0.000"}]
 
   static const String getReceiptsVouchersTypesByBranch =

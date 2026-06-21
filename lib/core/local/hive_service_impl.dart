@@ -29,6 +29,7 @@ class HiveServiceImpl implements IUserCache, IBasket , InvoiceCache {
   static const String _userIdKey         = 'user_id';
   static const String _sellerNameKey     = 'seller_name';
   static const String _haveDiscountKey   = 'have_discount';
+  static const String _jwtTokenKey       = 'jwt_token';
   static const String basketBoxName      = 'basket_box';
   // Invoice cache
   static const String invoiceBoxName = 'invoice_box';
@@ -202,7 +203,24 @@ class HiveServiceImpl implements IUserCache, IBasket , InvoiceCache {
     await _settingsBox?.delete(_userIdKey);
     await _settingsBox?.delete(_sellerNameKey);
     await _settingsBox?.delete(_haveDiscountKey);
+    await _settingsBox?.delete(_jwtTokenKey);
   }
+
+  // ── JWT (Bearer) token ────────────────────────────────────────────────
+  // Persisted post-login and read by the Dio interceptor on every request.
+  Future<void> saveJwtToken(String token) async {
+    await _settingsBox?.put(_jwtTokenKey, token);
+    await _settingsBox?.flush();
+  }
+
+  String? getJwtToken() {
+    final value = _settingsBox?.get(_jwtTokenKey);
+    if (value is String && value.isNotEmpty) return value;
+    return null;
+  }
+
+  Future<void> clearJwtToken() async =>
+      await _settingsBox?.delete(_jwtTokenKey);
 
   Future<void> saveLoggedInUser(Map<String, dynamic> user) async =>
       await _settingsBox?.put(_loggedInUserKey, user);

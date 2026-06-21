@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
-import 'package:one_pos/core/network/encrupt.dart';
 import '../../../core/constant/end_points.dart';
 import '../../../core/extension/context_extension.dart';
 import '../../../core/helper/helper.dart';

@@ -3,22 +3,20 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import '../../main.dart';
 import '../extension/context_extension.dart';
-import '../network/encrupt.dart';
 import 'either.dart';
 import 'failure.dart';
 
 abstract final class ApiConsumer {
-  Future<Either<Failure, Map<String, dynamic>>> get(
+  Future<Either<Failure, dynamic>> get(
     String url, {
     Map<String, dynamic>? headers,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
-    bool encrypt = true,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> post(
+  Future<Either<Failure, dynamic>> post(
     String url, {
     Map<String, dynamic>? data,
     FormData? formData,
@@ -27,10 +25,9 @@ abstract final class ApiConsumer {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-    bool encrypt = true,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> patch(
+  Future<Either<Failure, dynamic>> patch(
     String url, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? queryParameters,
@@ -38,10 +35,9 @@ abstract final class ApiConsumer {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-    bool encrypt = true,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> put(
+  Future<Either<Failure, dynamic>> put(
     String url, {
     Object? data,
     Map<String, dynamic>? queryParameters,
@@ -50,16 +46,14 @@ abstract final class ApiConsumer {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-    bool encrypt = true,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> delete(
+  Future<Either<Failure, dynamic>> delete(
     String url, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
     CancelToken? cancelToken,
-    bool encrypt = true,
   });
 
   Future<Either<Failure, String>> downloadFile({
@@ -69,18 +63,16 @@ abstract final class ApiConsumer {
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
-    bool encrypt = true,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> head(
+  Future<Either<Failure, dynamic>> head(
     String url, {
     Map<String, dynamic>? headers,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
-    bool encrypt = true,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> uploadFile(
+  Future<Either<Failure, dynamic>> uploadFile(
     String url, {
     required Map<String, dynamic> formData,
     Map<String, dynamic>? queryParameters,
@@ -88,7 +80,6 @@ abstract final class ApiConsumer {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-    bool encrypt = true,
   });
 
   void addInterceptor(Interceptor interceptor);
@@ -97,33 +88,30 @@ abstract final class ApiConsumer {
 
   void updateHeader(Map<String, dynamic> headers);
 
-  Future<Either<Failure, Map<String, dynamic>>> retryApiCall(
-    Future<Either<Failure, Map<String, dynamic>>> Function() apiCall, {
+  Future<Either<Failure, dynamic>> retryApiCall(
+    Future<Either<Failure, dynamic>> Function() apiCall, {
     int retryCount = 0,
   });
 }
 
+/// Plain JSON over Bearer JWT. The token itself is injected by the Dio
+/// interceptor registered in the service locator — this consumer no longer
+/// knows about Basic auth, encryption keys, or per-request encrypt flags.
 final class BaseApiConsumer implements ApiConsumer {
   final Dio _dio;
   final int maxRetries;
   final Duration retryDelay;
-  final String privateKey;
-  final String publicKey;
 
   BaseApiConsumer({
     required Dio dio,
-    required this.privateKey,
-    required this.publicKey,
-    int maxRetries = 5,
-    Duration retryDelay = const Duration(seconds: 2),
-  }) : _dio = dio,
-       maxRetries = 2,
-       retryDelay = const Duration(seconds: 5);
+    this.maxRetries = 2,
+    this.retryDelay = const Duration(seconds: 5),
+  }) : _dio = dio;
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> retryApiCall(
-    Future<Either<Failure, Map<String, dynamic>>> Function() apiCall, {
-    int retryCount = 2,
+  Future<Either<Failure, dynamic>> retryApiCall(
+    Future<Either<Failure, dynamic>> Function() apiCall, {
+    int retryCount = 0,
   }) async {
     final result = await apiCall();
     return result.fold((failure) async {
@@ -139,58 +127,28 @@ final class BaseApiConsumer implements ApiConsumer {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> get(
-      String url, {
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? data,
-        CancelToken? cancelToken,
-        ProgressCallback? onReceiveProgress,
-        bool encrypt = false,
-      }) async {
-    Future<Either<Failure, Map<String, dynamic>>> apiCall() async {
+  Future<Either<Failure, dynamic>> get(
+    String url, {
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? data,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    Future<Either<Failure, dynamic>> apiCall() async {
       try {
-        dynamic requestData = data;
-        if (encrypt && data != null) {
-          log('[GET $url] request body (plain): ${jsonEncode(data)}');
-          String encryptedData = encryptData(data);
-          log('[GET $url] request body (encrypted): $encryptedData');
-          requestData = jsonEncode(encryptedData);
-        }
-
         final response = await _dio.get(
           url,
           queryParameters: queryParameters,
           options: Options(headers: headers),
           cancelToken: cancelToken,
-          data: requestData,
+          data: data,
           onReceiveProgress: onReceiveProgress,
         );
-
-        dynamic responseData = response.data;
-        if (encrypt) {
-          log('[GET $url] raw encrypted response: ${response.data}');
-          final decryptedText = decrypt(response.data);
-          log('[GET $url] decrypted response: $decryptedText');
-          if (decryptedText == 'This customer exists.') {
-            return Left(ServerFailure(message: decryptedText));
-          }
-          try {
-            responseData = jsonDecode(decryptedText);
-          } catch (e) {
-            responseData = {'message': decryptedText};
-          }
-        }
-
-        return Right(
-          responseData is Map<String, dynamic>
-              ? responseData
-              : {'data': responseData},
-        );
+        return Right(_wrapBody(response.data));
       } on DioException catch (e) {
         log(e.toString());
-        final failure = _handleDioError(e);
-        return Left(failure);
+        return Left(_handleDioError(e));
       } catch (e) {
         return Left(
           UnknownFailure(message: 'An unexpected error occurred: $e'),
@@ -200,13 +158,13 @@ final class BaseApiConsumer implements ApiConsumer {
 
     return await retryApiCall(apiCall);
   }
+
   @override
-  Future<Either<Failure, Map<String, dynamic>>> head(
+  Future<Either<Failure, dynamic>> head(
     String url, {
     Map<String, dynamic>? headers,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
-    bool encrypt = false,
   }) async {
     try {
       final response = await _dio.head(
@@ -215,38 +173,17 @@ final class BaseApiConsumer implements ApiConsumer {
         options: Options(headers: headers),
         cancelToken: cancelToken,
       );
-
-      dynamic responseData = response.data;
-      if (encrypt) {
-        log('[HEAD $url] raw encrypted response: ${response.data}');
-        final decryptedText = decrypt(response.data);
-        log('[HEAD $url] decrypted response: $decryptedText');
-        if (decryptedText == 'This customer exists.') {
-          return Left(ServerFailure(message: decryptedText));
-        }
-        try {
-          responseData = jsonDecode(decryptedText);
-        } catch (e) {
-          responseData = {'message': decryptedText};
-        }
-      }
-
-      return Right(
-        responseData is Map<String, dynamic>
-            ? responseData
-            : {'data': responseData},
-      );
+      return Right(_wrapBody(response.data));
     } on DioException catch (e) {
       log(e.toString());
-      final failure = _handleDioError(e);
-      return Left(failure);
+      return Left(_handleDioError(e));
     } catch (e) {
       return Left(UnknownFailure(message: 'An unexpected error occurred: $e'));
     }
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> patch(
+  Future<Either<Failure, dynamic>> patch(
     String url, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? queryParameters,
@@ -254,58 +191,28 @@ final class BaseApiConsumer implements ApiConsumer {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-    bool encrypt = false,
   }) async {
     try {
-      dynamic requestData = data;
-      if (encrypt && data != null) {
-        log('[PATCH $url] request body (plain): ${jsonEncode(data)}');
-        String encryptedData = encryptData(data);
-        log('[PATCH $url] request body (encrypted): $encryptedData');
-        requestData = jsonEncode(encryptedData);
-      }
-
-      Response response = await _dio.patch(
+      final response = await _dio.patch(
         url,
         queryParameters: queryParameters,
         options: Options(headers: headers),
         cancelToken: cancelToken,
-        data: requestData,
+        data: data,
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-
-      dynamic responseData = response.data;
-      if (encrypt) {
-        log('[PATCH $url] raw encrypted response: ${response.data}');
-        final decryptedText = decrypt(response.data);
-        log('[PATCH $url] decrypted response: $decryptedText');
-        if (decryptedText == 'This customer exists.') {
-          return Left(ServerFailure(message: decryptedText));
-        }
-        try {
-          responseData = jsonDecode(decryptedText);
-        } catch (e) {
-          responseData = {'message': decryptedText};
-        }
-      }
-
-      return Right(
-        responseData is Map<String, dynamic>
-            ? responseData
-            : {'data': responseData},
-      );
+      return Right(_wrapBody(response.data));
     } on DioException catch (e) {
       log(e.toString());
-      final failure = _handleDioError(e);
-      return Left(failure);
+      return Left(_handleDioError(e));
     } catch (e) {
       return Left(UnknownFailure(message: 'An unexpected error occurred: $e'));
     }
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> post(
+  Future<Either<Failure, dynamic>> post(
     String url, {
     Map<String, dynamic>? data,
     FormData? formData,
@@ -314,61 +221,28 @@ final class BaseApiConsumer implements ApiConsumer {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-    bool encrypt = true,
   }) async {
     try {
-      dynamic requestData = data;
-      if (encrypt && data != null) {
-        log('[POST $url] request body (plain): ${jsonEncode(data)}');
-        String encryptedData = encryptData(data);
-        log('[POST $url] request body (encrypted): $encryptedData');
-        requestData = jsonEncode(encryptedData);
-      } else if (formData != null) {
-        requestData = formData;
-      }
-
-      Response response = await _dio.post(
+      final response = await _dio.post(
         url,
         queryParameters: queryParameters,
         options: Options(headers: headers),
-        data: requestData,
+        data: formData ?? data,
         onSendProgress: onSendProgress,
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       );
-
-      dynamic responseData = response.data;
-      if (encrypt) {
-        log('[POST $url] raw encrypted response: ${response.data}');
-        final decryptedText = decrypt(response.data);
-        log('[POST $url] decrypted response: $decryptedText');
-        if (decryptedText == 'This customer exists.') {
-          return Left(ServerFailure(message: decryptedText));
-        }
-        try {
-          responseData = jsonDecode(decryptedText);
-        } catch (e) {
-          responseData = {'message': decryptedText};
-        }
-      }
-
-      return Right(
-        responseData is Map<String, dynamic>
-            ? responseData
-            : {'data': responseData},
-      );
+      return Right(_wrapBody(response.data));
     } on DioException catch (e) {
       log('left $e');
-      log(e.toString());
-      final failure = _handleDioError(e);
-      return Left(failure);
+      return Left(_handleDioError(e));
     } catch (e) {
       return Left(UnknownFailure(message: 'An unexpected error occurred: $e'));
     }
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> put(
+  Future<Either<Failure, dynamic>> put(
     String url, {
     Object? data,
     bool formData = false,
@@ -377,20 +251,13 @@ final class BaseApiConsumer implements ApiConsumer {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-    bool encrypt = false,
   }) async {
     try {
       dynamic requestData = data;
-      if (encrypt && data is Map<String, dynamic>) {
-        log('[PUT $url] request body (plain): ${jsonEncode(data)}');
-        String encryptedData = encryptData(data);
-        log('[PUT $url] request body (encrypted): $encryptedData');
-        requestData = jsonEncode(encryptedData);
-      } else if (formData && data is Map<String, dynamic>) {
+      if (formData && data is Map<String, dynamic>) {
         requestData = FormData.fromMap(data);
       }
-
-      Response response = await _dio.put(
+      final response = await _dio.put(
         url,
         queryParameters: queryParameters,
         options: Options(headers: headers),
@@ -399,86 +266,35 @@ final class BaseApiConsumer implements ApiConsumer {
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-
-      dynamic responseData = response.data;
-      if (encrypt) {
-        log('[PUT $url] raw encrypted response: ${response.data}');
-        final decryptedText = decrypt(response.data);
-        log('[PUT $url] decrypted response: $decryptedText');
-        if (decryptedText == 'This customer exists.') {
-          return Left(ServerFailure(message: decryptedText));
-        }
-        try {
-          responseData = jsonDecode(decryptedText);
-        } catch (e) {
-          responseData = {'message': decryptedText};
-        }
-      }
-
-      return Right(
-        responseData is Map<String, dynamic>
-            ? responseData
-            : {'data': responseData},
-      );
+      return Right(_wrapBody(response.data));
     } on DioException catch (e) {
       log(e.toString());
-      final failure = _handleDioError(e);
-      return Left(failure);
+      return Left(_handleDioError(e));
     } catch (e) {
       return Left(UnknownFailure(message: 'An unexpected error occurred: $e'));
     }
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> delete(
+  Future<Either<Failure, dynamic>> delete(
     String url, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
     CancelToken? cancelToken,
-    bool encrypt = false,
   }) async {
     try {
-      dynamic requestData = data;
-      if (encrypt && data != null) {
-        log('[DELETE $url] request body (plain): ${jsonEncode(data)}');
-        String encryptedData = encryptData(data);
-        log('[DELETE $url] request body (encrypted): $encryptedData');
-        requestData = jsonEncode(encryptedData);
-      }
-
-      Response response = await _dio.delete(
+      final response = await _dio.delete(
         url,
         queryParameters: queryParameters,
-        data: requestData,
+        data: data,
         options: Options(headers: headers),
         cancelToken: cancelToken,
       );
-
-      dynamic responseData = response.data;
-      if (encrypt) {
-        log('[DELETE $url] raw encrypted response: ${response.data}');
-        final decryptedText = decrypt(response.data);
-        log('[DELETE $url] decrypted response: $decryptedText');
-        if (decryptedText == 'This customer exists.') {
-          return Left(ServerFailure(message: decryptedText));
-        }
-        try {
-          responseData = jsonDecode(decryptedText);
-        } catch (e) {
-          responseData = {'message': decryptedText};
-        }
-      }
-
-      return Right(
-        responseData is Map<String, dynamic>
-            ? responseData
-            : {'data': responseData},
-      );
+      return Right(_wrapBody(response.data));
     } on DioException catch (e) {
       log(e.toString());
-      final failure = _handleDioError(e);
-      return Left(failure);
+      return Left(_handleDioError(e));
     } catch (e) {
       return Left(UnknownFailure(message: 'An unexpected error occurred: $e'));
     }
@@ -492,7 +308,6 @@ final class BaseApiConsumer implements ApiConsumer {
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
-    bool encrypt = false,
   }) async {
     try {
       await _dio.download(
@@ -503,9 +318,6 @@ final class BaseApiConsumer implements ApiConsumer {
         options: options,
         cancelToken: cancelToken,
       );
-
-      // Note: downloadFile doesn't typically expect a JSON response to decrypt
-      // If your API returns encrypted metadata, you might need to handle it separately
       return Right(savePath);
     } on DioException catch (e) {
       log(e.toString());
@@ -516,7 +328,7 @@ final class BaseApiConsumer implements ApiConsumer {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> uploadFile(
+  Future<Either<Failure, dynamic>> uploadFile(
     String url, {
     required Map<String, dynamic> formData,
     Map<String, dynamic>? queryParameters,
@@ -524,48 +336,18 @@ final class BaseApiConsumer implements ApiConsumer {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-    bool encrypt = false,
   }) async {
     try {
-      dynamic requestData = FormData.fromMap(formData);
-      if (encrypt) {
-        log('[UPLOAD $url] request body (plain): ${jsonEncode(formData)}');
-        // Encrypt formData map before converting to FormData, if needed
-        String encryptedData = encryptData(formData);
-        log('[UPLOAD $url] request body (encrypted): $encryptedData');
-        requestData = jsonEncode(encryptedData);
-      }
-
-      Response response = await _dio.post(
+      final response = await _dio.post(
         url,
-        data: requestData,
+        data: FormData.fromMap(formData),
         queryParameters: queryParameters,
         options: options,
         cancelToken: cancelToken,
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-
-      dynamic responseData = response.data;
-      if (encrypt) {
-        log('[UPLOAD $url] raw encrypted response: ${response.data}');
-        final decryptedText = decrypt(response.data);
-        log('[UPLOAD $url] decrypted response: $decryptedText');
-        if (decryptedText == 'This customer exists.') {
-          return Left(ServerFailure(message: decryptedText));
-        }
-        try {
-          responseData = jsonDecode(decryptedText);
-        } catch (e) {
-          responseData = {'message': decryptedText};
-        }
-      }
-
-      return Right(
-        responseData is Map<String, dynamic>
-            ? responseData
-            : {'data': responseData},
-      );
+      return Right(_wrapBody(response.data));
     } on DioException catch (e) {
       log(e.toString());
       return Left(_handleDioError(e));
@@ -587,6 +369,20 @@ final class BaseApiConsumer implements ApiConsumer {
   @override
   void addInterceptor(Interceptor interceptor) {
     _dio.interceptors.add(interceptor);
+  }
+
+  /// Server may return the body as a JSON string (Dio already JSON-decoded)
+  /// or as a raw String we need to decode. Either way we hand callers back
+  /// the parsed value — Map, List, primitive, whatever the endpoint returns.
+  dynamic _wrapBody(dynamic raw) {
+    if (raw is String) {
+      try {
+        return jsonDecode(raw);
+      } catch (_) {
+        return raw;
+      }
+    }
+    return raw;
   }
 
   Failure _handleDioError(DioException error) {

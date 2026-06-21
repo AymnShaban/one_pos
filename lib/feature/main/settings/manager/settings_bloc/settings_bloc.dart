@@ -42,6 +42,7 @@ class SettingsBloc extends Bloc<SettingsEvent, BaseState<UserSettingsModel>> {
       Emitter<BaseState<UserSettingsModel>> emit,
       ) async {
     await _hiveService.clearUserModel();
+    await _hiveService.clearJwtToken();
     emit(state.copyWith(status: Status.success, metadata: {'action': 'logout'}));
   }
 

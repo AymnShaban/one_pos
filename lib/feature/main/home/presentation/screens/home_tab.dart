@@ -221,13 +221,20 @@ class _HomeHeader extends StatelessWidget {
             children: [
               const _HeaderIcon(icon: Icons.menu_rounded),
               const Spacer(),
-              Text(
-                'home.title'.tr(),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 4.w, ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Text(
+                  'home.title'.tr(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
               const Spacer(),
@@ -267,12 +274,12 @@ class _HomeHeader extends StatelessWidget {
           // ),
           SizedBox(height: 16.h),
 
-          // 4 stat cards
+          // 3 stat cards — Sales / Costs / Daily Sales
           Row(
             children: [
               Expanded(
                 child: _StatCard(
-                  label: 'home.total_revenue'.tr(),
+                  label: 'home.sales_total'.tr(),
                   value: stats.totalRevenue,
                   unit: 'home.riyal_sa'.tr(),
                   percentage: stats.revenuePercentage,
@@ -283,7 +290,7 @@ class _HomeHeader extends StatelessWidget {
               SizedBox(width: 8.w),
               Expanded(
                 child: _StatCard(
-                  label: 'home.total_expenses'.tr(),
+                  label: 'home.costs'.tr(),
                   value: stats.totalExpenses,
                   unit: 'home.riyal_sa'.tr(),
                   percentage: stats.expensesPercentage,
@@ -294,22 +301,12 @@ class _HomeHeader extends StatelessWidget {
               SizedBox(width: 8.w),
               Expanded(
                 child: _StatCard(
-                  label: 'home.net_profit'.tr(),
-                  value: stats.netProfit,
+                  label: 'home.daily_sales'.tr(),
+                  value: stats.todaySales,
                   unit: 'home.riyal_sa'.tr(),
-                  percentage: stats.profitPercentage,
-                  icon: Icons.account_balance_wallet_outlined,
+                  percentage: stats.salesPercentage,
+                  icon: Icons.show_chart_rounded,
                   accent: const Color(0xff3B5BDB),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: _StatCard.count(
-                  label: 'home.today_invoices'.tr(),
-                  value: stats.todayInvoicesCount,
-                  unit: 'home.invoice_unit'.tr(),
-                  icon: Icons.description_outlined,
-                  accent: const Color(0xffF5A623),
                 ),
               ),
             ],
@@ -385,7 +382,6 @@ class _StatCard extends StatelessWidget {
   final int? percentage;
   final IconData icon;
   final Color accent;
-  final bool isCurrency;
 
   const _StatCard({
     required this.label,
@@ -394,16 +390,7 @@ class _StatCard extends StatelessWidget {
     required this.percentage,
     required this.icon,
     required this.accent,
-  }) : isCurrency = true;
-
-  const _StatCard.count({
-    required this.label,
-    required this.value,
-    required this.unit,
-    required this.icon,
-    required this.accent,
-  })  : percentage = null,
-        isCurrency = false;
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -432,8 +419,8 @@ class _StatCard extends StatelessWidget {
               ),
               SizedBox(width: 4.w),
               Container(
-                width: 22.w,
-                height: 22.w,
+                width: 18.w,
+                height: 18.w,
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
@@ -442,35 +429,12 @@ class _StatCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 6.h),
+          SizedBox(height: 3.h),
           Text(
-            isCurrency
-                ? _formatMoney(value.toDouble())
-                : value.toInt().toString(),
+            _formatMoney(value.toDouble()),
             style: AppTextTheme.caption,
           ),
-          Text(
-            unit,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 9.sp,
-              color: const Color(0xff8A8F99),
-            ),
-          ),
-          if (percentage != null) ...[
-            SizedBox(height: 4.h),
-            Text(
-              '+$percentage% ${'home.vs_yesterday'.tr()}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 9.sp,
-                color: accent,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
+
         ],
       ),
     );

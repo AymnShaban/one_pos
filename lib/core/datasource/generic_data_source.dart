@@ -3,13 +3,17 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import '../helper/logger.dart';
 import '../http/api_consumer.dart';
 import '../http/either.dart';
 import '../http/failure.dart';
-import '../network/encrupt.dart';
 import '../params/pagination_params.dart';
 
+/// Plain-JSON façade over [ApiConsumer]. The Bearer token is injected by the
+/// Dio interceptor in the service locator — this layer only deals in maps
+/// and lists. Server responses are expected to be either a list (for
+/// collection endpoints) or an object (for single-result endpoints). When
+/// the consumer wraps a primitive it lands as `{'data': value}` — both
+/// shapes are handled below.
 class GenericDataSource {
   final ApiConsumer _apiConsumer;
 
@@ -21,7 +25,6 @@ class GenericDataSource {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? data,
     Map<String, dynamic>? headers,
-
     required T Function(Map<String, dynamic>) fromJson,
   }) async {
     final result = await _apiConsumer.get(
@@ -35,12 +38,10 @@ class GenericDataSource {
     );
     return result.fold((left) => Left(left), (right) {
       try {
-        loggerWarn(decrypt(right["data"]));
-        final data = decrypt(right["data"]);
-
-        loggerInfo(data.runtimeType);
-        final items = (jsonDecode(data) as List)
-            .map((e) => fromJson(e))
+        final list = _asList(right);
+        final items = list
+            .whereType<Map>()
+            .map((e) => fromJson(Map<String, dynamic>.from(e)))
             .toList();
         return Right(items);
       } catch (e, stackTrace) {
@@ -70,13 +71,11 @@ class GenericDataSource {
     );
     return result.fold((left) => Left(left), (right) {
       try {
-        loggerWarn(decrypt(right["data"]));
-        final data = decrypt(right["data"]);
-        loggerInfo(data.runtimeType);
         if (T == String) {
-          return Right(data);
+          return Right(right is String ? right as T : jsonEncode(right) as T);
         }
-        return Right(fromJson!(jsonDecode(data)));
+        final map = _asMap(right);
+        return Right(fromJson!(map));
       } catch (e, stackTrace) {
         log(stackTrace.toString(), name: "stacktrace");
         log(e.toString(), name: "error");
@@ -95,7 +94,6 @@ class GenericDataSource {
       endpoint,
       data: data,
       queryParameters: queryParameters,
-      encrypt: true,
       headers: headers,
     );
     return result.fold((left) => Left(left), (right) {
@@ -104,18 +102,20 @@ class GenericDataSource {
           return Right(null as T);
         } else if (T == String) {
           log('right: $right');
-          // A successful create returns the invoice object (it carries an
-          // InvoiceID). Business-rule rejections — e.g. "توجد أصناف ليس لها
-          // كمية في المخزن لم يتم إضافة الفاتورة" — come back as a plain
-          // (non-JSON) message that the api consumer wrapped as
-          // {'message': ...}. Surface those as a failure so the caller does
-          // not mistake them for a created invoice.
-          if (right['InvoiceID'] == null && right['message'] is String) {
-            return Left(ServerFailure(message: right['message'] as String));
+          // Business-rule rejections that come back as a non-JSON string get
+          // wrapped by the consumer as {'data': '<msg>'} or {'message': ...}
+          // — surface those as a failure instead of a fake-success.
+          if (right is Map) {
+            if (right['InvoiceID'] == null && right['message'] is String) {
+              return Left(ServerFailure(message: right['message'] as String));
+            }
           }
           return Right(jsonEncode(right) as T);
         } else if (T == int) {
-          return Right(right['result'] ?? 0 as T);
+          if (right is Map) {
+            return Right((right['result'] ?? 0) as T);
+          }
+          return Right((right is int ? right : 0) as T);
         } else {
           return Right(null as T);
         }
@@ -133,7 +133,6 @@ class GenericDataSource {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
   }) async {
-    // Process the data to handle lists properly
     final processedData = _processFormData(data ?? {});
 
     final result = await _apiConsumer.uploadFile(
@@ -148,10 +147,11 @@ class GenericDataSource {
         if (T == Null) {
           return Right(null as T);
         } else if (T == int) {
-          return Right((right['result'] ?? 0) as T);
+          return Right(((right is Map ? right['result'] : null) ?? 0) as T);
         } else if (T == String) {
           log('right: $right');
-          return Right((right['redirect_url'] ?? "") as T);
+          return Right(
+              ((right is Map ? right['redirect_url'] : null) ?? "") as T);
         } else {
           return Right(null as T);
         }
@@ -173,7 +173,6 @@ class GenericDataSource {
       final value = entry.value;
 
       if (value is File) {
-        // Handle File objects by converting to MultipartFile
         final file = value;
         final fileName = file.path.split('/').last;
         processed[key] = await MultipartFile.fromFile(
@@ -181,11 +180,9 @@ class GenericDataSource {
           filename: fileName,
         );
       } else if (value is List) {
-        // Handle lists
         processed.remove(key);
         for (int i = 0; i < value.length; i++) {
           if (value[i] is File) {
-            // Handle File in list
             final file = value[i] as File;
             final fileName = file.path.split('/').last;
             processed['$key[$i]'] = await MultipartFile.fromFile(
@@ -197,7 +194,6 @@ class GenericDataSource {
           }
         }
       } else if (value is Map) {
-        // Recursively process maps
         try {
           final stringMap = Map<String, dynamic>.from(value);
           processed[key] = await _processFormData(stringMap);
@@ -229,10 +225,11 @@ class GenericDataSource {
         if (T == Null) {
           return Right(null as T);
         } else if (T == int) {
-          return Right(right['id'] ?? 0 as T);
+          return Right(((right is Map ? right['id'] : null) ?? 0) as T);
         } else if (T == String) {
           log('right: $right');
-          return Right(right['redirect_url'] ?? "" as T);
+          return Right(
+              ((right is Map ? right['redirect_url'] : null) ?? "") as T);
         } else {
           return Right(null as T);
         }
@@ -261,10 +258,11 @@ class GenericDataSource {
         if (T == Null) {
           return Right(null as T);
         } else if (T == int) {
-          return Right(right['id'] ?? 0 as T);
+          return Right(((right is Map ? right['id'] : null) ?? 0) as T);
         } else if (T == String) {
           log('right: $right');
-          return Right(right['redirect_url'] ?? "" as T);
+          return Right(
+              ((right is Map ? right['redirect_url'] : null) ?? "") as T);
         } else {
           return Right(null as T);
         }
@@ -293,10 +291,11 @@ class GenericDataSource {
         if (T == Null) {
           return Right(null as T);
         } else if (T == int) {
-          return Right(right['id'] ?? 0 as T);
+          return Right(((right is Map ? right['id'] : null) ?? 0) as T);
         } else if (T == String) {
           log('right: $right');
-          return Right(right['redirect_url'] ?? "" as T);
+          return Right(
+              ((right is Map ? right['redirect_url'] : null) ?? "") as T);
         } else {
           return Right(null as T);
         }
@@ -325,7 +324,8 @@ class GenericDataSource {
           return Right(null as T);
         } else if (T == String) {
           log('right: $right');
-          return Right(right['redirect_url'] ?? "" as T);
+          return Right(
+              ((right is Map ? right['redirect_url'] : null) ?? "") as T);
         } else {
           return Right(null as T);
         }
@@ -335,5 +335,24 @@ class GenericDataSource {
         return Left(ParsingFailure(message: e.toString()));
       }
     });
+  }
+
+  // ── helpers ─────────────────────────────────────────────────────────────
+
+  /// The consumer hands back whatever JSON the server returned, with a tiny
+  /// fallback that wraps primitives as `{'data': value}`. Endpoints that
+  /// return a list end up here as a real `List` (top-level array) or as
+  /// `{'data': [...]}` — handle both shapes.
+  List<dynamic> _asList(dynamic raw) {
+    if (raw is List) return raw;
+    if (raw is Map && raw['data'] is List) return raw['data'] as List;
+    if (raw is Map && raw['result'] is List) return raw['result'] as List;
+    return const [];
+  }
+
+  Map<String, dynamic> _asMap(dynamic raw) {
+    if (raw is Map<String, dynamic>) return raw;
+    if (raw is Map) return Map<String, dynamic>.from(raw);
+    return {'data': raw};
   }
 }
