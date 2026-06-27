@@ -120,37 +120,61 @@ class _CollectionMobileLayoutState extends State<CollectionMobileLayout> {
                           child: _buildLabel(
                             'invoice_collection.branch'.tr(),
                             color: Colors.white,
-                            child: state.branchesStatus == Status.loading
-                                ? _loadingField()
-                                : _buildDropdown<Map<String, dynamic>>(
-                                    value: state.selectedBranch,
-                                    hint: 'invoice_collection.select_branch'
-                                        .tr(),
-                                    items: state.branches
-                                        .map(
-                                          (b) => DropdownMenuItem(
-                                            value: b,
-                                            child: Text(
-                                              isAr
-                                                  ? b['BraName'] ?? ''
-                                                  : b['BraEName'] ?? '',
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
+                            // Branches now live in the shared [BranchBloc] —
+                            // provided by the parent screen's initState.
+                            child: BlocConsumer<BranchBloc, BaseState<BranchModel>>(
+                              listenWhen: (p, c) =>
+                                  p.status != Status.success &&
+                                  c.status == Status.success,
+                              listener: (context, bs) {
+                                // Mirror the auto-selected branch into the
+                                // collection bloc so submit + bond-types
+                                // resolve against it.
+                                final id = context
+                                    .read<BranchBloc>()
+                                    .selectedId;
+                                if (id != 0) {
+                                  context
+                                      .read<InvoiceCollectionBloc>()
+                                      .add(CollectionBranchChanged(id));
+                                }
+                              },
+                              builder: (context, bs) {
+                                if (bs.status == Status.loading) {
+                                  return _loadingField();
+                                }
+                                final branchBloc =
+                                    context.read<BranchBloc>();
+                                return _buildDropdown<BranchModel>(
+                                  value: branchBloc.selectedBranch,
+                                  hint:
+                                      'invoice_collection.select_branch'.tr(),
+                                  items: bs.items
+                                      .map<DropdownMenuItem<BranchModel>>(
+                                        (b) => DropdownMenuItem<BranchModel>(
+                                          value: b,
+                                          child: Text(
+                                            isAr
+                                                ? b.branchArName
+                                                : b.branchEnName,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                        )
-                                        .toList(),
-                                    onChanged: (v) {
-                                      if (v != null) {
-                                        context
-                                            .read<InvoiceCollectionBloc>()
-                                            .add(
-                                              CollectionBranchChanged(
-                                                v['ID'] as int,
-                                              ),
-                                            );
-                                      }
-                                    },
-                                  ),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (v) {
+                                    if (v != null) {
+                                      branchBloc
+                                          .add(SelectBranchById(v.branchId));
+                                      context
+                                          .read<InvoiceCollectionBloc>()
+                                          .add(CollectionBranchChanged(
+                                              v.branchId));
+                                    }
+                                  },
+                                );
+                              },
+                            ),
                           ),
                         ),
                         SizedBox(width: 12.w),

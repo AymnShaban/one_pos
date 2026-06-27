@@ -81,7 +81,9 @@ class _SplashScreenState extends State<SplashScreen> {
         builder: (_) => MultiBlocProvider(
           providers: [
             BlocProvider(
-              create: (_) => getIt<HomeBloc>()..add(const InitHome()),
+              // No ..add(InitHome()) here — HomeTab's initState fires it
+              // when (and only when) the user opens the Home tab.
+              create: (_) => getIt<HomeBloc>(),
             ),
             BlocProvider(
               create: (_) => getIt<NavBloc>(),

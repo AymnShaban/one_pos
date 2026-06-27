@@ -24,31 +24,17 @@ class InvoiceCollectionBloc
     Emitter<InvoiceCollectionState> emit,
   ) async {
     emit(state.copyWith(
-      branchesStatus: Status.loading,
       currenciesStatus: Status.loading,
       payWaysStatus: Status.loading,
       bondTypesStatus: Status.loading,
     ));
 
-    // ── Branches ──────────────────────────────────────────────────────
-    final branchesResult = await _dataSource.getBranches();
-    int firstBranchId = 0;
-    branchesResult.fold(
-      (failure) => emit(state.copyWith(
-        branchesStatus: Status.failure,
-        errorMessage: failure.message,
-      )),
-      (branches) {
-        firstBranchId = branches.isNotEmpty ? (branches.first['ID'] ?? 0) : 0;
-        emit(state.copyWith(
-          branchesStatus: Status.success,
-          branches: branches,
-          selectedBranchId: firstBranchId,
-        ));
-      },
-    );
-    if (firstBranchId != 0) {
-      await _loadBondTypes(firstBranchId, emit);
+    // Branches now come from the shared [BranchBloc] — the screen wires
+    // them in via `CollectionBranchChanged` once a branch is auto-selected.
+    // If the caller already knows the branch (e.g. opens the screen with a
+    // pre-selected one), it can fire `CollectionBranchChanged` itself.
+    if (state.selectedBranchId != 0) {
+      await _loadBondTypes(state.selectedBranchId, emit);
     }
 
     // ── Currencies ────────────────────────────────────────────────────

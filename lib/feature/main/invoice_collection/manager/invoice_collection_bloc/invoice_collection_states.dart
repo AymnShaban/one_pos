@@ -1,15 +1,16 @@
 part of '../../invoice_collection_imports.dart';
 
 
-// ── State ─────────────────────────────────────────────────────────────────────
+/// Branches were extracted into the shared [BranchBloc] — `selectedBranchId`
+/// is still tracked here (the layout pushes it on selection via
+/// [CollectionBranchChanged]) so the submit payload can resolve which
+/// branch the voucher is for.
 class InvoiceCollectionState extends Equatable {
   // Setup data
-  final Status branchesStatus;
   final Status currenciesStatus;
   final Status payWaysStatus;
   final Status bondTypesStatus;
 
-  final List<Map<String, dynamic>> branches;
   final List<Map<String, dynamic>> currencies;
   final List<Map<String, dynamic>> payWays;
   final List<BondTypeModel> bondTypes;
@@ -35,11 +36,9 @@ class InvoiceCollectionState extends Equatable {
   final String? errorMessage;
 
   const InvoiceCollectionState({
-    this.branchesStatus   = Status.initial,
     this.currenciesStatus = Status.initial,
     this.payWaysStatus    = Status.initial,
     this.bondTypesStatus  = Status.initial,
-    this.branches         = const [],
     this.currencies       = const [],
     this.payWays          = const [],
     this.bondTypes        = const [],
@@ -59,12 +58,6 @@ class InvoiceCollectionState extends Equatable {
     this.errorMessage,
   });
 
-  // ── Derived ──
-  Map<String, dynamic>? get selectedBranch =>
-      branches.where((b) => b['ID'] == selectedBranchId).isNotEmpty
-          ? branches.firstWhere((b) => b['ID'] == selectedBranchId)
-          : null;
-
   Map<String, dynamic>? get selectedCurrency =>
       currencies
           .where((c) => c['CurrencyID'] == selectedCurrencyId)
@@ -78,11 +71,9 @@ class InvoiceCollectionState extends Equatable {
           : '0';
 
   InvoiceCollectionState copyWith({
-    Status? branchesStatus,
     Status? currenciesStatus,
     Status? payWaysStatus,
     Status? bondTypesStatus,
-    List<Map<String, dynamic>>? branches,
     List<Map<String, dynamic>>? currencies,
     List<Map<String, dynamic>>? payWays,
     List<BondTypeModel>? bondTypes,
@@ -102,11 +93,9 @@ class InvoiceCollectionState extends Equatable {
     String? errorMessage,
   }) {
     return InvoiceCollectionState(
-      branchesStatus:       branchesStatus       ?? this.branchesStatus,
       currenciesStatus:     currenciesStatus     ?? this.currenciesStatus,
       payWaysStatus:        payWaysStatus        ?? this.payWaysStatus,
       bondTypesStatus:      bondTypesStatus      ?? this.bondTypesStatus,
-      branches:             branches             ?? this.branches,
       currencies:           currencies           ?? this.currencies,
       payWays:              payWays              ?? this.payWays,
       bondTypes:            bondTypes            ?? this.bondTypes,
@@ -129,11 +118,11 @@ class InvoiceCollectionState extends Equatable {
 
   @override
   List<Object?> get props => [
-    branchesStatus, currenciesStatus, payWaysStatus, bondTypesStatus,
-    branches, currencies, payWays, bondTypes,
-    selectedBranchId, selectedCurrencyId, selectedCurrencyRate,
-    selectedCodePw, selectedVoucherType, selectedBankName,
-    invoiceId, invoiceNo, voucherValue, customerName, acId,
-    submitStatus, voucherResponse, errorMessage,
-  ];
+        currenciesStatus, payWaysStatus, bondTypesStatus,
+        currencies, payWays, bondTypes,
+        selectedBranchId, selectedCurrencyId, selectedCurrencyRate,
+        selectedCodePw, selectedVoucherType, selectedBankName,
+        invoiceId, invoiceNo, voucherValue, customerName, acId,
+        submitStatus, voucherResponse, errorMessage,
+      ];
 }

@@ -33,19 +33,6 @@ class LoadPatternsByBranch extends InvoiceSetupEvent {
   List<Object?> get props => [branchId, isPriceQuote];
 }
 
-class SelectBranch extends InvoiceSetupEvent {
-  final int branchId;
-  final bool isPriceQuote;
-
-  const SelectBranch({
-    required this.branchId,
-    this.isPriceQuote = false,
-  });
-
-  @override
-  List<Object?> get props => [branchId, isPriceQuote];
-}
-
 class SelectPattern extends InvoiceSetupEvent {
   final int patternId;
 

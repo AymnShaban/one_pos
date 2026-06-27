@@ -108,7 +108,6 @@ class EndPoints {
       '/api/InvoiceSetting/GetPurchasesTypes';
 
   // Invoice Collection
-  static const String getBranches = '/api/CompanyBranch/GetBranches';
   // Single endpoint that returns every invoice pattern across all categories
   // (purchases / sales / transfers / quotes & orders). Clients filter the
   // result client-side via `InvoicePatternModel.patternType` / `category`.
@@ -120,8 +119,12 @@ class EndPoints {
   static const String getReceiptsVouchersTypesByBranch =
       'api/VoucherSettings/GetReceiptsVouchersTypesByBranchID';
 
+  // Branches list — no query parameters; server resolves the caller from
+  // the Bearer JWT. Response: [{ id, braCode, braName, braEName,
+  // braParent, currencyID, deactivated, codeAndArabicName,
+  // codeAndEnglishName, … }, …].
   static const String getCompanyBranchesByUser =
-      'api/CompanyBranches/GetCompanyBranchesByUserID';
+      '/api/GBranch/GetCompanyBranchesByUserIDV2';
 
   static const String invoiceCollecting = 'api/Voucher/InvoiceCollecting';
   // Invoice picker for the collection screen — three search modes mirror

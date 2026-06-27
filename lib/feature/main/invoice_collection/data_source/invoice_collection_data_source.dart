@@ -4,7 +4,6 @@ abstract interface class InvoiceCollectionDataSource {
   Future<Either<Failure, List<BondTypeModel>>> getBondTypes();
   Future<Either<Failure, List<BondTypeModel>>> getBondTypesByBranch(
       int branchId);
-  Future<Either<Failure, List<Map<String, dynamic>>>> getBranches();
   Future<Either<Failure, List<Map<String, dynamic>>>> getCurrencies();
   Future<Either<Failure, List<Map<String, dynamic>>>> getPayWays();
 
@@ -48,24 +47,6 @@ class InvoiceCollectionDataSourceImpl implements InvoiceCollectionDataSource {
       endpoint: '/${EndPoints.getReceiptsVouchersTypesByBranch}',
       queryParameters: {'BranchID': branchId},
       fromJson: BondTypeModel.fromJson,
-    );
-  }
-
-  @override
-  Future<Either<Failure, List<Map<String, dynamic>>>> getBranches() {
-    // Same per-user query params used by InvoiceSetupBloc — the server
-    // resolves the branch list from these plus the auth header.
-    final hive = HiveServiceImpl.instance;
-    return _generic.fetchData<Map<String, dynamic>>(
-      endpoint: '/${EndPoints.getCompanyBranchesByUser}',
-      queryParameters: {
-        'UserID': hive.getUserId(),
-        'serverName': hive.getIpAddress(),
-        'UserName': hive.getServerUserName(),
-        'UserPassword': hive.getServerPassword(),
-        'DBName': hive.getDatabaseName(),
-      },
-      fromJson: (json) => json,
     );
   }
 

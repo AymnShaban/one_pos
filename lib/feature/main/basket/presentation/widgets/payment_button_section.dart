@@ -21,6 +21,8 @@ class PaymentButtonSection extends StatelessWidget {
               onPressed: () {
                 final basketState = context.read<BasketBloc>().state;
                 final setupState = context.read<InvoiceSetupBloc>().state;
+                final selectedBranch =
+                    context.read<BranchBloc>().selectedBranch;
                 final user = getIt<IUserCache>().getUserModel();
 
                 if (setupState.selectedPattern == null) {
@@ -42,7 +44,7 @@ class PaymentButtonSection extends StatelessWidget {
                   CreateInvoiceFromSales(
                     basketItems:  basketState.items,
                     patternId:    setupState.selectedPattern!.patternId,
-                    branchId:     setupState.selectedBranch?.branchId ?? 1,
+                    branchId:     selectedBranch?.branchId ?? 1,
                     currencyId:   setupState.selectedCurrency!.currencyId,
                     rate:         setupState.selectedCurrency!.rate,
                     totalValue:   total,

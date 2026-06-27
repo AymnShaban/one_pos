@@ -72,6 +72,8 @@ extension CheckoutButtonExt on _BasketPosSummaryState {
   }) {
     final basketState = context.read<BasketBloc>().state;
     final setupState = context.read<InvoiceSetupBloc>().state;
+    // Branch was extracted from InvoiceSetupBloc into the shared BranchBloc.
+    final selectedBranch = context.read<BranchBloc>().selectedBranch;
     final user = getIt<IUserCache>().getUserModel();
 
     if (basketState.items.isEmpty) {
@@ -114,7 +116,7 @@ extension CheckoutButtonExt on _BasketPosSummaryState {
     final request = CreateInvoiceRequest(
       invoicePatternId: setupState.selectedPattern!.patternId,
       invoiceDate: DateFormat('yyyy/MM/dd', 'en_US').format(DateTime.now()),
-      companyBranchId: setupState.selectedBranch?.branchId ?? 1,
+      companyBranchId: selectedBranch?.branchId ?? 1,
       remainder: remaining,
       currencyId: setupState.selectedCurrency!.currencyId,
       currencyRate: setupState.selectedCurrency!.rate,

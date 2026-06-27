@@ -1,38 +1,14 @@
 part of '../../sales_imports.dart';
 
 /// Compact single-row selector bar for the sales tab:
-/// Pattern | Currency | Branch, backed by [InvoiceSetupBloc].
+/// Pattern | Currency | Branch.
 ///
-/// On mount we kick `LoadInvoiceSetupData` so the shared
-/// `/api/InvoiceSetting/GetAllTypes` is hit once — the bloc then fans out
-/// to currencies / branches and (auto-selected branch in hand) fires
-/// `LoadPatternsByBranch` to populate the pattern dropdown. We only fire
-/// the load if the bloc hasn't already produced patterns; this lets other
-/// screens (new-invoice / invoice-collection) reuse the same bloc instance
-/// without doubling the network call.
-///
-/// Changing the branch reloads its patterns (handled by [InvoiceSetupBloc])
-/// and re-fetches the product list for the active category via [SalesBloc].
-class SalesSetupBar extends StatefulWidget {
+/// Pattern + Currency come from [InvoiceSetupBloc]; Branch comes from the
+/// dedicated [BranchBloc]. Both blocs (and their loads) are wired by
+/// [SalesTab]'s provider stack — this widget is purely presentational and
+/// stateless.
+class SalesSetupBar extends StatelessWidget {
   const SalesSetupBar({super.key});
-
-  @override
-  State<SalesSetupBar> createState() => _SalesSetupBarState();
-}
-
-class _SalesSetupBarState extends State<SalesSetupBar> {
-  @override
-  void initState() {
-    super.initState();
-    final bloc = context.read<InvoiceSetupBloc>();
-    final s = bloc.state;
-    final notLoadedYet = s.patternsStatus != Status.loading &&
-        s.patternsStatus != Status.success &&
-        s.patterns.isEmpty;
-    if (notLoadedYet) {
-      bloc.add(const LoadInvoiceSetupData(branchId: 0));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,41 +101,45 @@ class _SalesSetupBarState extends State<SalesSetupBar> {
 
               // ── Branch ───────────────────────────────────────────────────
               Expanded(
-                child: _SalesSelector(
-                  label: 'new_invoice.branch'.tr(),
-                  status: state.branchesStatus,
-                  isEmpty: state.branches.isEmpty,
-                  onRetry: () => context
-                      .read<InvoiceSetupBloc>()
-                      .add(const LoadInvoiceSetupData(branchId: 0)),
-                  child: _dropdown<BranchModel>(
-                    value: state.selectedBranch,
-                    hint: 'new_invoice.branch'.tr(),
-                    items: state.branches
-                        .map(
-                          (b) => DropdownMenuItem(
-                            value: b,
-                            child: Text(
-                              isAr ? b.branchArName : b.branchEnName,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextTheme.caption
-                                  .copyWith(color: AppColors.black),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (b) {
-                      if (b != null) {
-                        context
-                            .read<InvoiceSetupBloc>()
-                            .add(SelectBranch(branchId: b.branchId));
-                        // Reload the product list for the newly selected branch.
-                        context
-                            .read<SalesBloc>()
-                            .add(const ReloadProducts());
-                      }
-                    },
-                  ),
+                child: BlocBuilder<BranchBloc, BaseState<BranchModel>>(
+                  builder: (context, bs) {
+                    final branchBloc = context.read<BranchBloc>();
+                    return _SalesSelector(
+                      label: 'new_invoice.branch'.tr(),
+                      status: bs.status,
+                      isEmpty: bs.items.isEmpty,
+                      onRetry: () => branchBloc.add(const LoadBranches()),
+                      child: _dropdown<BranchModel>(
+                        value: branchBloc.selectedBranch,
+                        hint: 'new_invoice.branch'.tr(),
+                        items: bs.items
+                            .map<DropdownMenuItem<BranchModel>>(
+                              (b) => DropdownMenuItem<BranchModel>(
+                                value: b,
+                                child: Text(
+                                  isAr ? b.branchArName : b.branchEnName,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextTheme.caption
+                                      .copyWith(color: AppColors.black),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (b) {
+                          if (b != null) {
+                            branchBloc.add(SelectBranchById(b.branchId));
+                            // Reload patterns for the freshly-selected branch
+                            // (BranchBloc no longer owns pattern loading).
+                            context.read<InvoiceSetupBloc>().add(
+                                  LoadPatternsByBranch(branchId: b.branchId),
+                                );
+                            // Reload products for the new branch context.
+                            context.read<SalesBloc>().add(const ReloadProducts());
+                          }
+                        },
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

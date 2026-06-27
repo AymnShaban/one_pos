@@ -97,42 +97,49 @@ class InvoiceHeaderFields extends StatelessWidget {
               // ── Row 2: Branch + Currency ─────────────────────────────────
               Row(
                 children: [
-                  // Branch dropdown
+                  // Branch dropdown — sourced from the shared [BranchBloc].
                   Expanded(
                     child: _LabeledField(
                       label: 'new_invoice.branch'.tr(),
-                      child: colState.branchesStatus == Status.loading
-                          ? _LoadingField()
-                          : _StyledDropdown<BranchModel>(
-                        value: colState.selectedBranch,
-                        hint: 'new_invoice.select_branch'.tr(),
-                        items: colState.branches
-                            .map(
-                              (b) => DropdownMenuItem(
-                            value: b,
-                            child: Text(
-                              isAr
-                                  ? b.branchArName
-                                  : b.branchEnName,
-                              style: AppTextTheme.caption
-                                  .copyWith(color: AppColors.black),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        )
-                            .toList(),
-                        onChanged: (b) {
-                          if (b != null) {
-                            context
-                                .read<InvoiceSetupBloc>()
-                                .add(SelectBranch(
-                              branchId:     b.branchId,
-                              isPriceQuote: isPriceQuote,
-                            ));
-                            context
-                                .read<NewInvoiceBloc>()
-                                .add(UpdateBranchId(b.branchId));
+                      child: BlocBuilder<BranchBloc, BaseState<BranchModel>>(
+                        builder: (context, bs) {
+                          if (bs.status == Status.loading) {
+                            return _LoadingField();
                           }
+                          final branchBloc = context.read<BranchBloc>();
+                          return _StyledDropdown<BranchModel>(
+                            value: branchBloc.selectedBranch,
+                            hint: 'new_invoice.select_branch'.tr(),
+                            items: bs.items
+                                .map<DropdownMenuItem<BranchModel>>(
+                                  (b) => DropdownMenuItem<BranchModel>(
+                                    value: b,
+                                    child: Text(
+                                      isAr ? b.branchArName : b.branchEnName,
+                                      style: AppTextTheme.caption.copyWith(
+                                          color: AppColors.black),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (b) {
+                              if (b != null) {
+                                branchBloc.add(SelectBranchById(b.branchId));
+                                // Branch change → reload patterns for that
+                                // branch (BranchBloc no longer owns it).
+                                context.read<InvoiceSetupBloc>().add(
+                                      LoadPatternsByBranch(
+                                        branchId: b.branchId,
+                                        isPriceQuote: isPriceQuote,
+                                      ),
+                                    );
+                                context
+                                    .read<NewInvoiceBloc>()
+                                    .add(UpdateBranchId(b.branchId));
+                              }
+                            },
+                          );
                         },
                       ),
                     ),

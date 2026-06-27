@@ -7,8 +7,25 @@ part of '../../home_imports.dart';
 /// either switch the bottom-nav tab (Live Sales / Reports) or push a
 /// dedicated feature route (Stock Taking) — anything not yet built lands
 /// on the shared [UnderConstructionScreen].
-class HomeTab extends StatelessWidget {
+class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
+
+  @override
+  State<HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<HomeTab> {
+  @override
+  void initState() {
+    super.initState();
+    // Lazy-load the dashboard only when this tab actually mounts —
+    // navigating to Settings (or any other tab) on launch should not
+    // trigger any network calls.
+    final bloc = context.read<HomeBloc>();
+    if (bloc.state.status != Status.success) {
+      bloc.add(const InitHome());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,8 +1,8 @@
 part of '../../invoice_setup_imports.dart';
 
-// ── State ─────────────────────────────────────────────────────────────────────
-
-// ── Bloc ──────────────────────────────────────────────────────────────────────
+/// Currencies + patterns + selection. Branches live in [BranchBloc] now —
+/// callers pass the active branchId in (typically from
+/// `context.read<BranchBloc>().selectedId`) when loading patterns.
 class InvoiceSetupBloc extends Bloc<InvoiceSetupEvent, InvoiceSetupState> {
   final InvoiceSetupDataSource _dataSource;
 
@@ -11,88 +11,60 @@ class InvoiceSetupBloc extends Bloc<InvoiceSetupEvent, InvoiceSetupState> {
         super(const InvoiceSetupState()) {
     on<LoadInvoiceSetupData>(_onLoadAll);
     on<LoadPatternsByBranch>(_onLoadPatterns);
-    on<SelectBranch>(_onSelectBranch);
     on<SelectPattern>(_onSelectPattern);
     on<SelectCurrency>(_onSelectCurrency);
   }
 
-  // ── Load all (branches + currencies in parallel, then patterns) ────────────
+  /// Load currencies. If a real `branchId` is supplied, also fire a
+  /// patterns load — but callers that don't yet know the branch can pass
+  /// `branchId: 0` and dispatch [LoadPatternsByBranch] later (e.g. after
+  /// listening to [BranchBloc] for the auto-selection).
   Future<void> _onLoadAll(
-      LoadInvoiceSetupData event,
-      Emitter<InvoiceSetupState> emit,
-      ) async {
-    emit(state.copyWith(
-      branchesStatus:   Status.loading,
-      currenciesStatus: Status.loading,
-    ));
+    LoadInvoiceSetupData event,
+    Emitter<InvoiceSetupState> emit,
+  ) async {
+    emit(state.copyWith(currenciesStatus: Status.loading));
 
-    // ── Run separately to preserve generic types ──────────────────────────────
-    final branchResult   = await _dataSource.getBranches();
     final currencyResult = await _dataSource.getCurrencies();
-
-    // ── Handle branches ───────────────────────────────────────────────────────
-    int autoSelectedBranchId = state.selectedBranchId;
-
-    branchResult.fold(
-          (failure) => emit(state.copyWith(
-        branchesStatus: Status.failure,
-        errorMessage:   failure.message,
-      )),
-          (branches) {
-        autoSelectedBranchId =
-        branches.isNotEmpty ? branches.first.branchId : 0;
-        emit(state.copyWith(
-          branchesStatus:   Status.success,
-          branches:         branches,
-          selectedBranchId: autoSelectedBranchId,
-        ));
-      },
-    );
-
-    // ── Handle currencies ─────────────────────────────────────────────────────
     currencyResult.fold(
-          (failure) => emit(state.copyWith(
+      (failure) => emit(state.copyWith(
         currenciesStatus: Status.failure,
-        errorMessage:     failure.message,
+        errorMessage: failure.message,
       )),
-          (currencies) {
-        final defaultCurrency =
-        currencies.where((c) => c.isDefault).isNotEmpty
+      (currencies) {
+        final defaultCurrency = currencies.where((c) => c.isDefault).isNotEmpty
             ? currencies.firstWhere((c) => c.isDefault)
             : currencies.isNotEmpty
-            ? currencies.first
-            : null;
+                ? currencies.first
+                : null;
         emit(state.copyWith(
-          currenciesStatus:     Status.success,
-          currencies:           currencies,
-          selectedCurrencyId:   defaultCurrency?.currencyId ?? 0,
-          selectedCurrencyRate: defaultCurrency?.rate       ?? 1.0,
+          currenciesStatus: Status.success,
+          currencies: currencies,
+          selectedCurrencyId: defaultCurrency?.currencyId ?? 0,
+          selectedCurrencyRate: defaultCurrency?.rate ?? 1.0,
         ));
       },
     );
 
-    // ── Load patterns for auto-selected branch ────────────────────────────────
-    if (autoSelectedBranchId != 0) {
+    if (event.branchId != 0) {
       add(LoadPatternsByBranch(
-        branchId:     autoSelectedBranchId,
+        branchId: event.branchId,
         isPriceQuote: event.isPriceQuote,
       ));
     }
   }
 
-  // ── Load patterns for a branch ─────────────────────────────────────────────
   Future<void> _onLoadPatterns(
-      LoadPatternsByBranch event,
-      Emitter<InvoiceSetupState> emit,
-      ) async {
+    LoadPatternsByBranch event,
+    Emitter<InvoiceSetupState> emit,
+  ) async {
     emit(state.copyWith(
-      patternsStatus:  Status.loading,
-      patterns:        [],
+      patternsStatus: Status.loading,
+      patterns: [],
       selectedPatternId: -1,
     ));
 
     final result = await _dataSource.getAllPatterns();
-
     result.fold(
       (failure) => emit(state.copyWith(
         patternsStatus: Status.failure,
@@ -100,9 +72,9 @@ class InvoiceSetupBloc extends Bloc<InvoiceSetupEvent, InvoiceSetupState> {
       )),
       (all) {
         // Server returns every pattern across categories — narrow to the
-        // ones that belong to this branch (or have no branch attached, i.e.
-        // global patterns like "تسوية جردية") and match the requested mode
-        // (quotes/orders vs. real invoices).
+        // ones that belong to this branch (or have no branch attached,
+        // i.e. global patterns like "تسوية جردية") and match the requested
+        // mode (quotes/orders vs. real invoices).
         final patterns = all.where((p) {
           final branchOk = p.branchId == null || p.branchId == event.branchId;
           final modeOk = event.isPriceQuote ? p.isPriceQuote : !p.isPriceQuote;
@@ -120,33 +92,19 @@ class InvoiceSetupBloc extends Bloc<InvoiceSetupEvent, InvoiceSetupState> {
     );
   }
 
-  // ── Select branch → reload patterns ───────────────────────────────────────
-  Future<void> _onSelectBranch(
-      SelectBranch event,
-      Emitter<InvoiceSetupState> emit,
-      ) async {
-    emit(state.copyWith(selectedBranchId: event.branchId));
-    add(LoadPatternsByBranch(
-      branchId:     event.branchId,
-      isPriceQuote: event.isPriceQuote,
-    ));
-  }
-
-  // ── Select pattern ─────────────────────────────────────────────────────────
   void _onSelectPattern(
-      SelectPattern event,
-      Emitter<InvoiceSetupState> emit,
-      ) {
+    SelectPattern event,
+    Emitter<InvoiceSetupState> emit,
+  ) {
     emit(state.copyWith(selectedPatternId: event.patternId));
   }
 
-  // ── Select currency ────────────────────────────────────────────────────────
   void _onSelectCurrency(
-      SelectCurrency event,
-      Emitter<InvoiceSetupState> emit,
-      ) {
+    SelectCurrency event,
+    Emitter<InvoiceSetupState> emit,
+  ) {
     emit(state.copyWith(
-      selectedCurrencyId:   event.currencyId,
+      selectedCurrencyId: event.currencyId,
       selectedCurrencyRate: event.rate,
     ));
   }

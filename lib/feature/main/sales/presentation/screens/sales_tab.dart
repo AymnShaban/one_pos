@@ -18,15 +18,38 @@ class _SalesTabState extends State<SalesTab> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<InvoiceSetupBloc>(
-      create: (_) => getIt<InvoiceSetupBloc>()
-        ..add(const LoadInvoiceSetupData(branchId: 0)),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<BranchBloc>(
+          create: (_) => getIt<BranchBloc>()..add(const LoadBranches()),
+        ),
+        BlocProvider<InvoiceSetupBloc>(
+          // branchId:0 → loads currencies only. Patterns are kicked off
+          // once BranchBloc emits success with an auto-selected branch
+          // (see the BlocListener<BranchBloc> below).
+          create: (_) => getIt<InvoiceSetupBloc>()
+            ..add(const LoadInvoiceSetupData(branchId: 0)),
+        ),
+      ],
       child: ProductListWrapper(
         child: Scaffold(
         backgroundColor:  AppColors.white,
         bottomNavigationBar: const BasketBottomBar(),
         body: MultiBlocListener(
           listeners: [
+            // Branches arrived → load patterns for the auto-selected branch
+            BlocListener<BranchBloc, BaseState<BranchModel>>(
+              listenWhen: (p, c) =>
+                  p.status != Status.success && c.status == Status.success,
+              listener: (context, _) {
+                final id = context.read<BranchBloc>().selectedId;
+                if (id != 0) {
+                  context
+                      .read<InvoiceSetupBloc>()
+                      .add(LoadPatternsByBranch(branchId: id));
+                }
+              },
+            ),
             // Main category selection → fetch its sub-categories
             BlocListener<MainCategoryBloc, BaseState<MainCategoryModel>>(
               listenWhen: (prev, curr) =>

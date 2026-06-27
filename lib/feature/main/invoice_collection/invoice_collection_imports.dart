@@ -9,6 +9,8 @@ import '../../../core/widgets/custom_snack_bar.dart';
 import '../basket/basket_imports.dart' show
     CustomerAccountModel,
     CustomerSearchDialog;
+import '../invoice_setup/invoice_setup_imports.dart'
+    show BranchBloc, BranchModel, LoadBranches, SelectBranchById;
 
 // Models
 part 'models/bond_type_model.dart';
