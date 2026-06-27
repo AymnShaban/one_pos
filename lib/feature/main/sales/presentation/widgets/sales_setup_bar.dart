@@ -3,10 +3,36 @@ part of '../../sales_imports.dart';
 /// Compact single-row selector bar for the sales tab:
 /// Pattern | Currency | Branch, backed by [InvoiceSetupBloc].
 ///
+/// On mount we kick `LoadInvoiceSetupData` so the shared
+/// `/api/InvoiceSetting/GetAllTypes` is hit once — the bloc then fans out
+/// to currencies / branches and (auto-selected branch in hand) fires
+/// `LoadPatternsByBranch` to populate the pattern dropdown. We only fire
+/// the load if the bloc hasn't already produced patterns; this lets other
+/// screens (new-invoice / invoice-collection) reuse the same bloc instance
+/// without doubling the network call.
+///
 /// Changing the branch reloads its patterns (handled by [InvoiceSetupBloc])
 /// and re-fetches the product list for the active category via [SalesBloc].
-class SalesSetupBar extends StatelessWidget {
+class SalesSetupBar extends StatefulWidget {
   const SalesSetupBar({super.key});
+
+  @override
+  State<SalesSetupBar> createState() => _SalesSetupBarState();
+}
+
+class _SalesSetupBarState extends State<SalesSetupBar> {
+  @override
+  void initState() {
+    super.initState();
+    final bloc = context.read<InvoiceSetupBloc>();
+    final s = bloc.state;
+    final notLoadedYet = s.patternsStatus != Status.loading &&
+        s.patternsStatus != Status.success &&
+        s.patterns.isEmpty;
+    if (notLoadedYet) {
+      bloc.add(const LoadInvoiceSetupData(branchId: 0));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

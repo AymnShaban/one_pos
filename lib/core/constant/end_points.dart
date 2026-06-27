@@ -109,7 +109,10 @@ class EndPoints {
 
   // Invoice Collection
   static const String getBranches = '/api/CompanyBranch/GetBranches';
-  static const String getInvoicePatterns = '/api/InvoiceSetting/GetSalesTypes';
+  // Single endpoint that returns every invoice pattern across all categories
+  // (purchases / sales / transfers / quotes & orders). Clients filter the
+  // result client-side via `InvoicePatternModel.patternType` / `category`.
+  static const String getInvoicePatterns = '/api/InvoiceSetting/GetAllTypes';
   static const String getQuotePatterns = '/api/InvoicePattern/GetQuoteByBranch';
   static const String getCurrencies = '/api/Currency/GetCurrencies';
  // [{"CurrencyID":1,"CurrencyName":"دينار كويتي","CurrencyEName":"Kuwait Dinar","PartName":"فلس","PartEName":"Fils","PartPrecition":1000,"Rate":1.0,"CurrencySymbol":"د.ك.","TotCurrencyName":"دنانير","TotCurrencyEName":"Dinars","TotPartName":"فلسات","TotPartEName":"Fils","PricesDigits":"0.000"}]

@@ -10,6 +10,7 @@ import 'core/services/service_locator/services_imports.dart';
 import 'core/theme/light_theme.dart';
 import 'core/widgets/custom_language.dart';
 import 'feature/auth/bloc/log_in_bloc/log_in_bloc.dart';
+import 'feature/main/home/home_imports.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,7 +64,18 @@ class MyApp extends StatelessWidget {
           home:                    BlocProvider(
               create: (_) => getIt<LoginBloc>(),
 
-              child: LoginScreen()));
+              child:  MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (_) =>
+                        getIt<HomeBloc>(),
+                  ),
+                  BlocProvider(
+                    create: (_) => getIt<NavBloc>(),
+                  ),
+                ],
+                child: const MainScreen(),
+              )));
 
       },
     );
