@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   providers: [
                     BlocProvider(
                       create: (_) =>
-                      getIt<HomeBloc>()..add(const InitHome()),
+                      getIt<HomeBloc>(),
                     ),
                     BlocProvider(
                       create: (_) => getIt<NavBloc>(),

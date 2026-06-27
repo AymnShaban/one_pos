@@ -12,7 +12,7 @@ part of '../../home_imports.dart';
 /// Tabs share state via `IndexedStack`, so popping back into a tab restores
 /// it instead of rebuilding. Order is *logical* — Directionality.rtl
 /// renders Home rightmost on Arabic locales, which matches the design.
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
   static final List<Widget> _screens = [
@@ -34,7 +34,10 @@ class MainScreen extends StatelessWidget {
     const UnderConstructionScreen(),
 
     // 3 — Reports
-    BlocProvider(create: (_) => getIt<ReportsBloc>(), child: const ReportsTab()),
+    BlocProvider(
+      create: (_) => getIt<ReportsBloc>(),
+      child: const ReportsTab(),
+    ),
 
     // 4 — More (not built yet)
     const UnderConstructionScreen(),
@@ -47,11 +50,25 @@ class MainScreen extends StatelessWidget {
   ];
 
   @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<HomeBloc>().add(const InitHome());
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<NavBloc, NavState>(
       builder: (context, state) {
         return Scaffold(
-          body: IndexedStack(index: state.currentIndex, children: _screens),
+          body: IndexedStack(
+            index: state.currentIndex,
+            children: MainScreen._screens,
+          ),
           bottomNavigationBar: _BottomNavBar(currentIndex: state.currentIndex),
         );
       },
@@ -91,8 +108,13 @@ class _BottomNavBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _item(context, 0, Icons.home_outlined, Icons.home_rounded,
-                  'nav_home'.tr()),
+              _item(
+                context,
+                0,
+                Icons.home_outlined,
+                Icons.home_rounded,
+                'nav_home'.tr(),
+              ),
               _liveItem(context),
               _item(
                 context,
@@ -101,12 +123,27 @@ class _BottomNavBar extends StatelessWidget {
                 Icons.account_balance_wallet_rounded,
                 'nav_accounts'.tr(),
               ),
-              _item(context, 3, Icons.bar_chart_outlined,
-                  Icons.bar_chart_rounded, 'nav_reports'.tr()),
-              _item(context, 4, Icons.apps_outlined, Icons.apps_rounded,
-                  'nav_more'.tr()),
-              _item(context, 5, Icons.settings_outlined,
-                  Icons.settings_rounded, 'nav_settings'.tr()),
+              _item(
+                context,
+                3,
+                Icons.bar_chart_outlined,
+                Icons.bar_chart_rounded,
+                'nav_reports'.tr(),
+              ),
+              _item(
+                context,
+                4,
+                Icons.apps_outlined,
+                Icons.apps_rounded,
+                'nav_more'.tr(),
+              ),
+              _item(
+                context,
+                5,
+                Icons.settings_outlined,
+                Icons.settings_rounded,
+                'nav_settings'.tr(),
+              ),
             ],
           ),
         ),

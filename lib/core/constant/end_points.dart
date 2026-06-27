@@ -8,11 +8,13 @@ class EndPoints {
   // getIt<HiveServiceImpl>().getBaseUrl()??
   static const String logIn = '/api/Auth/login';
 
+  // Home dashboard — sales/expenses totals + daily/monthly series.
+  static const String getDashboardBalances = '/api/Dashboard/balances';
+
 
   // ── Existing endpoints ────────────────────────────────
   static const String register = "/api/Customer/AddCustomer";
-  static const String getAllCustomersByName =
-      '/api/Accounts/GetAllCustomersAccountByName';
+  static const String getAllCustomersByName = '/api/Accounts/GetAllCustomersAccountByName';
 
 
   static String productDetails = "/api/Product/GetProductById";
