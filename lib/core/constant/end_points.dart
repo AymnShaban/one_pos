@@ -11,6 +11,11 @@ class EndPoints {
   // Home dashboard — sales/expenses totals + daily/monthly series.
   static const String getDashboardBalances = '/api/Dashboard/balances';
 
+  // Live Sales report — POST with the body shape in
+  // [SalesMovementsReportRequest]; returns one or more pages with sums +
+  // line rows. Used by the "المبيعات الحية" screen.
+  static const String salesMovementsReport = '/api/SalMov1Reports';
+
 
   // ── Existing endpoints ────────────────────────────────
   static const String register = "/api/Customer/AddCustomer";

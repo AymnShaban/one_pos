@@ -10,6 +10,8 @@ import '../../../core/widgets/under_construction_screen.dart';
 import '../../barren/presentation/cubit/invoice_cubit.dart';
 import '../../barren/presentation/screens/home_screen.dart'
     show BarrenStockTakingScreen;
+import '../live_sales_report/live_sales_report_imports.dart'
+    show LiveSalesReportScreen;
 import '../reports/reports_imports.dart';
 import '../sales/sales_imports.dart';
 

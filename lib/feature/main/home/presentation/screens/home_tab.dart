@@ -144,8 +144,12 @@ class _HomeTabState extends State<HomeTab> {
         icon: Icons.wifi_tethering_rounded,
         color: const Color(0xffE74C3C),
         highlight: true,
-        onTap: () =>
-            context.read<NavBloc>().add(const ChangeNavTab(1)), // Live Sales
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const LiveSalesReportScreen(),
+          ),
+        ),
       ),
       _ReportCard(
         title: 'home.branches_analysis'.tr(),

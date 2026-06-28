@@ -304,6 +304,31 @@
   },
 
 
+  "live_sales_report": {
+    "title":                       "Live Sales",
+    "branches":                    "Branches",
+    "all":                         "All",
+    "report_options":              "Report Options",
+    "show_by_seller":              "Show by Seller",
+    "show_weight":                 "Show Weight",
+    "show_in_branch_currency":     "Show invoices in branch currency",
+    "from_date":                   "From date",
+    "to_date":                     "To date",
+    "preview":                     "Preview",
+    "no_results":                  "No data for the selected filters",
+    "qty":                         "Qty",
+    "value":                       "Value",
+    "invoice_no":                  "Invoice No",
+    "payment_methods":             "Payment Methods",
+    "sum_profit":                  "Profit",
+    "sum_final_value":             "Final Value",
+    "sum_cost":                    "Cost",
+    "sum_profit_ratio":            "Profit %",
+    "sum_qty":                     "Total Qty",
+    "sum_cost_ratio":              "Cost %",
+    "select_at_least_one_branch":  "Select at least one branch"
+  },
+
   "invoice_collection": {
     "title":              "Invoice Collection",
     "branch":             "Branch",
