@@ -883,60 +883,96 @@ class _BranchPie extends StatelessWidget {
 class _WeeklyTrend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // 7-day mock — replace with real series when a chart library lands.
-    final values = [4.5, 8.5, 11.2, 6.8, 11.0, 7.0, 12.0];
-    final max = values.reduce((a, b) => a > b ? a : b);
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    // Real 7-day series sliced from the dashboard balances' 30-day
+    // `dailySales` array. We rebuild whenever HomeBloc emits — the bloc
+    // caches the full DashboardBalancesModel on `balances` after a
+    // successful `InitHome`.
+    return BlocBuilder<HomeBloc, BaseState<HomeStatsModel>>(
+      builder: (context, _) {
+        final all = context.read<HomeBloc>().balances?.dailySales ?? const [];
+        final today = DateTime.now().day;
+        // Trailing 7 days ending at "today" — entries are already sorted
+        // ascending by `day` (server returns 1..30). Guarding with `>= 1`
+        // avoids underflow early in the month (e.g. today == 3 → days 1..3).
+        final lowerBound = today - 6;
+        final window = all
+            .where((e) => e.day >= lowerBound && e.day <= today)
+            .toList();
+
+        final max = window.fold<double>(
+          0,
+          (m, e) => e.total > m ? e.total : m,
+        );
+
+        return Container(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'home.weekly_sales'.tr(),
-            maxLines: 2,
-            style: TextStyle(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xff1A1A1A),
-            ),
-          ),
-          SizedBox(height: 12.h),
-          SizedBox(
-            height: 90.h,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: List.generate(values.length, (i) {
-                final v = values[i];
-                return Expanded(
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
-                    child: Container(
-                      height: (v / max) * 80.h,
-                      decoration: BoxDecoration(
-                        color: const Color(0xff3B5BDB)
-                            .withValues(alpha: 0.5 + (v / max) * 0.5),
-                        borderRadius: BorderRadius.circular(4.r),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'home.weekly_sales'.tr(),
+                maxLines: 2,
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xff1A1A1A),
+                ),
+              ),
+              SizedBox(height: 12.h),
+              SizedBox(
+                height: 90.h,
+                child: window.isEmpty
+                    ? const SizedBox.shrink()
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: window.map((e) {
+                          final ratio = max == 0 ? 0.0 : e.total / max;
+                          return Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 1.5.w, vertical: 1.5.h),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Container(
+                                    height: ratio * 70.h,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xff3B5BDB)
+                                          .withValues(alpha: 0.5 + ratio * 0.5),
+                                      borderRadius: BorderRadius.circular(4.r),
+                                    ),
+                                  ),
+                                  SizedBox(height: 4.h),
+                                  Text(
+                                    '${e.day}',
+                                    style: TextStyle(
+                                      fontSize: 8.sp,
+                                      color: const Color(0xff8A8F99),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
-                    ),
-                  ),
-                );
-              }),
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

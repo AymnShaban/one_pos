@@ -199,8 +199,12 @@ void _showLogoutDialog(BuildContext context) {
                   elevation: 0,
                 ),
                 onPressed: () {
-                  Navigator.pop(context);
-                  context.read<SettingsBloc>().add(const LogoutRequested());
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (_) => BlocProvider(
+                        create: (_) => getIt<LoginBloc>(),
+                        child: const LoginScreen(),
+                      )));
+
                 },
                 child: Text(
                   'common.confirm'.tr(),

@@ -212,6 +212,8 @@
     "online": "Connected",
     "offline": "Disconnected",
     "last_login": "Last Login",
+    "role_admin": "System Administrator",
+    "role_user": "User",
     "app_description": "Modern retail management system",
     "copyright": "© 2026 All Rights Reserved",
     "logout": "Logout"

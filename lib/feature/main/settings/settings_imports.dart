@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../core/helper/helper.dart';
+import '../../../core/services/service_locator/services_imports.dart';
+import '../../auth/bloc/log_in_bloc/log_in_bloc.dart';
+import '../../auth/presentation/screens/login_screen.dart';
 import '../home/home_imports.dart';
 import '../home/presentation/widgets/home_app_bar.dart';
 part 'presentation/widgets/settings_section.dart';
