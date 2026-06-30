@@ -209,6 +209,15 @@ class _HomeTabState extends State<HomeTab> {
         onTap: () =>
             context.read<NavBloc>().add(const ChangeNavTab(3)), // Reports
       ),
+      // pos item
+      _ReportCard(
+        title: 'home.pos'.tr(),
+        subtitle: 'home.pos_subtitle'.tr(),
+        icon: Icons.point_of_sale_rounded,
+        color: const Color(0xff20C997),
+        onTap: () =>
+            context.read<NavBloc>().add(const ChangeNavTab(1)), // Sales
+      ),
     ];
   }
 }

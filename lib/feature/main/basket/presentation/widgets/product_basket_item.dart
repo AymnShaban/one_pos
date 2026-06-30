@@ -251,7 +251,16 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
                   ),
                   _editableCell(
                     flex: 2,
-                    value: item.price.toStringAsFixed(2),
+                    // priceAfterDiscount can mean two different things:
+                    //   • pad >  price → "second unit price" (higher than
+                    //     the base) — display that as the effective price
+                    //   • pad <  price → a real discount — display the base
+                    //     price; discount-% column shows the percentage
+                    //   • pad == price → no-op, display base
+                    //   • pad == 0     → no override, display base
+                    // _effectivePrice collapses those four into the right
+                    // value to render.
+                    value: _effectivePrice.toStringAsFixed(2),
                     onChanged: _onPriceChanged,
                   ),
                   _cell(item.totalSplitPrice.toStringAsFixed(3), flex: 2),
@@ -273,6 +282,15 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
     final pad = widget.item.priceAfterDiscount;
     return (price > 0 && pad > 0 && pad < price) ? (1 - pad / price) * 100 : 0;
   }
+
+  /// True when [ItemModel.priceAfterDiscount] is being used as a "second
+  /// unit price" — i.e. it's strictly greater than the base [ItemModel.price].
+  bool get _isSecondUnitPrice =>
+      widget.item.priceAfterDiscount > widget.item.price;
+
+  /// Price to display in the price cell — see the rule table inline.
+  double get _effectivePrice =>
+      _isSecondUnitPrice ? widget.item.priceAfterDiscount : widget.item.price;
 
   /// Show whole numbers plainly (3) and cap fractions at two decimals
   /// (35.7133 → 35.71, 2.5 → 2.5) — no trailing zeros.
@@ -308,7 +326,16 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
   void _onPriceChanged(String value) {
     final p = double.tryParse(value.trim());
     if (p == null || p <= 0) return;
-    // Keep the current discount % when the unit price changes.
+    // In second-unit mode the cell shows priceAfterDiscount, so the user's
+    // edit lands there — keep the base price untouched. If the new value
+    // drops to/below the base, fall through to the normal branch below so
+    // the line stops being "second unit" and starts being either a real
+    // discount or a no-op.
+    if (_isSecondUnitPrice && p > widget.item.price) {
+      _dispatchEdit(widget.item.copyWith(priceAfterDiscount: p));
+      return;
+    }
+    // Normal branch: editing the base price, keep current discount %.
     final d = _currentDiscountPercent;
     final pad = d <= 0 ? p : p * (1 - d / 100);
     _dispatchEdit(widget.item.copyWith(price: p, priceAfterDiscount: pad));

@@ -85,7 +85,6 @@ class _BottomNavBar extends StatelessWidget {
   const _BottomNavBar({required this.currentIndex});
 
   static const _accent = Color(0xff3B5BDB);
-  static const _liveAccent = Color(0xffE74C3C);
   static const _muted = Color(0xff8A8F99);
 
   @override
@@ -115,7 +114,13 @@ class _BottomNavBar extends StatelessWidget {
                 Icons.home_rounded,
                 'nav_home'.tr(),
               ),
-              _liveItem(context),
+              _item(
+                context,
+                1,
+                Icons.sell_outlined,
+                Icons.sell_rounded,
+                'home.pos'.tr(),
+              ),
               _item(
                 context,
                 2,
@@ -188,53 +193,4 @@ class _BottomNavBar extends StatelessWidget {
     );
   }
 
-  /// The prominent center tab — Live Sales. A red ring + raised treatment
-  /// matches the design's "primary action" emphasis.
-  Widget _liveItem(BuildContext context) {
-    final selected = currentIndex == 1;
-    return Expanded(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12.r),
-        onTap: () => context.read<NavBloc>().add(const ChangeNavTab(1)),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 4.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40.w,
-                height: 40.w,
-                decoration: BoxDecoration(
-                  color: selected
-                      ? _liveAccent
-                      : _liveAccent.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: _liveAccent.withValues(alpha: selected ? 0 : 0.6),
-                    width: 1.5,
-                  ),
-                ),
-                child: Icon(
-                  Icons.wifi_tethering_rounded,
-                  color: selected ? Colors.white : _liveAccent,
-                  size: 22.sp,
-                ),
-              ),
-              SizedBox(height: 4.h),
-              Text(
-                'nav_live_sales'.tr(),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  color: _liveAccent,
-                  fontWeight: selected ? FontWeight.bold : FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }

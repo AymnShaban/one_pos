@@ -1,8 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import '../../feature/auth/presentation/screens/login_screen.dart';
 import '../../main.dart';
 import '../extension/context_extension.dart';
+import '../local/hive_service_impl.dart';
+import '../services/service_locator/services_imports.dart';
+import '../widgets/custom_language.dart';
 import 'either.dart';
 import 'failure.dart';
 
@@ -371,6 +376,38 @@ final class BaseApiConsumer implements ApiConsumer {
     _dio.interceptors.add(interceptor);
   }
 
+  /// Reentrancy guard — when many requests fan out in parallel they can
+  /// all hit 401 at once (e.g. token expired). We only want to wipe the
+  /// session + push login once per "auth lost" event.
+  static bool _redirectingToLogin = false;
+
+  /// Drop the cached JWT + user and jump back to login, replacing the
+  /// whole stack. Invoked from the 401 branch of [_handleDioError].
+  void _redirectToLogin() {
+    if (_redirectingToLogin) return;
+    _redirectingToLogin = true;
+
+    // Clear local auth state so the next launch goes through login.
+    try {
+      final hive = getIt<HiveServiceImpl>();
+      hive.clearJwtToken();
+      hive.clearUserModel();
+    } catch (_) {
+      // GetIt may not be ready in edge cases (e.g. during boot) — ignore.
+    }
+
+    // Defer the navigation to the next frame so we don't try to push
+    // during the Dio error callback's stack.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final nav = NavigationService.navigatorKey.currentState;
+      nav?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+      _redirectingToLogin = false;
+    });
+  }
+
   /// Server may return the body as a JSON string (Dio already JSON-decoded)
   /// or as a raw String we need to decode. Either way we hand callers back
   /// the parsed value — Map, List, primitive, whatever the endpoint returns.
@@ -421,6 +458,7 @@ final class BaseApiConsumer implements ApiConsumer {
               scaffoldMessengerKey.currentContext?.showErrorMessage(
                 'عاود التسجيل من فضلك',
               );
+              _redirectToLogin();
               return UnauthorizedFailure(
                 message: error.message ?? 'غير مصرح لك',
               );
