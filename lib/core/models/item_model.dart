@@ -5,6 +5,64 @@ import '../../feature/main/new_invoice/new_invoice_imports.dart';
 
 part 'item_model.g.dart';
 
+/// One row from `product_UnitsandPrices` — a single sellable unit of a
+/// product with its own prices (and optionally its own barcode, paired
+/// positionally with the top-level `barcodeUnit1..4` fields). Not Hive-
+/// persisted: when a unit is selected at the catalogue layer, its values
+/// are baked into the basket line's legacy fields via `ItemModel.copyWith`
+/// before dispatch, so basket persistence is unaffected.
+class ProductUnit extends Equatable {
+  final int unitId;
+  final String unitArName;
+  final String unitEnName;
+  final num unitValue;
+  final double sale;
+  final double retail;
+  final double billPrice;
+  final double wholePrice;
+  final double halfWholePrice;
+  final String? barcode;
+
+  const ProductUnit({
+    required this.unitId,
+    required this.unitArName,
+    required this.unitEnName,
+    required this.unitValue,
+    required this.sale,
+    required this.retail,
+    required this.billPrice,
+    required this.wholePrice,
+    required this.halfWholePrice,
+    this.barcode,
+  });
+
+  factory ProductUnit.fromJson(
+    Map<String, dynamic> json, {
+    String? barcode,
+  }) {
+    double d(dynamic v) => (v as num?)?.toDouble() ?? 0.0;
+    return ProductUnit(
+      unitId: (json['unitID'] as num?)?.toInt() ?? 0,
+      unitArName: json['unitName'] as String? ?? '',
+      unitEnName: json['unitEnName'] as String? ?? '',
+      unitValue: (json['unitVal'] as num?) ?? 1,
+      sale: d(json['sale']),
+      retail: d(json['retail']),
+      billPrice: d(json['billPrice']),
+      wholePrice: d(json['whole']),
+      halfWholePrice: d(json['halfWhole']),
+      barcode: (barcode != null && barcode.isNotEmpty) ? barcode : null,
+    );
+  }
+
+  /// "Price to apply" for this unit. `billPrice` wins when set; `sale`
+  /// covers products that haven't been priced through the bill engine yet.
+  double get effectivePrice => billPrice > 0 ? billPrice : sale;
+
+  @override
+  List<Object?> get props => [unitId, unitValue, billPrice, sale, retail];
+}
+
 @HiveType(typeId: 2)
 enum BadgeType {
   @HiveField(0)
@@ -91,6 +149,12 @@ class ItemModel extends Equatable {
   @HiveField(38)
   final num salesQuantity;
 
+  /// Sellable units derived from `product_UnitsandPrices`. Non-persisted —
+  /// the chosen unit's values are baked into the legacy price/unit/barcode
+  /// fields before the basket dispatch, so this list doesn't need to
+  /// survive a Hive round-trip.
+  final List<ProductUnit> units;
+
   const ItemModel({
     required this.productCode,
     required this.barCode,
@@ -128,6 +192,7 @@ class ItemModel extends Equatable {
     this.brandID,
     this.customerQuantity,
     this.salesQuantity = 0,
+    this.units = const [],
   });
 
   const ItemModel.empty()
@@ -166,7 +231,8 @@ class ItemModel extends Equatable {
         unitEnName = null,
         customerQuantity = 0.0,
         salesQuantity = 0,
-        brandID = null;
+        brandID = null,
+        units = const [];
 
 
   factory ItemModel.fromJson(Map<String, dynamic> json) {
@@ -174,10 +240,24 @@ class ItemModel extends Equatable {
     // PascalCase response had, just camelCased. Top-level unit name/value
     // are missing; the first row of `product_UnitsandPrices` carries them
     // when present.
-    final units = json['product_UnitsandPrices'];
-    final firstUnit = (units is List && units.isNotEmpty && units.first is Map)
-        ? Map<String, dynamic>.from(units.first as Map)
-        : const <String, dynamic>{};
+    final unitsRaw = json['product_UnitsandPrices'];
+    final List<ProductUnit> parsedUnits = [];
+    if (unitsRaw is List) {
+      for (var i = 0; i < unitsRaw.length; i++) {
+        final row = unitsRaw[i];
+        if (row is Map) {
+          // Per-unit barcode lives at the top level, paired positionally
+          // (1-indexed) with the units array. Falls back to `null` when
+          // the slot is empty so the widget can use the main `barCode`.
+          final bc = json['barcodeUnit${i + 1}'] as String?;
+          parsedUnits.add(ProductUnit.fromJson(
+            Map<String, dynamic>.from(row),
+            barcode: bc,
+          ));
+        }
+      }
+    }
+    final firstUnit = parsedUnits.isNotEmpty ? parsedUnits.first : null;
     return ItemModel(
       productCode: (json['productCode'] ?? '').toString(),
       productId: json['productID'] as int? ?? 0,
@@ -210,12 +290,13 @@ class ItemModel extends Equatable {
       description10: json['description10'] as String?,
       defaultUnitArName: json['defaultUnitArName'] as String?,
       defaultUnitEnName: json['defaultUnitEnName'] as String?,
-      unitValue: firstUnit['unitVal'] as num?,
-      unitArName: firstUnit['unitName'] as String?,
-      unitEnName: firstUnit['unitEnName'] as String?,
+      unitValue: firstUnit?.unitValue,
+      unitArName: firstUnit?.unitArName,
+      unitEnName: firstUnit?.unitEnName,
       brandID: json['brandID']?.toString(),
       customerQuantity: (json['customerQuantity'] as num?)?.toDouble() ?? 0.0,
       salesQuantity: (json['salesQuantity'] as num?) ?? 0,
+      units: parsedUnits,
     );
   }
 
@@ -256,6 +337,7 @@ class ItemModel extends Equatable {
     String? brandID,
     double? customerQuantity,
     num? salesQuantity,
+    List<ProductUnit>? units,
   }) {
     return ItemModel(
       productCode: productCode ?? this.productCode,
@@ -294,6 +376,7 @@ class ItemModel extends Equatable {
       brandID: brandID ?? this.brandID,
       customerQuantity: customerQuantity ?? this.customerQuantity,
       salesQuantity: salesQuantity ?? this.salesQuantity,
+      units: units ?? this.units,
     );
   }
 
@@ -428,6 +511,7 @@ SalesQuantity: $salesQuantity
     brandID,
     customerQuantity,
     salesQuantity,
+    units,
   ];
 
   double get totalSplitPrice {

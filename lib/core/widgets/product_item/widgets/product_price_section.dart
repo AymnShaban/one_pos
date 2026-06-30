@@ -11,17 +11,26 @@ class ProductPriceSection extends StatelessWidget {
   final bool hasDiscount;
   final double? customerQuantity;
 
+  /// Currency label rendered next to every amount. Pass the active
+  /// currency's `currencySymbol` (or its localized name) here — falls back
+  /// to the `'EGP'` translation when null/empty so callers that haven't
+  /// been wired to a real currency source still render something sensible.
+  final String? currencyLabel;
+
   const ProductPriceSection({
     super.key,
     required this.price,
     required this.priceAfterDiscount,
     required this.hasDiscount,
     this.customerQuantity,
+    this.currencyLabel,
   });
 
   @override
   Widget build(BuildContext context) {
-    final currency = 'EGP'.tr();
+    final currency = (currencyLabel != null && currencyLabel!.isNotEmpty)
+        ? currencyLabel!
+        : 'EGP'.tr();
     final hasLimit = customerQuantity != null && customerQuantity! > 0;
 
     return Column(

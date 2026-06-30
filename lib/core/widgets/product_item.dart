@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../core/helper/helper.dart';
 import '../../feature/auth/presentation/screens/login_screen.dart';
 import '../../feature/main/basket/basket_imports.dart';
+import '../../feature/main/invoice_setup/invoice_setup_imports.dart';
 import '../models/item_model.dart';
 import '../services/service_locator/services_imports.dart';
 import 'custom_snack_bar.dart';
@@ -31,12 +32,21 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
   late int _quantity;
   bool _isProcessing = false;
 
+  /// The currently chosen sellable unit. Drives the displayed price and the
+  /// values baked into the basket line on dispatch. `null` when the product
+  /// has no `product_UnitsandPrices` rows — in that case we fall back to
+  /// `widget.product`'s legacy price/unit/barcode fields.
+  ProductUnit? _selectedUnit;
+
   @override
   void initState() {
     super.initState();
     _isInCart = widget.initialIsInCart;
     _quantity = widget.initialQuantity;
     _isProcessing = false;
+    _selectedUnit = widget.product.units.isNotEmpty
+        ? widget.product.units.first
+        : null;
   }
 
   @override
@@ -49,10 +59,73 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
         _isInCart = widget.initialIsInCart;
       });
     }
+    // Product swapped under us — re-seed the unit selection.
+    if (oldWidget.product.productId != widget.product.productId) {
+      _selectedUnit = widget.product.units.isNotEmpty
+          ? widget.product.units.first
+          : null;
+    }
   }
 
+  // ── Price selection (driven by `_selectedUnit`) ─────────────────────────
 
+  double get _displayPrice {
+    final u = _selectedUnit;
+    if (u != null) {
+      return u.retail > 0
+          ? u.retail
+          : (u.sale > 0 ? u.sale : widget.product.price);
+    }
+    return widget.product.price;
+  }
 
+  double get _displayPriceAfterDiscount {
+    final u = _selectedUnit;
+    if (u != null) {
+      return u.effectivePrice > 0
+          ? u.effectivePrice
+          : widget.product.priceAfterDiscount;
+    }
+    return widget.product.priceAfterDiscount;
+  }
+
+  /// Same model the basket persists — sale (priceAfterDiscount) `<` list
+  /// (price) is a discount; sale `>` list is a "second unit" price; equal or
+  /// zero priceAfterDiscount means no offer.
+  bool get _hasDiscount =>
+      _displayPriceAfterDiscount > 0 &&
+      _displayPriceAfterDiscount != _displayPrice;
+
+  bool get _canAddToCart {
+    if (widget.product.isOutOfStock) return false;
+    return _quantity < widget.product.stockQuantity;
+  }
+
+  /// The exact ItemModel to send to the basket — overlays the selected
+  /// unit's price/unit/barcode onto the base product so the cart line and
+  /// any downstream order request carry the right values.
+  ItemModel get _basketItem {
+    final u = _selectedUnit;
+    if (u == null) return widget.product;
+    final bc = (u.barcode != null && u.barcode!.isNotEmpty)
+        ? u.barcode!
+        : widget.product.barCode;
+    return widget.product.copyWith(
+      price: _displayPrice,
+      priceAfterDiscount: _displayPriceAfterDiscount,
+      unitArName: u.unitArName,
+      unitEnName: u.unitEnName,
+      unitValue: u.unitValue,
+      barCode: bc,
+    );
+  }
+
+  void _onUnitChanged(ProductUnit? u) {
+    if (u == null || u == _selectedUnit) return;
+    setState(() => _selectedUnit = u);
+  }
+
+  // ── Basket dispatches ───────────────────────────────────────────────────
 
   Future<void> _addToCart() async {
     final customerModel = getIt<IUserCache>().getUserModel();
@@ -76,20 +149,11 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       _quantity++;
     });
 
-    final request = AddToBasketRequest(
-      customerID: customerModel.id,
-      productID: widget.product.productId,
-      productBarcode: widget.product.productCode,
-      item: widget.product,
-      quantity: _quantity,
-    );
-    context.read<AddToBasketBloc>().add(AddToBasket(request));
-    context.read<BasketBloc>().add(const FetchBasketItems());
+    _dispatchToBasket(customerId: customerModel.id, quantity: _quantity);
   }
 
   Future<void> _incrementQuantity() async {
     final customerModel = getIt<IUserCache>().getUserModel();
-
 
     final stockQuantity = widget.product.stockQuantity;
 
@@ -108,18 +172,10 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       });
 
       if (context.mounted) {
-        context.read<AddToBasketBloc>().add(
-          AddToBasket(
-            AddToBasketRequest(
-              customerID: customerModel?.id ?? 0,
-              productID: widget.product.productId,
-              productBarcode: widget.product.productCode,
-              item: widget.product,
-              quantity: _quantity,
-            ),
-          ),
+        _dispatchToBasket(
+          customerId: customerModel?.id ?? 0,
+          quantity: _quantity,
         );
-        context.read<BasketBloc>().add(const FetchBasketItems());
       }
     }
   }
@@ -151,12 +207,20 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
     }
   }
 
-  bool get _hasDiscount =>
-      widget.product.price != widget.product.priceAfterDiscount;
-
-  bool get _canAddToCart {
-    if (widget.product.isOutOfStock) return false;
-    return _quantity < widget.product.stockQuantity;
+  void _dispatchToBasket({required int customerId, required int quantity}) {
+    final item = _basketItem;
+    context.read<AddToBasketBloc>().add(
+          AddToBasket(
+            AddToBasketRequest(
+              customerID: customerId,
+              productID: item.productId,
+              productBarcode: item.barCode,
+              item: item,
+              quantity: quantity,
+            ),
+          ),
+        );
+    context.read<BasketBloc>().add(const FetchBasketItems());
   }
 
   @override
@@ -170,14 +234,23 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
         ? widget.product.productArName
         : widget.product.productEnName;
 
-    final unitString =
-        '${widget.product.unitValue ?? ""} ${isArabic ? (widget.product.unitArName ?? widget.product.defaultUnitArName ?? "") : (widget.product.unitEnName ?? widget.product.defaultUnitEnName ?? "")}'
-            .trim();
+    // Currency label for every amount the card renders. Prefer the explicit
+    // `currencySymbol`; fall back to the locale-appropriate currency name
+    // so empty-symbol payloads still show something readable. Reactively
+    // tracks `InvoiceSetupBloc.selectedCurrency` so flipping the currency
+    // dropdown updates the cards live.
+    final selectedCurrency =
+        context.watch<InvoiceSetupBloc>().state.selectedCurrency;
+    final currencyLabel = (selectedCurrency?.currencySymbol.isNotEmpty == true)
+        ? selectedCurrency!.currencySymbol
+        : (isArabic
+            ? (selectedCurrency?.currencyArName ?? '')
+            : (selectedCurrency?.currencyEnName ?? ''));
 
     return Container(
       width: itemWidth,
       decoration: BoxDecoration(
-        color: Colors.transparent, // Replaced shadow/white background with a transparent container
+        color: Colors.transparent,
         border: Border.all(color: Colors.grey.shade300, width: 1),
         borderRadius: BorderRadius.circular(16.r),
       ),
@@ -187,7 +260,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
         children: [
           // Image Container with light grey background
           Container(
-            height: 140.h,
+            height: 130.h,
             width: double.infinity,
             decoration: BoxDecoration(
               color: const Color(0xFFF5F5F5),
@@ -231,31 +304,6 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // // Special Offer / Best Seller Badge
-                // if (_hasDiscount)
-                //   Padding(
-                //     padding: EdgeInsets.only(bottom: 6.h),
-                //     child: Container(
-                //       padding: EdgeInsets.symmetric(
-                //         horizontal: 6.w,
-                //         vertical: 3.h,
-                //       ),
-                //       decoration: BoxDecoration(
-                //         color: const Color(0xFFFEF3C7),
-                //         borderRadius: BorderRadius.circular(4.r),
-                //       ),
-                //       child: Text(
-                //         'special_offer'
-                //             .tr(), // Or 'best_seller'.tr() if you prefer that text
-                //         style: TextStyle(
-                //           color: const Color(0xFFD97706),
-                //           fontSize: 10.sp,
-                //           fontWeight: FontWeight.w600,
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-
                 // Product Name
                 Text(
                   productName,
@@ -269,29 +317,18 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
                   ),
                 ),
 
-                if (unitString.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  // Subtitle / Weight
-                  Text(
-                    unitString,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
+                const SizedBox(height: 4),
+                _buildUnitSelector(isArabic),
 
                 const SizedBox(height: 6),
 
-                // Price Section
+                // Price Section — driven by the selected unit.
                 ProductPriceSection(
-                  price: widget.product.price,
-                  priceAfterDiscount: widget.product.priceAfterDiscount,
+                  price: _displayPrice,
+                  priceAfterDiscount: _displayPriceAfterDiscount,
                   hasDiscount: _hasDiscount,
                   customerQuantity: widget.product.customerQuantity,
+                  currencyLabel: currencyLabel,
                 ),
               ],
             ),
@@ -300,6 +337,91 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       ),
     );
   }
+
+  // ── Unit row ────────────────────────────────────────────────────────────
+
+  /// Compact unit picker. With 0–1 units, renders the static label the
+  /// catalogue had before. With 2+ units, renders a tappable inline
+  /// dropdown so the cashier can switch unit → price right on the card.
+  Widget _buildUnitSelector(bool isArabic) {
+    final units = widget.product.units;
+
+    String unitLabel(ProductUnit u) {
+      final name = isArabic ? u.unitArName : u.unitEnName;
+      return '${_fmtUnitValue(u.unitValue)} $name'.trim();
+    }
+
+    if (units.length <= 1) {
+      // Legacy behavior — keep the same one-line caption.
+      final name = isArabic
+          ? (widget.product.unitArName ??
+              widget.product.defaultUnitArName ??
+              '')
+          : (widget.product.unitEnName ??
+              widget.product.defaultUnitEnName ??
+              '');
+      final unitString =
+          '${widget.product.unitValue ?? ""} $name'.trim();
+      if (unitString.isEmpty) return const SizedBox.shrink();
+      return Text(
+        unitString,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: Colors.grey.shade600,
+          fontSize: 11.sp,
+          fontWeight: FontWeight.w400,
+        ),
+      );
+    }
+
+    final selected = _selectedUnit ?? units.first;
+    return Container(
+      height: 28.h,
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F7F8),
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<ProductUnit>(
+          value: selected,
+          isDense: true,
+          isExpanded: true,
+          icon: Icon(Icons.keyboard_arrow_down,
+              size: 16.sp, color: Colors.grey.shade700),
+          style: TextStyle(
+            color: Colors.grey.shade800,
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w500,
+          ),
+          items: [
+            for (final u in units)
+              DropdownMenuItem<ProductUnit>(
+                value: u,
+                child: Text(
+                  unitLabel(u),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
+          onChanged: _onUnitChanged,
+        ),
+      ),
+    );
+  }
+
+  /// Whole numbers plain ("1"), fractions trimmed ("0.5", not "0.50").
+  String _fmtUnitValue(num v) {
+    if (v == v.roundToDouble()) return v.toInt().toString();
+    var s = v.toStringAsFixed(2);
+    s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+    return s;
+  }
+
+  // ── Add / counter button ────────────────────────────────────────────────
 
   Widget _buildAdvancedCounterBox() {
     if (_quantity == 0 && _canAddToCart) {
@@ -483,7 +605,6 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       return;
     }
 
-    // Cap at available stock — the user can't request more than in stock.
     final stock = widget.product.stockQuantity.toInt();
     var target = entered;
     if (stock > 0 && target > stock) {
@@ -499,19 +620,6 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
       _isInCart = target > 0;
     });
 
-    // Single operation — set the basket line to the exact quantity instead
-    // of dispatching one request per unit.
-    context.read<AddToBasketBloc>().add(
-      AddToBasket(
-        AddToBasketRequest(
-          customerID: customerModel.id,
-          productID: widget.product.productId,
-          productBarcode: widget.product.productCode,
-          item: widget.product,
-          quantity: target,
-        ),
-      ),
-    );
-    context.read<BasketBloc>().add(const FetchBasketItems());
+    _dispatchToBasket(customerId: customerModel.id, quantity: target);
   }
 }
