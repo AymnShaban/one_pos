@@ -141,7 +141,8 @@
     "please_log_in_to_add_to_cart": "يرجى تسجيل الدخول لإضافة المنتج",
     "please_log_in_to_manage_favorites": "يرجى تسجيل الدخول لإدارة المفضلة",
     "please_log_in_to_manage_cart": "يرجى تسجيل الدخول لإدارة السلة",
-    "unit": "وحدة"
+    "unit": "وحدة",
+    "only_active": "النشط فقط"
   },
   "invoices": {
     "title": "إدارة الفواتير",

@@ -1,11 +1,11 @@
 part of '../invoice_setup_imports.dart';
 
 abstract interface class InvoiceSetupDataSource {
-  /// Returns every pattern across all categories. Callers filter
-  /// client-side by branch ([InvoicePatternModel.branchId]), category
-  /// ([PatternCategory]) and operation ([SupposeType]) — the server endpoint
-  /// is intentionally shared across the whole app.
-  Future<Either<Failure, List<InvoicePatternModel>>> getAllPatterns();
+  /// Branch-scoped patterns. The server narrows the result to the given
+  /// branch — callers don't need to filter by `branchId` on the client.
+  Future<Either<Failure, List<InvoicePatternModel>>> getPatternsByBranch(
+    int branchId,
+  );
 
   Future<Either<Failure, List<CurrencyModel>>> getCurrencies();
 }
@@ -16,9 +16,12 @@ class InvoiceSetupDataSourceImpl implements InvoiceSetupDataSource {
   InvoiceSetupDataSourceImpl(this._genericDataSource);
 
   @override
-  Future<Either<Failure, List<InvoicePatternModel>>> getAllPatterns() {
+  Future<Either<Failure, List<InvoicePatternModel>>> getPatternsByBranch(
+    int branchId,
+  ) {
     return _genericDataSource.fetchData<InvoicePatternModel>(
-      endpoint: EndPoints.getInvoicePatterns,
+      endpoint: EndPoints.getInvoiceSettingByBranch,
+      queryParameters: {'branchId': branchId},
       fromJson: InvoicePatternModel.fromJson,
     );
   }

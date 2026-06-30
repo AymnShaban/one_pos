@@ -19,12 +19,15 @@ class MainScreen extends StatefulWidget {
     // 0 — Home
     const HomeTab(),
 
-    // 1 — Live Sales (catalogue + basket flow)
+    // 1 — Live Sales (catalogue + basket flow). SalesCategoryBloc is
+    // provided inside SalesTab so the load fires when that tab actually
+    // mounts (lazy-load pattern).
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => getIt<SalesBloc>()),
-        BlocProvider(create: (_) => getIt<MainCategoryBloc>()),
-        BlocProvider(create: (_) => getIt<SubCategoryBloc>()),
+        BlocProvider(create: (_) => getIt<BranchBloc>()),
+        BlocProvider(create: (_) => getIt<InvoiceSetupBloc>()),
+        BlocProvider(create: (_) => getIt<SalesCategoryBloc>()),
         BlocProvider.value(value: getIt<BasketBloc>()),
       ],
       child: const SalesTab(),

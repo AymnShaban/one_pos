@@ -94,10 +94,11 @@ class EndPoints {
 
   // end_points.dart — add these
   static const String getMainCategory = '/api/Category/GetMainCategory';
-  static const String getSubCategory = '/api/Category/GetCategoryByParentId';
+  static const String getSubCategory = '/api/Category/GetSubCategory';
   static const String getProductsByCategory =
       '/api/Product/GetByCategory';
-  static String subCategoryProducts = "/api/Product/GetProductsByCategory";
+  static String subCategoryProducts =
+      "/api/Product/GetProductsByPatternIdAndGroupIdV1";
 
   static const String searchProducts = '/api/Product/SearchProducts';
   static const String searchProductByBarcode =
@@ -117,6 +118,10 @@ class EndPoints {
   // (purchases / sales / transfers / quotes & orders). Clients filter the
   // result client-side via `InvoicePatternModel.patternType` / `category`.
   static const String getInvoicePatterns = '/api/InvoiceSetting/GetAllTypes';
+  /// Branch-scoped patterns — preferred over `getInvoicePatterns` because
+  /// the server already filters by branch. Query: `?branchId={id}`.
+  static const String getInvoiceSettingByBranch =
+      '/api/BSR/GetInvoiceSettingByBranchID';
   static const String getQuotePatterns = '/api/InvoicePattern/GetQuoteByBranch';
   static const String getCurrencies = '/api/Currency/GetCurrencies';
  // [{"CurrencyID":1,"CurrencyName":"دينار كويتي","CurrencyEName":"Kuwait Dinar","PartName":"فلس","PartEName":"Fils","PartPrecition":1000,"Rate":1.0,"CurrencySymbol":"د.ك.","TotCurrencyName":"دنانير","TotCurrencyEName":"Dinars","TotPartName":"فلسات","TotPartEName":"Fils","PricesDigits":"0.000"}]

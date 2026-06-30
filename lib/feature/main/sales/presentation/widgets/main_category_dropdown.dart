@@ -1,5 +1,8 @@
 part of '../../sales_imports.dart';
 
+/// Horizontal chip strip for the parent categories. Reads the flat
+/// `SalesCategoryBloc` list, dedupes by `parentCategoryId`, and dispatches
+/// `SelectSalesParent` on tap.
 class MainCategoryDropdown extends StatelessWidget {
   const MainCategoryDropdown({super.key});
 
@@ -7,7 +10,7 @@ class MainCategoryDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
 
-    return BlocBuilder<MainCategoryBloc, BaseState<MainCategoryModel>>(
+    return BlocBuilder<SalesCategoryBloc, BaseState<SalesCategoryModel>>(
       builder: (context, state) {
         if (state.status == Status.loading) {
           return SizedBox(
@@ -22,8 +25,9 @@ class MainCategoryDropdown extends StatelessWidget {
           );
         }
 
-        final categories = state.items;
-        if (categories.isEmpty) {
+        final bloc = context.read<SalesCategoryBloc>();
+        final parentIds = bloc.parentIds;
+        if (parentIds.isEmpty) {
           return SizedBox(
             height: 36.h,
             child: Center(
@@ -35,27 +39,29 @@ class MainCategoryDropdown extends StatelessWidget {
           );
         }
 
-        final selectedId =
-            state.metadata['selectedMainCategoryId'] as int? ??
-                categories.first.categoryId;
+        final selectedParentId =
+            state.metadata['selectedParentId'] as int? ?? parentIds.first;
 
         return SizedBox(
           height: 36.h,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 16.w),
-            itemCount: categories.length,
+            itemCount: parentIds.length,
             separatorBuilder: (_, __) => SizedBox(width: 10.w),
             itemBuilder: (context, index) {
-              final category = categories[index];
-              final isSelected = selectedId == category.categoryId;
+              final parentId = parentIds[index];
+              final row = bloc.parentRow(parentId);
+              if (row == null) return const SizedBox.shrink();
+              final isSelected = selectedParentId == parentId;
+              final label = isAr
+                  ? (row.parentCategoryArName ?? '')
+                  : (row.parentCategoryEnName ?? '');
 
               return GestureDetector(
                 onTap: () {
                   if (isSelected) return;
-                  context
-                      .read<MainCategoryBloc>()
-                      .add(SelectMainCategory(category.categoryId));
+                  bloc.add(SelectSalesParent(parentId));
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
@@ -82,7 +88,7 @@ class MainCategoryDropdown extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      isAr ? category.categoryArName : category.categoryEnName,
+                      label,
                       style: AppTextTheme.body2.copyWith(
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                         color: isSelected

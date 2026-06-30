@@ -24,3 +24,14 @@ class LoadMoreProducts extends SalesEvent {
 class ReloadProducts extends SalesEvent {
   const ReloadProducts();
 }
+
+/// Set the active sales pattern id (from `InvoiceSetupBloc`). Triggers a
+/// reload if a category is already selected — the new
+/// `/api/Product/GetProductsByPatternIdAndGroupIdV1` endpoint needs both ids.
+class SetActivePattern extends SalesEvent {
+  final int? patternId;
+  const SetActivePattern(this.patternId);
+
+  @override
+  List<Object?> get props => [patternId];
+}

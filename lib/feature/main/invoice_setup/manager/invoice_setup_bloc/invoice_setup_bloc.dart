@@ -64,21 +64,17 @@ class InvoiceSetupBloc extends Bloc<InvoiceSetupEvent, InvoiceSetupState> {
       selectedPatternId: -1,
     ));
 
-    final result = await _dataSource.getAllPatterns();
+    final result = await _dataSource.getPatternsByBranch(event.branchId);
     result.fold(
       (failure) => emit(state.copyWith(
         patternsStatus: Status.failure,
         errorMessage: failure.message,
       )),
       (all) {
-        // Server returns every pattern across categories — narrow to the
-        // ones that belong to this branch (or have no branch attached,
-        // i.e. global patterns like "تسوية جردية") and match the requested
-        // mode (quotes/orders vs. real invoices).
+        // Server already scoped to this branch — only filter by mode
+        // (quotes/orders vs. real invoices) here.
         final patterns = all.where((p) {
-          final branchOk = p.branchId == null || p.branchId == event.branchId;
-          final modeOk = event.isPriceQuote ? p.isPriceQuote : !p.isPriceQuote;
-          return branchOk && modeOk;
+          return event.isPriceQuote ? p.isPriceQuote : !p.isPriceQuote;
         }).toList();
 
         final autoPatternId =

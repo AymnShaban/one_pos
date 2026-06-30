@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/adapters.dart';
 
@@ -171,59 +170,52 @@ class ItemModel extends Equatable {
 
 
   factory ItemModel.fromJson(Map<String, dynamic> json) {
+    // `/api/Product/getProducts` returns the same field set the old
+    // PascalCase response had, just camelCased. Top-level unit name/value
+    // are missing; the first row of `product_UnitsandPrices` carries them
+    // when present.
+    final units = json['product_UnitsandPrices'];
+    final firstUnit = (units is List && units.isNotEmpty && units.first is Map)
+        ? Map<String, dynamic>.from(units.first as Map)
+        : const <String, dynamic>{};
     return ItemModel(
-      productCode: json['ProductCode'] ?? '',
-      productId: json["ProductID"] ?? 0,
-      barCode: json['BarCode'] ?? '',
-      colorArName: json['ColorArName'] ?? '',
-      colorEnName: json['ColorEnName'],
-      sizeName: json['SizeName'],
-      categoryId: json['CategoryId'] ?? "",
-      sizeEName: json['SizeEName'] ?? '',
-      customerQuantity: json['CustomerQuantity'] ?? 0.0,
-      productArName: (() {
-        final mainName = json['ProductArName'] ?? json['ProductName'] ?? '';
-        final unit = (json['DefaultUnitArName'] ?? json['UnitArName'] ?? '');
-        return unit != null && unit.toString().isNotEmpty
-            ? '$mainName ($unit)'
-            : mainName;
-      })(),
-
-      productEnName: (() {
-        final mainName = json['ProductEnName'] ?? json['ProductEnName'] ?? '';
-
-        final unit = (json['DefaultUnitEnName'] ?? json['UnitEnName'] ?? '');
-        return unit != null && unit.toString().isNotEmpty
-            ? '$mainName ($unit)'
-            : mainName;
-      })(),
-
-      unitArName: json['UnitArName'] ?? '',
-      unitEnName: json['UnitEnName'] ?? '',
-      defaultUnitArName: json['DefaultUnitArName'] ?? 'unit'.tr(),
-      defaultUnitEnName: json['DefaultUnitEnName'] ?? 'unit'.tr(),
-      unitValue: json['UnitValue'] ?? '',
-
-      categoryArName: json['CategoryArName'] ?? '',
-      categoryEnName: json['CategoryEnName'] ?? '',
-      productImage: json['ProductcImage'] ?? '',
-      isFavorite: json['IsFavorite'] == 1,
-      stockQuantity: json['StockQuantity'] ?? 0.0,
-      price: json['Price'] ?? 0.0,
-      priceAfterDiscount: json['PriceAfterDiscount'] ?? 0.0,
-      registrationDate: json['RegisterationDate'] ?? '',
-      description1: json['Description1'] ?? '',
-      description2: json['Description2'] ?? '',
-      description3: json['Description3'] ?? '',
-      description4: json['Description4'] ?? '',
-      description5: json['Description5'] ?? '',
-      description6: json['Description6'] ?? '',
-      description7: json['Description7'] ?? '',
-      description8: json['Description8'] ?? '',
-      description9: json['Description9'] ?? '',
-      description10: json['Description10'] ?? '',
-      brandID: json['BrandID'] ?? '',
-      salesQuantity: json['SalesQuantity'] ?? 0,
+      productCode: (json['productCode'] ?? '').toString(),
+      productId: json['productID'] as int? ?? 0,
+      barCode: (json['barCode'] ?? '').toString(),
+      colorArName: json['colorArName'] as String?,
+      colorEnName: json['colorEnName'] as String?,
+      sizeName: json['sizeName'] as String?,
+      sizeEName: json['sizeEName'] as String?,
+      productArName: json['productArName'] as String? ?? '',
+      productEnName: json['productEnName'] as String? ?? '',
+      categoryArName: json['categoryArName'] as String? ?? '',
+      categoryEnName: json['categoryEnName'] as String? ?? '',
+      categoryId: json['categoryId']?.toString(),
+      productImage: json['productcImage'] as String? ?? '',
+      isFavorite: (json['isFavorite'] as num? ?? 0) == 1,
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      priceAfterDiscount:
+          (json['priceAfterDiscount'] as num?)?.toDouble() ?? 0.0,
+      stockQuantity: (json['stockQuantity'] as num?) ?? 0,
+      registrationDate: json['registerationDate'] as String? ?? '',
+      description1: json['description1'] as String?,
+      description2: json['description2'] as String?,
+      description3: json['description3'] as String?,
+      description4: json['description4'] as String?,
+      description5: json['description5'] as String?,
+      description6: json['description6'] as String?,
+      description7: json['description7'] as String?,
+      description8: json['description8'] as String?,
+      description9: json['description9'] as String?,
+      description10: json['description10'] as String?,
+      defaultUnitArName: json['defaultUnitArName'] as String?,
+      defaultUnitEnName: json['defaultUnitEnName'] as String?,
+      unitValue: firstUnit['unitVal'] as num?,
+      unitArName: firstUnit['unitName'] as String?,
+      unitEnName: firstUnit['unitEnName'] as String?,
+      brandID: json['brandID']?.toString(),
+      customerQuantity: (json['customerQuantity'] as num?)?.toDouble() ?? 0.0,
+      salesQuantity: (json['salesQuantity'] as num?) ?? 0,
     );
   }
 

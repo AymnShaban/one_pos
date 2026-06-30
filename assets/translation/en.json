@@ -144,7 +144,8 @@
     "please_log_in_to_add_to_cart": "Please log in to add to cart",
     "please_log_in_to_manage_favorites": "Please log in to manage favorites",
     "please_log_in_to_manage_cart": "Please log in to manage cart",
-    "unit": "Unit"
+    "unit": "Unit",
+    "only_active": "Only active"
   },
 
   "invoices": {
