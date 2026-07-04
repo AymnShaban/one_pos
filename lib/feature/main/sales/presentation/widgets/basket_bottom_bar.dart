@@ -26,6 +26,7 @@ class BasketBottomBar extends StatelessWidget {
             // Navigator, above this provider. (It's a factory in getIt, so
             // getIt<>() would also just create an empty one.)
             final setupBloc = context.read<InvoiceSetupBloc>();
+            final branchBloc = context.read<BranchBloc>();
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -33,6 +34,7 @@ class BasketBottomBar extends StatelessWidget {
                   providers: [
                     BlocProvider.value(value: getIt<BasketBloc>()),
                     BlocProvider.value(value: setupBloc),
+                    BlocProvider.value(value: branchBloc),
                     BlocProvider.value(value: getIt<NewInvoiceBloc>()),
                   ],
                   child: const BasketScreen(),

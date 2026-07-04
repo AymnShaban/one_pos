@@ -58,13 +58,10 @@ class AppAssets {
   static const String editeIcon = 'assets/icons/edit_icon.svg';
   static const String deleteAccountIcon = 'assets/icons/delete_account.svg';
   static const String changePasswordIcon = 'assets/icons/secret_password.svg';
-  static const String fallBackBanner1 = 'assets/images/app_banner1.jpg';
-  static const String fallBackBanner2 = 'assets/images/app_banner2.jpg';
-  static const String fallBackBanner3 = 'assets/images/app_banner3.jpg';
   static const String fallBackProduct = 'assets/images/fall_ba.jpg';
   static const String fallBackCategory = 'assets/images/category_fallback.jpg';
   static const String creditCardIcon = 'assets/icons/credit_card.svg';
   static const String mobileWalletIcon = 'assets/icons/mobile_wallet.svg';
   static const String fawryIcon = 'assets/icons/Fawry.svg';
-  static const String backgroundImage = 'assets/images/background_image.jpg';
+  static const String backgroundImage = 'assets/images/the_one_banner.jpg';
 }

@@ -22,6 +22,7 @@ abstract interface class AppTextTheme {
   );
 
   static TextStyle body1 = _baseStyle.copyWith(fontSize: 16.sp);
+  static TextStyle body1Bold = _baseStyle.copyWith(fontSize: 16.sp,fontWeight: FontWeight.w900);
 
   static TextStyle body2 = _baseStyle.copyWith(fontSize: 14.sp);
   static TextStyle body2Bold = _baseStyle.copyWith(fontSize: 14.sp,fontWeight: FontWeight.bold);

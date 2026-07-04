@@ -330,7 +330,14 @@
     "sum_profit_ratio":            "Profit %",
     "sum_qty":                     "Total Qty",
     "sum_cost_ratio":              "Cost %",
-    "select_at_least_one_branch":  "Select at least one branch"
+    "select_at_least_one_branch":  "Select at least one branch",
+    "invoice":                     "Invoice",
+    "total_value":                 "Total Value",
+    "total_cost":                  "Total Cost",
+    "total_profit":                "Total Profit",
+    "total_qty":                   "Total Qty",
+    "profit_ratio":                "Profit Ratio",
+    "profit_of_cost_ratio":        "Profit-to-Cost Ratio"
   },
 
   "invoice_collection": {

@@ -34,17 +34,14 @@ class _LiveSalesReportViewState extends State<_LiveSalesReportView> {
   late DateTime _fromDate;
   late DateTime _toDate;
 
-  // Tracks selected branch ids as a set so toggles are O(1). Populated
-  // (all branches selected) on the first BranchBloc success emission via
-  // a BlocListener — until then it's empty.
+  // Tracks selected branch ids as a set so toggles are O(1). Starts empty —
+  // the user picks the branches they need.
   final Set<int> _selectedBranchIds = {};
-  bool _initialBranchSelectionDone = false;
 
-  // Report-option checkboxes — defaults match the example body the server
-  // accepted (everything on).
-  bool _showByBranchCurrency = true;
-  bool _showBySeller = true;
-  bool _showWeight = true;
+  // Report-option checkboxes — all off by default; the user opts in.
+  bool _showByBranchCurrency = false;
+  bool _showBySeller = false;
+  bool _showWeight = false;
 
   @override
   void initState() {
@@ -133,56 +130,44 @@ class _LiveSalesReportViewState extends State<_LiveSalesReportView> {
           ),
         ),
       ),
-      body: BlocListener<BranchBloc, BaseState<BranchModel>>(
-        // Auto-select every branch the first time the list lands — mirrors
-        // the "الكل" default check in the screenshot.
-        listenWhen: (p, c) =>
-            !_initialBranchSelectionDone &&
-            p.status != Status.success &&
-            c.status == Status.success,
-        listener: (context, bs) {
-          _initialBranchSelectionDone = true;
-          _selectAllBranches(bs.items);
-        },
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(12.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _BranchesCard(
-                selectedIds: _selectedBranchIds,
-                isAllSelected: _isAllSelected,
-                onSelectAll: _selectAllBranches,
-                onToggle: _toggleBranch,
-              ),
-              SizedBox(height: 12.h),
-              _OptionsCard(
-                showInBranchCurrency: _showByBranchCurrency,
-                showBySeller: _showBySeller,
-                showWeight: _showWeight,
-                onChanged: (kind, value) => setState(() {
-                  switch (kind) {
-                    case _OptionKind.branchCurrency:
-                      _showByBranchCurrency = value;
-                    case _OptionKind.bySeller:
-                      _showBySeller = value;
-                    case _OptionKind.weight:
-                      _showWeight = value;
-                  }
-                }),
-              ),
-              SizedBox(height: 12.h),
-              _DateRangeCard(
-                fromDate: _fromDate,
-                toDate: _toDate,
-                onFromPicked: (d) => setState(() => _fromDate = d),
-                onToPicked: (d) => setState(() => _toDate = d),
-                onPreview: () => _preview(context),
-              ),
-              SizedBox(height: 16.h),
-              const _ResultsSection(),
-            ],
-          ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(12.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _BranchesCard(
+              selectedIds: _selectedBranchIds,
+              isAllSelected: _isAllSelected,
+              onSelectAll: _selectAllBranches,
+              onToggle: _toggleBranch,
+            ),
+            SizedBox(height: 12.h),
+            _OptionsCard(
+              showInBranchCurrency: _showByBranchCurrency,
+              showBySeller: _showBySeller,
+              showWeight: _showWeight,
+              onChanged: (kind, value) => setState(() {
+                switch (kind) {
+                  case _OptionKind.branchCurrency:
+                    _showByBranchCurrency = value;
+                  case _OptionKind.bySeller:
+                    _showBySeller = value;
+                  case _OptionKind.weight:
+                    _showWeight = value;
+                }
+              }),
+            ),
+            SizedBox(height: 12.h),
+            _DateRangeCard(
+              fromDate: _fromDate,
+              toDate: _toDate,
+              onFromPicked: (d) => setState(() => _fromDate = d),
+              onToPicked: (d) => setState(() => _toDate = d),
+              onPreview: () => _preview(context),
+            ),
+            SizedBox(height: 16.h),
+            const _ResultsSection(),
+          ],
         ),
       ),
     );
@@ -474,13 +459,25 @@ class _ResultsSection extends StatelessWidget {
                 ),
               );
             }
+            // The API appends a grand-total page (no branch title, no
+            // rows — only the sums). Its data is already covered by the
+            // summary cards on top, so drop it from the branch list and
+            // from the totals math (it would double-count otherwise).
+            final branchPages = state.items
+                .where((p) =>
+                    p.cardHeaderText.isNotEmpty || p.rows.isNotEmpty)
+                .toList();
+            final pagesForTotals =
+                branchPages.isNotEmpty ? branchPages : state.items;
             return Column(
-              children: state.items
-                  .map((p) => Padding(
-                        padding: EdgeInsets.only(bottom: 12.h),
-                        child: _ReportPageCard(page: p),
-                      ))
-                  .toList(),
+              children: [
+                _SummaryCards(pages: pagesForTotals),
+                SizedBox(height: 16.h),
+                ...branchPages.map((p) => Padding(
+                      padding: EdgeInsets.only(bottom: 16.h),
+                      child: _ReportPageCard(page: p),
+                    )),
+              ],
             );
           case Status.initial:
           default:
@@ -491,6 +488,185 @@ class _ResultsSection extends StatelessWidget {
   }
 }
 
+// ────────────────────────────────────────────────────────────────────────
+//  Number helpers — server sends pre-formatted strings ("3,101.203"),
+//  so grand totals are re-parsed / re-formatted locally.
+// ────────────────────────────────────────────────────────────────────────
+double? _parseNum(String s) {
+  final cleaned = s.replaceAll(',', '').replaceAll('%', '').trim();
+  if (cleaned.isEmpty) return null;
+  return double.tryParse(cleaned);
+}
+
+String _formatNum(double v, {int decimals = 3}) {
+  final neg = v < 0;
+  final parts = v.abs().toStringAsFixed(decimals).split('.');
+  final intPart = parts[0];
+  final buf = StringBuffer();
+  for (int i = 0; i < intPart.length; i++) {
+    buf.write(intPart[i]);
+    final remaining = intPart.length - 1 - i;
+    if (remaining > 0 && remaining % 3 == 0) buf.write(',');
+  }
+  final decimalsPart = decimals > 0 ? '.${parts[1]}' : '';
+  return '${neg ? '-' : ''}$buf$decimalsPart';
+}
+
+// ────────────────────────────────────────────────────────────────────────
+//  Grand-total summary cards (value / cost / profit / qty / ratios)
+// ────────────────────────────────────────────────────────────────────────
+class _SummaryCards extends StatelessWidget {
+  final List<SalesMovementsReportPage> pages;
+
+  const _SummaryCards({required this.pages});
+
+  @override
+  Widget build(BuildContext context) {
+    double sumOf(String Function(SalesMovementsReportPage) pick) =>
+        pages.fold(0.0, (acc, p) => acc + (_parseNum(pick(p)) ?? 0));
+
+    final totalValue = sumOf((p) => p.sumFinalValue);
+    final totalCost = sumOf((p) => p.sumBliCost);
+    final totalProfit = sumOf((p) => p.sumProfit);
+    final totalQty = sumOf((p) => p.sumQty);
+    final profitRatio = totalValue == 0 ? 0.0 : totalProfit / totalValue * 100;
+    final profitOfCost = totalCost == 0 ? 0.0 : totalProfit / totalCost * 100;
+
+    final cards = <_SummaryCardData>[
+      _SummaryCardData(
+        label: 'live_sales_report.total_value'.tr(),
+        value: _formatNum(totalValue),
+        icon: Icons.payments_rounded,
+        gradient: const [Color(0xff2E9E4F), Color(0xff5BC272)],
+      ),
+      _SummaryCardData(
+        label: 'live_sales_report.total_cost'.tr(),
+        value: _formatNum(totalCost),
+        icon: Icons.account_balance_wallet_rounded,
+        gradient: const [Color(0xffD63B3B), Color(0xffE96A6A)],
+      ),
+      _SummaryCardData(
+        label: 'live_sales_report.total_profit'.tr(),
+        value: _formatNum(totalProfit),
+        icon: Icons.show_chart_rounded,
+        gradient: const [Color(0xffEF8D1E), Color(0xffF5AE4F)],
+      ),
+      _SummaryCardData(
+        label: 'live_sales_report.total_qty'.tr(),
+        value: _formatNum(totalQty),
+        icon: Icons.view_in_ar_rounded,
+        gradient: const [Color(0xff1F63D6), Color(0xff4E8BEF)],
+      ),
+      _SummaryCardData(
+        label: 'live_sales_report.profit_ratio'.tr(),
+        value: '${_formatNum(profitRatio)}%',
+        icon: Icons.percent_rounded,
+        gradient: const [Color(0xff5A5F68), Color(0xff7C828C)],
+      ),
+      _SummaryCardData(
+        label: 'live_sales_report.profit_of_cost_ratio'.tr(),
+        value: '${_formatNum(profitOfCost)}%',
+        icon: Icons.percent_rounded,
+        gradient: const [Color(0xff23272F), Color(0xff3A4049)],
+      ),
+    ];
+
+    return Column(
+      children: [
+        for (final c in cards)
+          Padding(
+            padding: EdgeInsets.only(bottom: 10.h),
+            child: _SummaryCard(data: c),
+          ),
+      ],
+    );
+  }
+}
+
+class _SummaryCardData {
+  final String label;
+  final String value;
+  final IconData icon;
+  final List<Color> gradient;
+
+  const _SummaryCardData({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.gradient,
+  });
+}
+
+class _SummaryCard extends StatelessWidget {
+  final _SummaryCardData data;
+
+  const _SummaryCard({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14.r),
+        gradient: LinearGradient(
+          colors: data.gradient,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: data.gradient.first.withValues(alpha: 0.25),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44.w,
+            height: 44.w,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Icon(data.icon, color: Colors.white, size: 24.sp),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data.label,
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: 0.9),
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  data.value,
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────
+//  Per-branch report card — navy gradient shell, stat chips, invoice
+//  table, payment-method chips.
+// ────────────────────────────────────────────────────────────────────────
 class _ReportPageCard extends StatelessWidget {
   final SalesMovementsReportPage page;
 
@@ -498,15 +674,28 @@ class _ReportPageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final stats = <(String, String)>[
+      ('live_sales_report.value'.tr(), page.sumFinalValue),
+      ('live_sales_report.sum_cost'.tr(), page.sumBliCost),
+      ('live_sales_report.sum_profit'.tr(), page.sumProfit),
+      ('live_sales_report.qty'.tr(), page.sumQty),
+      ('live_sales_report.sum_profit_ratio'.tr(), page.sumProfitRatio),
+      ('live_sales_report.sum_cost_ratio'.tr(), page.sumBliCostRatio),
+    ].where((e) => e.$2.isNotEmpty).toList();
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(18.r),
+        gradient: const LinearGradient(
+          colors: [Color(0xff16307E), Color(0xff2B4CC0)],
+          begin: AlignmentDirectional.topCenter,
+          end: AlignmentDirectional.bottomCenter,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: const Color(0xff16307E).withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -514,50 +703,101 @@ class _ReportPageCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (page.cardHeaderText.isNotEmpty)
-            Container(
-              padding:
-                  EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-              decoration: BoxDecoration(
-                color: const Color(0xff3B5BDB).withValues(alpha: 0.08),
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(12.r),
-                ),
-              ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(12.w, 14.h, 12.w, 4.h),
               child: Text(
                 page.cardHeaderText,
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 13.sp,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xff1A1A1A),
+                  color: Colors.white,
                 ),
               ),
             ),
-          Padding(
-            padding: EdgeInsets.all(12.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (page.rows.isNotEmpty) _RowsTable(page: page),
-                if (page.rows.isNotEmpty) SizedBox(height: 12.h),
-                _Sums(page: page),
-                if (page.paymentMethods.isNotEmpty) ...[
-                  SizedBox(height: 8.h),
-                  _LabelValue(
-                    label: 'live_sales_report.payment_methods'.tr(),
-                    value: page.paymentMethods,
-                  ),
+          if (stats.isNotEmpty)
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+              child: Row(
+                children: [
+                  for (final s in stats) ...[
+                    _HeaderStatChip(label: s.$1, value: s.$2),
+                    SizedBox(width: 6.w),
+                  ],
                 ],
-                if (page.cardFooterText.isNotEmpty) ...[
-                  SizedBox(height: 8.h),
-                  Text(
-                    page.cardFooterText,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: const Color(0xff8A8F99),
+              ),
+            ),
+          if (page.rows.isNotEmpty ||
+              page.paymentMethods.trim().isNotEmpty ||
+              page.cardFooterText.isNotEmpty)
+            Container(
+              margin: EdgeInsets.fromLTRB(6.w, 2.h, 6.w, 6.h),
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (page.rows.isNotEmpty) _RowsTable(page: page),
+                  _PaymentMethodChips(raw: page.paymentMethods),
+                  // cardFooterText is just a text dump of the payment
+                  // methods — only show it when there are no chips.
+                  if (page.cardFooterText.isNotEmpty &&
+                      page.paymentMethods.trim().isEmpty)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 10.h),
+                      child: Text(
+                        page.cardFooterText,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          color: const Color(0xff8A8F99),
+                        ),
+                      ),
                     ),
-                  ),
                 ],
-              ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Small translucent stat chip inside the navy card header.
+class _HeaderStatChip extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _HeaderStatChip({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10.sp,
+              color: Colors.white.withValues(alpha: 0.85),
+            ),
+          ),
+          SizedBox(height: 2.h),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
         ],
@@ -573,83 +813,67 @@ class _RowsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final qtyLabel = page.lblQty.isNotEmpty
-        ? page.lblQty
-        : 'live_sales_report.qty'.tr();
-    final valLabel = page.lblVal.isNotEmpty
-        ? page.lblVal
-        : 'live_sales_report.value'.tr();
+    final qtyLabel =  'live_sales_report.qty'.tr();
+    final valLabel = 'live_sales_report.value'.tr();
+
+    TextStyle headerStyle = TextStyle(
+      fontSize: 12.sp,
+      fontWeight: FontWeight.bold,
+      color: const Color(0xff1A2B5C),
+    );
+    TextStyle cellStyle = TextStyle(
+      fontSize: 12.sp,
+      color: const Color(0xff1A1A1A),
+    );
+
     return Column(
       children: [
         // Header row
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
           decoration: BoxDecoration(
-            color: const Color(0xffF0F2F8),
-            borderRadius: BorderRadius.circular(6.r),
+            color: const Color(0xffEDF1FA),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(14.r)),
           ),
           child: Row(
             children: [
               Expanded(
-                flex: 2,
                 child: Text(
-                  'live_sales_report.invoice_no'.tr(),
-                  style: TextStyle(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xff1A1A1A)),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  qtyLabel,
-                  style: TextStyle(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xff1A1A1A)),
+                  'live_sales_report.invoice'.tr(),
+                  style: headerStyle,
                   textAlign: TextAlign.center,
                 ),
               ),
               Expanded(
-                flex: 2,
-                child: Text(
-                  valLabel,
-                  style: TextStyle(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xff1A1A1A)),
-                  textAlign: TextAlign.end,
-                ),
+                child: Text(qtyLabel,
+                    style: headerStyle, textAlign: TextAlign.center),
+              ),
+              Expanded(
+                child: Text(valLabel,
+                    style: headerStyle, textAlign: TextAlign.center),
               ),
             ],
           ),
         ),
-        ...page.rows.map(
-          (r) => Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+        ...page.rows.asMap().entries.map(
+          (entry) => Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 9.h),
+            color: entry.key.isEven
+                ? const Color(0xffF5F6FA)
+                : Colors.white,
             child: Row(
               children: [
                 Expanded(
-                  flex: 2,
-                  child: Text(
-                    r.blNo,
-                    style: TextStyle(fontSize: 11.sp),
-                  ),
+                  child: Text(entry.value.blNo,
+                      style: cellStyle, textAlign: TextAlign.center),
                 ),
                 Expanded(
-                  child: Text(
-                    r.qty,
-                    style: TextStyle(fontSize: 11.sp),
-                    textAlign: TextAlign.center,
-                  ),
+                  child: Text(entry.value.qty,
+                      style: cellStyle, textAlign: TextAlign.center),
                 ),
                 Expanded(
-                  flex: 2,
-                  child: Text(
-                    r.finalValue,
-                    style: TextStyle(fontSize: 11.sp),
-                    textAlign: TextAlign.end,
-                  ),
+                  child: Text(entry.value.finalValue,
+                      style: cellStyle, textAlign: TextAlign.center),
                 ),
               ],
             ),
@@ -660,67 +884,79 @@ class _RowsTable extends StatelessWidget {
   }
 }
 
-class _Sums extends StatelessWidget {
-  final SalesMovementsReportPage page;
-  const _Sums({required this.page});
+/// Payment-methods footer — the server sends one pre-formatted string;
+/// split it into "label + amount" chips, falling back to a single chip
+/// when the format doesn't match.
+class _PaymentMethodChips extends StatelessWidget {
+  final String raw;
 
-  @override
-  Widget build(BuildContext context) {
-    // Skip rendering empty / "0"-style server values so the card stays tidy
-    // when the report only fills a subset of the sums.
-    final entries = <(String, String)>[
-      ('live_sales_report.sum_qty'.tr(), page.sumQty),
-      ('live_sales_report.sum_final_value'.tr(), page.sumFinalValue),
-      ('live_sales_report.sum_cost'.tr(), page.sumBliCost),
-      ('live_sales_report.sum_profit'.tr(), page.sumProfit),
-      ('live_sales_report.sum_profit_ratio'.tr(), page.sumProfitRatio),
-      ('live_sales_report.sum_cost_ratio'.tr(), page.sumBliCostRatio),
-    ].where((e) => e.$2.isNotEmpty).toList();
+  const _PaymentMethodChips({required this.raw});
 
-    if (entries.isEmpty) return const SizedBox.shrink();
+  static final _trailingNumber =
+      RegExp(r'^(.*?)[\s:،]*(-?[\d,]+(?:\.\d+)?)\s*$');
 
-    return Wrap(
-      spacing: 12.w,
-      runSpacing: 8.h,
-      children: entries
-          .map((e) => _LabelValue(label: e.$1, value: e.$2))
-          .toList(),
-    );
+  List<(String, String)> _parse() {
+    final tokens = raw
+        .split(RegExp(r'[\n|;،]+'))
+        .map((t) => t.trim())
+        .where((t) => t.isNotEmpty)
+        .toList();
+    return tokens.map((t) {
+      final m = _trailingNumber.firstMatch(t);
+      if (m != null && m.group(1)!.trim().isNotEmpty) {
+        return (m.group(1)!.trim().replaceAll(RegExp(r'[:\s]+$'), ''),
+            m.group(2)!);
+      }
+      return ('', t);
+    }).toList();
   }
-}
-
-class _LabelValue extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _LabelValue({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-      decoration: BoxDecoration(
-        color: const Color(0xffF7F9FC),
-        borderRadius: BorderRadius.circular(6.r),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+    if (raw.trim().isEmpty) return const SizedBox.shrink();
+    final methods = _parse();
+    return Padding(
+      padding: EdgeInsets.all(10.w),
+      child: Wrap(
+        spacing: 8.w,
+        runSpacing: 8.h,
+        alignment: WrapAlignment.center,
         children: [
-          Text(
-            '$label: ',
-            style: TextStyle(
-              fontSize: 11.sp,
-              color: const Color(0xff8A8F99),
+          for (final m in methods)
+            Container(
+              constraints: BoxConstraints(minWidth: 90.w),
+              padding:
+                  EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: const Color(0xffE9EFFF),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(color: const Color(0xffD4DEF8)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (m.$1.isNotEmpty)
+                    Text(
+                      m.$1,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: const Color(0xff6B7A99),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  if (m.$1.isNotEmpty) SizedBox(height: 2.h),
+                  Text(
+                    m.$2,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xff1A2B5C),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xff1A1A1A),
-            ),
-          ),
         ],
       ),
     );

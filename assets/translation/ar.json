@@ -320,7 +320,14 @@
     "sum_profit_ratio": "نسبة الربح %",
     "sum_qty": "إجمالي الكمية",
     "sum_cost_ratio": "نسبة التكلفة %",
-    "select_at_least_one_branch": "حدد فرعاً واحداً على الأقل"
+    "select_at_least_one_branch": "حدد فرعاً واحداً على الأقل",
+    "invoice": "الفاتورة",
+    "total_value": "إجمالي القيمة",
+    "total_cost": "إجمالي التكلفة",
+    "total_profit": "إجمالي الربح",
+    "total_qty": "إجمالي الكمية",
+    "profit_ratio": "نسبة الربح",
+    "profit_of_cost_ratio": "نسبة الربح من التكلفة"
   },
   "invoice_collection": {
     "title": "تحصيل فواتير",

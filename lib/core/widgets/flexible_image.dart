@@ -22,9 +22,7 @@ class FlexibleImage extends StatelessWidget {
 
   // List of fallback images
   static const List<String> _fallbackImages = [
-    AppAssets.fallBackBanner1,
-    AppAssets.fallBackBanner2,
-    AppAssets.fallBackBanner3,
+    AppAssets.bacSplash,
   ];
 
   const FlexibleImage({

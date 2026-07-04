@@ -107,7 +107,7 @@ class EndPoints {
       '/api/SalesInvoice/GetLastInvoiceByInvoiceID';
   static const String createSalesInvoice = '/api/SalesInvoice/Create';
   static const String editSalesInvoice = '/api/SalesInvoice/Edit';
-  static const String getPayWays = '/api/PayWays';
+  static const String getPayWays = '/api/PayWay/GetPayWays';
   // Purchase-invoice-specific pattern list. Submission itself reuses the sales
   // create endpoint above — only the JSON `PurchaseInvoicePayWays` key differs.
   static const String getPurchasesTypes =

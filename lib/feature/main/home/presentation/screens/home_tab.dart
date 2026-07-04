@@ -242,39 +242,23 @@ class _HomeHeader extends StatelessWidget {
         top: MediaQuery.of(context).padding.top + 12.h,
         left: 16.w,
         right: 16.w,
-        bottom: 16.h,
+        bottom: 8.h,
       ),
       child: Column(
         children: [
           // Top row: hamburger | logo | notifications
-          Row(
-            children: [
-              const _HeaderIcon(icon: Icons.menu_rounded),
-              const Spacer(),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 4.w, ),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.55),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Text(
-                  'home.title'.tr(),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              const _HeaderIcon(
-                icon: Icons.notifications_none_rounded,
-                badge: 3,
-              ),
-            ],
-          ),
-          SizedBox(height: 14.h),
+          // Row(
+          //   children: [
+          //     const _HeaderIcon(icon: Icons.menu_rounded),
+          //
+          //     const Spacer(),
+          //     const _HeaderIcon(
+          //       icon: Icons.notifications_none_rounded,
+          //       badge: 3,
+          //     ),
+          //   ],
+          // ),
+          SizedBox(height:80.h),
 
           // Welcome line
           // Row(
@@ -302,7 +286,6 @@ class _HomeHeader extends StatelessWidget {
           //     ),
           //   ],
           // ),
-          SizedBox(height: 16.h),
 
           // 3 stat cards — Sales / Costs / Daily Sales
           Row(
@@ -352,54 +335,54 @@ class _HomeHeader extends StatelessWidget {
   // }
 }
 
-class _HeaderIcon extends StatelessWidget {
-  final IconData icon;
-  final int? badge;
-
-  const _HeaderIcon({required this.icon, this.badge});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: 36.w,
-          height: 36.w,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(10.r),
-          ),
-          child: Icon(icon, color: Colors.white, size: 20.sp),
-        ),
-        if (badge != null && badge! > 0)
-          Positioned(
-            top: -4,
-            right: -4,
-            child: Container(
-              padding: EdgeInsets.all(4.w),
-              constraints: BoxConstraints(minWidth: 16.w, minHeight: 16.w),
-              decoration: const BoxDecoration(
-                color: Color(0xffE74C3C),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  '$badge',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
+// class _HeaderIcon extends StatelessWidget {
+//   final IconData icon;
+//   final int? badge;
+//
+//   const _HeaderIcon({required this.icon, this.badge});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Stack(
+//       clipBehavior: Clip.none,
+//       children: [
+//         Container(
+//           width: 36.w,
+//           height: 36.w,
+//           alignment: Alignment.center,
+//           decoration: BoxDecoration(
+//             color: Colors.white.withValues(alpha: 0.15),
+//             borderRadius: BorderRadius.circular(10.r),
+//           ),
+//           child: Icon(icon, color: Colors.white, size: 20.sp),
+//         ),
+//         if (badge != null && badge! > 0)
+//           Positioned(
+//             top: -4,
+//             right: -4,
+//             child: Container(
+//               padding: EdgeInsets.all(4.w),
+//               constraints: BoxConstraints(minWidth: 16.w, minHeight: 16.w),
+//               decoration: const BoxDecoration(
+//                 color: Color(0xffE74C3C),
+//                 shape: BoxShape.circle,
+//               ),
+//               child: Center(
+//                 child: Text(
+//                   '$badge',
+//                   style: TextStyle(
+//                     color: Colors.white,
+//                     fontSize: 9.sp,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ),
+//       ],
+//     );
+//   }
+// }
 
 // ────────────────────────────────────────────────────────────────────────
 //  Stat card (top header — money / count variants)
@@ -424,49 +407,51 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(10.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.topCenter,
+      children: [
+        Container(
+          width: 120,
+          padding: EdgeInsets.fromLTRB(10.w, 16.h, 10.w, 0.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14.r),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Expanded so the label shrinks / ellipses instead of pushing
-              // the icon past the card's right edge (cards are ~62px wide
-              // on a 360-dp device and the Arabic labels are long).
-              Expanded(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextTheme.labelSmall8
-                      .copyWith(color: const Color(0xff8A8F99)),
-                ),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextTheme.caption
+                    .copyWith(color: const Color(0xff8A8F99)),
               ),
-              SizedBox(width: 4.w),
-              Container(
-                width: 18.w,
-                height: 18.w,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: accent, size: 14.sp),
+              Text(
+                _formatMoney(value.toDouble()),
+                style: AppTextTheme.titleSmallBold,
               ),
             ],
           ),
-          SizedBox(height: 3.h),
-          Text(
-            _formatMoney(value.toDouble()),
-            style: AppTextTheme.caption,
+        ),
+        Positioned(
+          top: -14.h,
+          child: CircleAvatar(
+            radius: 17.w,
+            backgroundColor: AppColors.white,
+            child: Container(
+              width: 30.w,
+              height: 30.w,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: accent, size: 20.sp),
+            ),
           ),
-
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -518,8 +503,7 @@ class _ReportCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16.r),
             border: highlight
-                ? Border.all(color: color.withValues(alpha: 0.4), width: 1.5)
-                : null,
+                ? Border.all(color: color.withValues(alpha: 0.4), width: 1.5) : null,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.04),
@@ -579,7 +563,7 @@ class _ReportCard extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextTheme.labelSmall9,
+                  style: AppTextTheme.captionBold,
                 ),
               ),
               SizedBox(height: 2.h),
@@ -588,7 +572,7 @@ class _ReportCard extends StatelessWidget {
                   subtitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextTheme.labelSmall8
+                  style: AppTextTheme.caption
                       .copyWith(color: const Color(0xff8A8F99)),
                 ),
               ),
