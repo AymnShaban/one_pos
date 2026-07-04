@@ -105,7 +105,7 @@ class EndPoints {
       '/api/Product/SearchProductByBarcode';
   static const String getLastInvoiceByPattern =
       '/api/SalesInvoice/GetLastInvoiceByInvoiceID';
-  static const String createSalesInvoice = '/api/SalesInvoice/Create';
+  static const String createSalesInvoice = '/api/SalesInvoice/PostInvoice';
   static const String editSalesInvoice = '/api/SalesInvoice/Edit';
   static const String getPayWays = '/api/PayWay/GetPayWays';
   // Purchase-invoice-specific pattern list. Submission itself reuses the sales

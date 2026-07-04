@@ -65,18 +65,18 @@ class CartItemModel extends Equatable {
 
   Map<String, dynamic> toInvoiceJson() {
     final map = <String, dynamic>{
-      'ProductID':       productId,
-      'RowNumber':       rowNumber,
-      'Quantity':        quantity,
-      'Price':           price,
-      'Notes':           notes,
-      'RowSate':         rowState,
-      'DiscountPercent': discountPercent,
+      'productID':       productId,
+      'rowNumber':       rowNumber,
+      'quantity':        quantity,
+      'price':           price,
+      'notes':           notes,
+      'rowSate':         rowState,
+      'discountPercent': discountPercent,
     };
     if (selectedExpireDate != null) {
-      map['ExpireDate'] = selectedExpireDate!.expireDate;
+      map['expireDate'] = selectedExpireDate!.expireDate;
       map['BatchNo']    = selectedExpireDate!.notes;
-      map['StoreID']    = selectedExpireDate!.storeId;
+      map['storeID']    = selectedExpireDate!.storeId;
     }
     return map;
   }

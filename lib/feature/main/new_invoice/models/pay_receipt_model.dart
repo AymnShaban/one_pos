@@ -16,11 +16,11 @@ class PayReceiptModel extends Equatable {
   });
 
   Map<String, dynamic> toJson() => {
-    'PayingValue':  payingValue,
-    'PayingType':   payingType,
-    'receiptNumber': receiptNumber,
-    'PayWayName':   payWayName,
-    'PayWayEnName': payWayEnName,
+    'payingValue':  payingValue,
+    'payingType':   payingType,
+    'referenceNo':  receiptNumber,
+    'payWayName':   payWayName,
+    'payWayEnName': payWayEnName,
   };
 
   @override
