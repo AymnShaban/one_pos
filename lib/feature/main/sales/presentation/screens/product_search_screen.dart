@@ -83,11 +83,15 @@ class _ProductSearchViewState extends State<_ProductSearchView> {
       ),
       body: BlocBuilder<ProductSearchBloc, BaseState<ItemModel>>(
         builder: (context, state) {
-          if (_controller.text.trim().isEmpty && state.status == Status.initial) {
+          if (_controller.text.trim().isEmpty &&
+              state.status == Status.initial) {
             return Center(
               child: Text(
                 'new_invoice.search_product'.tr(),
-                style: TextStyle(color: const Color(0xff8A8F99), fontSize: 14.sp),
+                style: TextStyle(
+                  color: const Color(0xff8A8F99),
+                  fontSize: 14.sp,
+                ),
               ),
             );
           }
@@ -109,7 +113,10 @@ class _ProductSearchViewState extends State<_ProductSearchView> {
             return Center(
               child: Text(
                 'no_products'.tr(),
-                style: TextStyle(color: const Color(0xff8A8F99), fontSize: 14.sp),
+                style: TextStyle(
+                  color: const Color(0xff8A8F99),
+                  fontSize: 14.sp,
+                ),
               ),
             );
           }
@@ -119,17 +126,14 @@ class _ProductSearchViewState extends State<_ProductSearchView> {
               SliverPadding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 sliver: SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      if (index == state.items.length - 1) {
-                        context
-                            .read<ProductSearchBloc>()
-                            .add(const LoadMoreSearchResults());
-                      }
-                      return ProductItemSelector(product: state.items[index]);
-                    },
-                    childCount: state.items.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    if (index == state.items.length - 1) {
+                      context.read<ProductSearchBloc>().add(
+                        const LoadMoreSearchResults(),
+                      );
+                    }
+                    return ProductItemSelector(product: state.items[index]);
+                  }, childCount: state.items.length),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 12.w,

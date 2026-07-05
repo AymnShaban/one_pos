@@ -24,9 +24,7 @@ class LiveSalesReportBloc
       branchIds: event.branchIds,
       delegateIds: event.delegateIds,
       allBranchesChecked: event.allBranchesChecked,
-      // Sellers feature isn't wired yet — keep "all" true so the server
-      // doesn't filter them out by mistake.
-      allSalesManChecked: true,
+      allSalesManChecked: event.allSalesManChecked,
       showSalesManChecked: event.showSalesManChecked,
       weightChecked: event.weightChecked,
       showByBranchCurrencyChecked: event.showByBranchCurrencyChecked,

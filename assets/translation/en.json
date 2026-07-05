@@ -311,6 +311,7 @@
   "live_sales_report": {
     "title":                       "Live Sales",
     "branches":                    "Branches",
+    "sellers":                     "Sellers",
     "all":                         "All",
     "report_options":              "Report Options",
     "show_by_seller":              "Show by Seller",

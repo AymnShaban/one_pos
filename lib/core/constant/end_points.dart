@@ -150,4 +150,8 @@ class EndPoints {
       'api/Voucher/UpdateInvoiceCollecting';
   static const String getReceiptsVouchersTypes =
       'api/VoucherSettings/GetReceiptsVouchersTypes';
+
+  // Live Sales report — sellers ("delegates") multi-select. Query param
+  // `search`; call with an empty value to get every delegate.
+  static const String getDelegates = '/api/EtMovement/delegates';
 }

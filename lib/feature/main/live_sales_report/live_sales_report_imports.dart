@@ -11,13 +11,17 @@ import '../invoice_setup/invoice_setup_imports.dart'
 // Models
 part 'models/sales_movements_report_request.dart';
 part 'models/sales_movements_report_response.dart';
+part 'models/delegate_model.dart';
 
 // Data source
 part 'data_source/live_sales_report_data_source.dart';
+part 'data_source/delegate_data_source.dart';
 
 // Bloc
 part 'manager/live_sales_report_bloc/live_sales_report_bloc.dart';
 part 'manager/live_sales_report_bloc/live_sales_report_event.dart';
+part 'manager/delegate_bloc/delegate_bloc.dart';
+part 'manager/delegate_bloc/delegate_event.dart';
 
 // Screens
 part 'presentation/screens/live_sales_report_screen.dart';

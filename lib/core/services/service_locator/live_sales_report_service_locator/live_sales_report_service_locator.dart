@@ -10,5 +10,12 @@ class LiveSalesReportServiceLocator {
         dataSource: getIt<LiveSalesReportDataSource>(),
       ),
     );
+
+    getIt.registerLazySingleton<DelegateDataSource>(
+      () => DelegateDataSourceImpl(getIt<GenericDataSource>()),
+    );
+    getIt.registerFactory<DelegateBloc>(
+      () => DelegateBloc(dataSource: getIt<DelegateDataSource>()),
+    );
   }
 }

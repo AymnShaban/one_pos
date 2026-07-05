@@ -16,6 +16,7 @@ class LoadLiveSalesReport extends LiveSalesReportEvent {
   final List<int> branchIds;
   final List<int> delegateIds;
   final bool allBranchesChecked;
+  final bool allSalesManChecked;
   final bool showSalesManChecked;
   final bool weightChecked;
   final bool showByBranchCurrencyChecked;
@@ -27,6 +28,7 @@ class LoadLiveSalesReport extends LiveSalesReportEvent {
     required this.branchIds,
     this.delegateIds = const [],
     this.allBranchesChecked = true,
+    this.allSalesManChecked = true,
     this.showSalesManChecked = true,
     this.weightChecked = true,
     this.showByBranchCurrencyChecked = true,
@@ -40,6 +42,7 @@ class LoadLiveSalesReport extends LiveSalesReportEvent {
         branchIds,
         delegateIds,
         allBranchesChecked,
+        allSalesManChecked,
         showSalesManChecked,
         weightChecked,
         showByBranchCurrencyChecked,
