@@ -10,7 +10,12 @@ abstract interface class ProductSearchDataSource {
     required PaginationParams params,
   });
 
-  Future<Either<Failure, List<ItemModel>>> searchProducts(String searchKey);
+  Future<Either<Failure, List<ItemModel>>> searchProducts({
+    required int page,
+    required int limit,
+    required int patternId,
+    required String search,
+  });
   Future<Either<Failure, List<ItemModel>>> searchByBarcode(String barcode);
 }
 
@@ -38,10 +43,20 @@ class ProductSearchDataSourceImpl implements ProductSearchDataSource {
   }
 
   @override
-  Future<Either<Failure, List<ItemModel>>> searchProducts(String searchKey) {
+  Future<Either<Failure, List<ItemModel>>> searchProducts({
+    required int page,
+    required int limit,
+    required int patternId,
+    required String search,
+  }) {
     return _genericDataSource.fetchData<ItemModel>(
       endpoint: EndPoints.searchProducts,
-      queryParameters: {'searchKey': searchKey},
+      queryParameters: {
+        'patternId': patternId,
+        'Search': search,
+        'Page': page,
+        'PageSize': limit,
+      },
       fromJson: ItemModel.fromJson,
     );
   }

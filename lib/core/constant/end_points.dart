@@ -100,7 +100,7 @@ class EndPoints {
   static String subCategoryProducts =
       "/api/Product/GetProductsByPatternIdAndGroupIdV1";
 
-  static const String searchProducts = '/api/Product/SearchProducts';
+  static const String searchProducts = '/api/Product/GetAllProductsByFilterToAllGroups';
   static const String searchProductByBarcode =
       '/api/Product/SearchProductByBarcode';
   static const String getLastInvoiceByPattern =

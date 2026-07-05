@@ -5,8 +5,15 @@ import 'package:one_pos/core/constant/app_assets.dart';
 
 class HomeAppBar extends StatelessWidget {
   final bool isOnline;
+  final VoidCallback? onSearchTap;
+  final VoidCallback? onScanTap;
 
-  const HomeAppBar({super.key, required this.isOnline});
+  const HomeAppBar({
+    super.key,
+    required this.isOnline,
+    this.onSearchTap,
+    this.onScanTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +33,13 @@ class HomeAppBar extends StatelessWidget {
                 _buildTitle(),
 
                 const Spacer(),
+
+                if (onSearchTap != null) _buildActionIcon(Icons.search, onSearchTap!),
+                if (onScanTap != null) ...[
+                  SizedBox(width: 4.w),
+                  _buildActionIcon(Icons.qr_code_scanner, onScanTap!),
+                  SizedBox(width: 12.w),
+                ],
 
                 _buildConnectivityIndicator(),
               ],
@@ -54,6 +68,13 @@ class HomeAppBar extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActionIcon(IconData icon, VoidCallback onTap) {
+    return IconButton(
+      icon: Icon(icon, color: Colors.white),
+      onPressed: onTap,
     );
   }
 

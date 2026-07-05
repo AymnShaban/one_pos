@@ -9,6 +9,55 @@ class SalesTab extends StatefulWidget {
 }
 
 class _SalesTabState extends State<SalesTab> {
+  Future<void> _openBarcodeScanner(BuildContext context) async {
+    final status = await Permission.camera.request();
+
+    if (status.isGranted) {
+      if (!context.mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => BarcodeScannerView(
+            onBarcodeScanned: _handleBarcodeScanned,
+          ),
+        ),
+      );
+    } else {
+      if (!context.mounted) return;
+      showCustomSnackBar(context, 'camera_permission_denied'.tr());
+    }
+  }
+
+  Future<void> _handleBarcodeScanned(String barcode) async {
+    final customer = getIt<IUserCache>().getUserModel();
+    if (customer == null) {
+      if (mounted) showCustomSnackBar(context, 'please_log_in_to_add_to_cart'.tr());
+      return;
+    }
+
+    final result = await getIt<ProductSearchDataSource>().searchByBarcode(barcode);
+    result.fold(
+      (failure) {
+        if (mounted) showCustomSnackBar(context, failure.message);
+      },
+      (items) {
+        if (items.isEmpty) {
+          if (mounted) showCustomSnackBar(context, 'product_not_found'.tr());
+          return;
+        }
+        final item = items.first;
+        getIt<AddToBasketBloc>().add(
+          AddToBasket(AddToBasketRequest(
+            customerID: customer.id,
+            productID: item.productId,
+            productBarcode: item.barCode,
+            item: item,
+            quantity: 1,
+          )),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -70,7 +119,22 @@ class _SalesTabState extends State<SalesTab> {
           builder: (context, state) {
             return CustomScrollView(
               slivers: [
-                HomeAppBar(isOnline: context.read<HomeBloc>().isOnline),
+                HomeAppBar(
+                  isOnline: context.read<HomeBloc>().isOnline,
+                  onSearchTap: () {
+                    final setupBloc = context.read<InvoiceSetupBloc>();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProductSearchScreen(
+                          patternId: setupBloc.state.selectedPatternId,
+                          invoiceSetupBloc: setupBloc,
+                        ),
+                      ),
+                    );
+                  },
+                  onScanTap: () => _openBarcodeScanner(context),
+                ),
 
                 // Pattern / Currency / Branch selectors
                 const SliverToBoxAdapter(child: SalesSetupBar()),
