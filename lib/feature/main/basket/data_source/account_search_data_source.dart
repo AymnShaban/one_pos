@@ -16,12 +16,13 @@ class AccountSearchDataSourceImpl implements AccountSearchDataSource {
   Future<Either<Failure, List<CustomerAccountModel>>> searchCustomers(
     String searchKey,
   ) {
-    final userId = getIt<HiveServiceImpl>().getUserId();
+    final employeeId = getIt<HiveServiceImpl>().getUserModel()?.employeeId ??
+        getIt<HiveServiceImpl>().getUserId();
     return _genericDataSource.fetchData<CustomerAccountModel>(
-      endpoint: EndPoints.getAllCustomersByName,
+      endpoint: EndPoints.getCustomersAccountToEmployee,
       queryParameters: {
         'SearchKey': searchKey,
-        'UserID': userId,
+        'EmployeeID': employeeId,
       },
       fromJson: CustomerAccountModel.fromJson,
     );

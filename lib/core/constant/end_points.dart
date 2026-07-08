@@ -20,6 +20,10 @@ class EndPoints {
   // ── Existing endpoints ────────────────────────────────
   static const String register = "/api/Customer/AddCustomer";
   static const String getAllCustomersByName = '/api/Accounts/GetAllCustomersAccountByName';
+  /// Customer account search scoped to the logged-in employee. Query params:
+  /// `EmployeeID` (from the cached user) and `SearchKey`.
+  static const String getCustomersAccountToEmployee =
+      '/api/ACI/GetCustomersAccountToEmployee';
 
 
   static String productDetails = "/api/Product/GetProductById";

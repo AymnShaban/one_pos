@@ -1,7 +1,9 @@
 part of '../basket_imports.dart';
 
-/// A customer account returned by GetAllCustomersAccountByName.
-/// (The API spells some keys "Acount..." — kept as-is in fromJson.)
+/// A customer account returned by the account-search endpoints.
+/// Handles both the PascalCase shape (GetAllCustomersAccountByName) and the
+/// camelCase shape (GetCustomersAccountToEmployee); the API also misspells
+/// some keys as "acount..." — kept as-is in fromJson.
 class CustomerAccountModel extends Equatable {
   final int accountId;
   final String accountCode;
@@ -10,6 +12,8 @@ class CustomerAccountModel extends Equatable {
   final String? phone;
   final double balance;
   final String? fullAddress;
+  final String? codeAndArabicName;
+  final String? codeAndEnglishName;
 
   const CustomerAccountModel({
     required this.accountId,
@@ -19,19 +23,31 @@ class CustomerAccountModel extends Equatable {
     this.phone,
     this.balance = 0,
     this.fullAddress,
+    this.codeAndArabicName,
+    this.codeAndEnglishName,
   });
 
   factory CustomerAccountModel.fromJson(Map<String, dynamic> json) {
     return CustomerAccountModel(
-      accountId: json['AccountID'] ?? 0,
-      accountCode:
-          (json['AcountCode'] ?? json['AccountCode'] ?? '').toString(),
-      accountArName: json['AcountName'] ?? json['AccountName'] ?? '',
-      accountEnName:
-          json['AcountEnglishName'] ?? json['AccountEnglishName'] ?? '',
-      phone: json['Phone1'] as String?,
-      balance: (json['Balance'] as num?)?.toDouble() ?? 0,
+      accountId: json['AccountID'] ?? json['accountID'] ?? 0,
+      accountCode: (json['AcountCode'] ??
+              json['AccountCode'] ??
+              json['acountCode'] ??
+              '')
+          .toString(),
+      accountArName:
+          json['AcountName'] ?? json['AccountName'] ?? json['acountName'] ?? '',
+      accountEnName: json['AcountEnglishName'] ??
+          json['AccountEnglishName'] ??
+          json['acountEnglishName'] ??
+          '',
+      phone: (json['Phone1'] ?? json['phone1']) as String?,
+      balance: ((json['Balance'] ?? json['balance']) as num?)?.toDouble() ?? 0,
       fullAddress: json['FullAddress'] as String?,
+      codeAndArabicName:
+          json['CodeAndArabicName'] ?? json['codeAndArabicName'] as String?,
+      codeAndEnglishName:
+          json['CodeAndEnglishName'] ?? json['codeAndEnglishName'] as String?,
     );
   }
 
@@ -43,6 +59,8 @@ class CustomerAccountModel extends Equatable {
         'Phone1': phone,
         'Balance': balance,
         'FullAddress': fullAddress,
+        'CodeAndArabicName': codeAndArabicName,
+        'CodeAndEnglishName': codeAndEnglishName,
       };
 
   /// Localized name with a fallback to the other language if one is empty.
