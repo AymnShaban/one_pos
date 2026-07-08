@@ -38,7 +38,27 @@ class NewInvoiceDataSourceImpl implements NewInvoiceDataSource {
     debugPrint("Creating invoice with data: ${request.toJson()}");
     return _genericDataSource.postData<String>(
       endpoint: EndPoints.createSalesInvoice,
-      data:     request.toJson(),
+      data:    {
+        "invoiceID":           request.invoicePatternId,
+        "invoiceDate":        request. invoiceDate,
+        "companyBranchID":     request.companyBranchId,
+        "remainder":          request. remainder,
+        "prePaid":            request. prePaid,
+        "currencyID":        request.  currencyId,
+        "rate":              request.  currencyRate,
+        "customerID":        request.  customerId,
+        "totalValue":        request.  totalValue,
+        "totalAddition":      request. totalAddition,
+        "totalDiscount":      request. totalDiscount,
+        "finalValue":         request. finalValue,
+        "payingType":        request.  payingType,
+        "salesInvoiceItems":  request. items.map((e) => e.toInvoiceJson()).toList(),
+        "salesInvoicePayWays":request. payWays.map((e) => e.toJson()).toList(),
+        "address":            request. address,
+        "createdBy":          request. createdBy,
+        "latitude":           request. latitude,
+        "longitude":          request. longitude,
+      } ,
     );
   }
 

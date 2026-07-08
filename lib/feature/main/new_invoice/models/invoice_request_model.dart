@@ -43,27 +43,32 @@ class CreateInvoiceRequest extends Equatable {
     this.longitude = 0,
   });
 
+  // Send native types. Numbers as numbers, nulls as nulls, lists as lists.
+  // The previous version `.toString()`'d everything — which turned the two
+  // nested arrays into Dart string literals ("[{productID: 3785, …}]") on
+  // the wire, so `System.Text.Json` couldn't bind the list fields and the
+  // whole model dropped to null with "The invoice field is required."
   Map<String, dynamic> toJson() => {
-    'invoiceID':          invoicePatternId,
-    'invoiceDate':        invoiceDate,
-    'companyBranchID':    companyBranchId,
-    'remainder':          remainder,
-    'prePaid':            prePaid,
-    'currencyID':         currencyId,
-    'rate':               currencyRate,
-    'customerID':         customerId,
-    'totalValue':         totalValue,
-    'totalAddition':      totalAddition,
-    'totalDiscount':      totalDiscount,
-    'finalValue':         finalValue,
-    'payingType':         payingType,
-    'salesInvoiceItems':  items.map((e) => e.toInvoiceJson()).toList(),
-    'salesInvoicePayWays': payWays.map((e) => e.toJson()).toList(),
-    'address':            address,
-    'createdBy':          createdBy,
-    'latitude':           latitude,
-    'longitude':          longitude,
-  };
+        "invoiceID":           invoicePatternId,
+        "invoiceDate":         invoiceDate,
+        "companyBranchID":     companyBranchId,
+        "remainder":           remainder,
+        "prePaid":             prePaid,
+        "currencyID":          currencyId,
+        "rate":                currencyRate,
+        "customerID":          customerId,
+        "totalValue":          totalValue,
+        "totalAddition":       totalAddition,
+        "totalDiscount":       totalDiscount,
+        "finalValue":          finalValue,
+        "payingType":          payingType,
+        "salesInvoiceItems":   items.map((e) => e.toInvoiceJson()).toList(),
+        "salesInvoicePayWays": payWays.map((e) => e.toJson()).toList(),
+        "address":             address,
+        "createdBy":           createdBy,
+        "latitude":            latitude,
+        "longitude":           longitude,
+      };
 
   @override
   List<Object?> get props => [invoicePatternId, invoiceDate, companyBranchId];

@@ -115,7 +115,12 @@ extension CheckoutButtonExt on _BasketPosSummaryState {
 
     final request = CreateInvoiceRequest(
       invoicePatternId: setupState.selectedPattern!.patternId,
-      invoiceDate: DateFormat('yyyy/MM/dd', 'en_US').format(DateTime.now()),
+      // ISO date-only (`yyyy-MM-dd`). .NET's System.Text.Json rejects the
+      // old `yyyy/MM/dd` ("The JSON value could not be converted to
+      // System.Nullable<DateTime>"), which cascades into the whole body
+      // binding to null → "The invoice field is required." Verified against
+      // the working Swagger cURL, which sends `2026-07-08`.
+      invoiceDate: DateFormat('yyyy-MM-dd', 'en_US').format(DateTime.now()),
       companyBranchId: selectedBranch?.branchId ?? 1,
       remainder: remaining,
       currencyId: setupState.selectedCurrency!.currencyId,

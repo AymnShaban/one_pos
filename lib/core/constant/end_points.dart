@@ -103,6 +103,10 @@ class EndPoints {
   static const String searchProducts = '/api/Product/GetAllProductsByFilterToAllGroups';
   static const String searchProductByBarcode =
       '/api/Product/SearchProductByBarcode';
+  /// Single-product lookup by barcode. Barcode goes on the URL, not as a
+  /// query param: `/api/Product/by-barcode/{barcode}`. Returns a single
+  /// object with the minimal shape `{id, mtName, barcode, sale, qty}`.
+  static const String productByBarcode = '/api/Product/by-barcode/';
   static const String getLastInvoiceByPattern =
       '/api/SalesInvoice/GetLastInvoiceByInvoiceID';
   static const String createSalesInvoice = '/api/SalesInvoice/PostInvoice';

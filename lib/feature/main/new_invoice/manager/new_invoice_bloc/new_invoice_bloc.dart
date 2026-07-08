@@ -166,7 +166,12 @@ class NewInvoiceBloc extends Bloc<NewInvoiceEvent, NewInvoiceState> {
 
     final request = CreateInvoiceRequest(
       invoicePatternId: event.patternId,
-      invoiceDate: DateFormat('yyyy/MM/dd', 'en_US').format(DateTime.now()),
+      // ASP.NET's `System.Text.Json` deserializer only accepts ISO 8601 for
+      // `DateTime`; the old `yyyy/MM/dd` shape 400s ("could not be converted
+      // to System.Nullable<DateTime>") and cascades into a null model that
+      // trips "The invoice field is required." Date-only ISO (`yyyy-MM-dd`)
+      // is what the server was verified to accept.
+      invoiceDate: DateFormat('yyyy-MM-dd', 'en_US').format(DateTime.now()),
       companyBranchId: event.branchId,
       remainder: 0,
       currencyId: event.currencyId,

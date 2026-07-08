@@ -258,25 +258,34 @@ class ItemModel extends Equatable {
       }
     }
     final firstUnit = parsedUnits.isNotEmpty ? parsedUnits.first : null;
+    // Minimal `/api/Product/by-barcode/{barcode}` payload uses the short
+    // key set (`id`, `mtName`, `mteName`, `barcode`, `sale`, `qty`). We
+    // fall back to those so the same factory parses both shapes.
     return ItemModel(
       productCode: (json['productCode'] ?? '').toString(),
-      productId: json['productID'] as int? ?? 0,
-      barCode: (json['barCode'] ?? '').toString(),
+      productId: json['productID'] as int? ?? json['id'] as int? ?? 0,
+      barCode: (json['barCode'] ?? json['barcode'] ?? '').toString(),
       colorArName: json['colorArName'] as String?,
       colorEnName: json['colorEnName'] as String?,
       sizeName: json['sizeName'] as String?,
       sizeEName: json['sizeEName'] as String?,
-      productArName: json['productArName'] as String? ?? '',
-      productEnName: json['productEnName'] as String? ?? '',
+      productArName:
+          json['productArName'] as String? ?? json['mtName'] as String? ?? '',
+      productEnName:
+          json['productEnName'] as String? ?? json['mteName'] as String? ?? '',
       categoryArName: json['categoryArName'] as String? ?? '',
       categoryEnName: json['categoryEnName'] as String? ?? '',
       categoryId: json['categoryId']?.toString(),
       productImage: json['productcImage'] as String? ?? '',
       isFavorite: (json['isFavorite'] as num? ?? 0) == 1,
-      price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      priceAfterDiscount:
-          (json['priceAfterDiscount'] as num?)?.toDouble() ?? 0.0,
-      stockQuantity: (json['stockQuantity'] as num?) ?? 0,
+      price: (json['price'] as num?)?.toDouble() ??
+          (json['sale'] as num?)?.toDouble() ??
+          0.0,
+      priceAfterDiscount: (json['priceAfterDiscount'] as num?)?.toDouble() ??
+          (json['sale'] as num?)?.toDouble() ??
+          0.0,
+      stockQuantity:
+          (json['stockQuantity'] as num?) ?? (json['qty'] as num?) ?? 0,
       registrationDate: json['registerationDate'] as String? ?? '',
       description1: json['description1'] as String?,
       description2: json['description2'] as String?,

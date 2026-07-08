@@ -242,7 +242,9 @@ class _InvoiceSummaryScreenState extends State<InvoiceSummaryScreen> {
         SubmitInvoice(
           CreateInvoiceRequest(
             invoicePatternId: state.patternId,
-            invoiceDate: DateFormat('yyyy/MM/dd', 'en_US').format(DateTime.now()),
+            // Date-only ISO (`yyyy-MM-dd`) — .NET rejects `yyyy/MM/dd`
+            // (see NewInvoiceBloc._onSubmit for the failure mode).
+            invoiceDate: DateFormat('yyyy-MM-dd', 'en_US').format(DateTime.now()),
             companyBranchId:  state.branchId,
             remainder:        cartState.remaining,
             currencyId:       state.currencyId,

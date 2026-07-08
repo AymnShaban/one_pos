@@ -62,11 +62,18 @@ class ProductSearchDataSourceImpl implements ProductSearchDataSource {
   }
 
   @override
-  Future<Either<Failure, List<ItemModel>>> searchByBarcode(String barcode) {
-    return _genericDataSource.fetchData<ItemModel>(
-      endpoint: EndPoints.searchProductByBarcode,
-      queryParameters: {'Barcode': barcode},
+  Future<Either<Failure, List<ItemModel>>> searchByBarcode(String barcode) async {
+    // New endpoint puts the barcode on the path and returns ONE product
+    // object (not a list). We still hand a `List<ItemModel>` back to
+    // callers so their existing `items.first`/`items.isEmpty` code keeps
+    // working unchanged.
+    final result = await _genericDataSource.fetchResult<ItemModel>(
+      endpoint: '${EndPoints.productByBarcode}$barcode',
       fromJson: ItemModel.fromJson,
+    );
+    return result.fold(
+      (failure) => Left(failure),
+      (item) => Right([item]),
     );
   }
 }
