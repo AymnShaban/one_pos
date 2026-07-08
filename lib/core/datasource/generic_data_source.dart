@@ -106,7 +106,12 @@ class GenericDataSource {
           // wrapped by the consumer as {'data': '<msg>'} or {'message': ...}
           // — surface those as a failure instead of a fake-success.
           if (right is Map) {
-            if (right['InvoiceID'] == null && right['message'] is String) {
+            // A saved invoice comes back as {message, invoiceID, invoiceNo}.
+            // Only treat a message-bearing body as a rejection when there's
+            // no invoice id (either casing) — otherwise it's a real success.
+            final hasInvoiceId =
+                right['invoiceID'] != null || right['InvoiceID'] != null;
+            if (!hasInvoiceId && right['message'] is String) {
               return Left(ServerFailure(message: right['message'] as String));
             }
           }

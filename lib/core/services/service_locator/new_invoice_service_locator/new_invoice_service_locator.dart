@@ -21,5 +21,8 @@ class NewInvoiceServiceLocator {
     getIt.registerFactory<NewInvoiceBloc>(
           () => NewInvoiceBloc(dataSource: getIt<NewInvoiceDataSource>()),
     );
+    getIt.registerFactory<InvoiceDetailsBloc>(
+          () => InvoiceDetailsBloc(dataSource: getIt<NewInvoiceDataSource>()),
+    );
   }
 }

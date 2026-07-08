@@ -16,6 +16,24 @@ class _BasketScreenState extends State<BasketScreen> {
     });
   }
 
+  /// Extracts `(invoiceID, invoiceNo)` from the create-invoice response,
+  /// which arrives as a JSON string like
+  /// `{"message":"...","invoiceID":15,"invoiceNo":793}`. Returns null if the
+  /// payload can't be parsed or the ids are missing.
+  (int, int)? _parseCreatedInvoice(String? successData) {
+    if (successData == null || successData.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(successData);
+      if (decoded is! Map) return null;
+      final id = (decoded['invoiceID'] ?? decoded['InvoiceID']) as num?;
+      final no = (decoded['invoiceNo'] ?? decoded['InvoiceNo']) as num?;
+      if (id == null || no == null) return null;
+      return (id.toInt(), no.toInt());
+    } catch (_) {
+      return null;
+    }
+  }
+
   void _checkAuthentication() {
     final customerModel = getIt<IUserCache>().getUserModel();
 
@@ -111,15 +129,40 @@ class _BasketScreenState extends State<BasketScreen> {
                 const BasketPosSummary(),
                 SizedBox(height: 10.h),
                 BlocListener<NewInvoiceBloc, NewInvoiceState>(
+                  listenWhen: (prev, curr) =>
+                      prev.submitStatus != curr.submitStatus,
                   listener: (context, state) {
-                    if (state.submitStatus == Status.loading) {
-                      // Optionally show a loading dialog or overlay
-                    } else if (state.submitStatus == Status.success) {
-                      showCustomSnackBar(context, 'invoice_created_successfully'.tr(),);
-                      context.read<BasketBloc>().add(const ClearBasket()); // Empty the basket after a successful sale
-                      Navigator.pop(context);
+                    if (state.submitStatus == Status.success) {
+                      showCustomSnackBar(
+                        context,
+                        'invoice_created_successfully'.tr(),
+                      );
+                      // Empty the basket after a successful sale — the shared
+                      // BasketBloc singleton is also what SalesTab renders, so
+                      // clearing it leaves SalesTab showing an empty basket.
+                      context.read<BasketBloc>().add(const ClearBasket());
+                      // Pull the created invoice ids out of the create
+                      // response ({message, invoiceID, invoiceNo}).
+                      final ids = _parseCreatedInvoice(state.successData);
+                      // Pop back to the SalesTab shell (first route), then open
+                      // the read-only details screen for the new invoice.
+                      Navigator.popUntil(context, (r) => r.isFirst);
+                      if (ids != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => InvoiceDetailsScreen(
+                              invoiceId: ids.$1,
+                              invoiceNo: ids.$2,
+                            ),
+                          ),
+                        );
+                      }
                     } else if (state.submitStatus == Status.failure) {
-                      showCustomSnackBar(context, state.errorMessage ?? 'error'.tr(),);
+                      showCustomSnackBar(
+                        context,
+                        state.errorMessage ?? 'error'.tr(),
+                      );
                     }
                   },
                   child: const SizedBox.shrink(),

@@ -5,6 +5,10 @@ abstract interface class NewInvoiceDataSource {
   Future<Either<Failure, int>> getLastInvoiceId(int patternId);
   Future<Either<Failure, String>> createInvoice(CreateInvoiceRequest request);
   Future<Either<Failure, String>> editInvoice(EditInvoiceRequest request);
+  Future<Either<Failure, InvoiceDetailsModel>> getInvoiceForEdit({
+    required int invoiceId,
+    required int invoiceNo,
+  });
 }
 
 class NewInvoiceDataSourceImpl implements NewInvoiceDataSource {
@@ -67,6 +71,21 @@ class NewInvoiceDataSourceImpl implements NewInvoiceDataSource {
     return _genericDataSource.updateData<String>(
       endpoint: EndPoints.editSalesInvoice,
       data:     request.toJson(),
+    );
+  }
+
+  @override
+  Future<Either<Failure, InvoiceDetailsModel>> getInvoiceForEdit({
+    required int invoiceId,
+    required int invoiceNo,
+  }) {
+    return _genericDataSource.fetchResult<InvoiceDetailsModel>(
+      endpoint: EndPoints.getInvoiceForEdit,
+      queryParameters: {
+        'invoiceId': invoiceId,
+        'invoiceNo': invoiceNo,
+      },
+      fromJson: InvoiceDetailsModel.fromJson,
     );
   }
 }

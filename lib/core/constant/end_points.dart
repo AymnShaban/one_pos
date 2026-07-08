@@ -114,6 +114,9 @@ class EndPoints {
   static const String getLastInvoiceByPattern =
       '/api/SalesInvoice/GetLastInvoiceByInvoiceID';
   static const String createSalesInvoice = '/api/SalesInvoice/PostInvoice';
+  /// Full invoice payload for the details/edit view. Query: `invoiceId` +
+  /// `invoiceNo` (both returned by the create response).
+  static const String getInvoiceForEdit = '/api/SalesInvoice/GetInvoiceForEdit';
   static const String editSalesInvoice = '/api/SalesInvoice/Edit';
   static const String getPayWays = '/api/PayWay/GetPayWays';
   // Purchase-invoice-specific pattern list. Submission itself reuses the sales

@@ -7,6 +7,8 @@
   "no_categories": "Aucune catégorie",
   "no_products": "Aucun produit trouvé",
   "basket_details": "Détails du panier",
+  "cart_is_empty": "Le panier est vide",
+  "invoice_created_successfully": "Facture créée avec succès",
   "subtotal": "Sous-total",
   "payment": "Paiement",
   "price": "Prix",
@@ -30,6 +32,38 @@
     "invoices": "Factures",
     "reports": "Rapports",
     "settings": "Paramètres"
+  },
+
+  "invoice_details": {
+    "title": "Détails de la facture",
+    "invoice_number": "N° de facture",
+    "customer": "Client",
+    "store": "Magasin",
+    "items": "Articles",
+    "items_count": "{} article(s)",
+    "code": "Code",
+    "barcode": "Code-barres",
+    "quantity": "Quantité",
+    "price": "Prix",
+    "discount": "Remise",
+    "add": "Ajout",
+    "payment_methods": "Modes de paiement",
+    "rate": "Taux",
+    "cash": "Espèces",
+    "deferred": "À terme",
+    "discounts_additions": "Remises et ajouts",
+    "no_discounts": "Aucune remise ni ajout sur cette facture",
+    "total": "Total de la facture",
+    "total_discount": "Remise totale",
+    "total_addition": "Ajout total",
+    "final_value": "Net final",
+    "created_by": "Créée par",
+    "branch": "Succursale",
+    "taxable": "Taxable",
+    "non_taxable": "Non soumis à la taxe",
+    "type_sales": "Facture de vente",
+    "type_invoice": "Facture",
+    "currency_default": "KWD"
   }
 
 }

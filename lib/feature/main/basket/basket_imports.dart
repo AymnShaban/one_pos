@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:one_pos/feature/main/basket/presentation/widgets/basket_pos_summary_widgets/editable_small_box.dart';
