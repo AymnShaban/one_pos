@@ -17,17 +17,31 @@ class InvoiceDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => GetIt.instance<InvoiceDetailsBloc>()
-        ..add(LoadInvoiceDetails(invoiceId: invoiceId, invoiceNo: invoiceNo)),
-      child: _InvoiceDetailsView(invoiceNo: invoiceNo),
+      create: (_) => getIt<InvoiceDetailsBloc>(),
+      child: _InvoiceDetailsView(invoiceNo: invoiceNo, invoiceId: invoiceId),
     );
   }
 }
 
-class _InvoiceDetailsView extends StatelessWidget {
+class _InvoiceDetailsView extends StatefulWidget {
   final int invoiceNo;
+  final int invoiceId;
 
-  const _InvoiceDetailsView({required this.invoiceNo});
+  const _InvoiceDetailsView({required this.invoiceNo,required this.invoiceId});
+
+  @override
+  State<_InvoiceDetailsView> createState() => _InvoiceDetailsViewState();
+}
+
+class _InvoiceDetailsViewState extends State<_InvoiceDetailsView> {
+  // initState
+  @override
+  void initState() {
+    super.initState();
+    // Load invoice details when the screen is first built
+    context.read<InvoiceDetailsBloc>().add(LoadInvoiceDetails(invoiceId: 0, invoiceNo: widget.invoiceNo));
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +56,27 @@ class _InvoiceDetailsView extends StatelessWidget {
           style: AppTextTheme.titleSmallBold.copyWith(color: Colors.white),
         ),
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.print_outlined, color: Colors.white),
+          Builder(
+            builder: (context) => IconButton(
+              onPressed: () {
+                final invoice =
+                    context.read<InvoiceDetailsBloc>().state.data;
+                if (invoice == null) return;
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: AppColors.whiteColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+                  ),
+                  builder: (_) => BlocProvider(
+                    create: (_) => getIt<PrinterBloc>(),
+                    child: PrintReceiptSheet(invoice: invoice),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.print_outlined, color: Colors.white),
+            ),
           ),
           IconButton(
             onPressed: () {},
@@ -63,7 +95,7 @@ class _InvoiceDetailsView extends StatelessWidget {
               onRetry: () => context.read<InvoiceDetailsBloc>().add(
                     LoadInvoiceDetails(
                       invoiceId: state.data?.invoiceId ?? 0,
-                      invoiceNo: invoiceNo,
+                      invoiceNo: widget.invoiceNo,
                     ),
                   ),
             );
@@ -533,7 +565,7 @@ class _Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(14.w),
+      padding: EdgeInsets.symmetric(horizontal: 14.w,vertical: 3),
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(12.r),

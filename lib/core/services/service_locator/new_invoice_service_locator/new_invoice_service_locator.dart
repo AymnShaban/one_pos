@@ -24,5 +24,11 @@ class NewInvoiceServiceLocator {
     getIt.registerFactory<InvoiceDetailsBloc>(
           () => InvoiceDetailsBloc(dataSource: getIt<NewInvoiceDataSource>()),
     );
+    getIt.registerLazySingleton<PrinterDataSource>(
+          () => PrinterDataSourceImpl(),
+    );
+    getIt.registerFactory<PrinterBloc>(
+          () => PrinterBloc(dataSource: getIt<PrinterDataSource>()),
+    );
   }
 }

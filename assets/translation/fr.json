@@ -34,8 +34,30 @@
     "settings": "Paramètres"
   },
 
+  "printing": {
+    "title": "Imprimer le reçu",
+    "paper_size": "Taille du papier",
+    "size_55": "55 mm",
+    "size_72": "72 mm",
+    "size_80": "80 mm",
+    "select_printer": "Choisir une imprimante",
+    "no_printers": "Aucune imprimante jumelée. Jumelez-en une dans les réglages Bluetooth.",
+    "no_bluetooth": "Bluetooth indisponible",
+    "permission_denied": "Autorisation Bluetooth refusée",
+    "print": "Imprimer",
+    "pdf_print": "PDF et impression",
+    "bluetooth_print": "Impression Bluetooth",
+    "printing": "Impression…",
+    "printed": "Imprimé avec succès",
+    "print_failed": "Échec de l'impression",
+    "render_failed": "Impossible de générer le reçu",
+    "connect_failed": "Connexion à l'imprimante impossible",
+    "write_failed": "Envoi des données à l'imprimante impossible",
+    "thank_you": "Merci"
+  },
   "invoice_details": {
     "title": "Détails de la facture",
+    "date": "Date",
     "invoice_number": "N° de facture",
     "customer": "Client",
     "store": "Magasin",

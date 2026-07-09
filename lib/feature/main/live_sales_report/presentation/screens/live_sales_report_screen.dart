@@ -45,6 +45,11 @@ class _LiveSalesReportViewState extends State<_LiveSalesReportView> {
   // (matches SalesMovementsReportRequest.allSalesManChecked defaulting true).
   final Set<int> _selectedDelegateIds = {};
 
+  // Ordered seller names for the last preview, used to fill each result
+  // card's header in seller mode (the server leaves it empty there, unlike
+  // branch mode which already returns the branch name). Empty in branch mode.
+  List<String> _sellerHeaders = [];
+
   // Report-option checkboxes — all off by default; the user opts in.
   // (The "show by seller" flag is now implicit — the sellers card is the
   // control surface for it, so we always request the by-seller breakdown
@@ -117,39 +122,58 @@ class _LiveSalesReportViewState extends State<_LiveSalesReportView> {
   //  Submit
   // ─────────────────────────────────────────────────────────────────────
   void _preview(BuildContext context) {
-    if (_selectedBranchIds.isEmpty) {
+    // Branches and sellers are mutually exclusive filters — the user picks one
+    // dimension to break the report down by. Require at least one of them.
+    if (_selectedBranchIds.isEmpty && _selectedDelegateIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              'live_sales_report.select_at_least_one_branch'.tr()),
+              'live_sales_report.select_branch_or_seller'.tr()),
         ),
       );
       return;
     }
     final all = context.read<BranchBloc>().state.items;
-
     final allDelegates = context.read<DelegateBloc>().state.items;
-    final allSellersSelected = _selectedDelegateIds.isEmpty ||
-        _selectedDelegateIds.length == allDelegates.length;
-    // Server 400s with "NoSpecificSalesman" when `selectedDelegateDtos` is
-    // empty — even when `chk_AllSalesManChecked: true` is set. Always send
-    // the full id list, whether the user tapped "All" or picked rows.
-    final delegateIdsToSend = allSellersSelected
-        ? allDelegates.map((d) => d.empId).toList()
-        : _selectedDelegateIds.toList();
+
+    // Whichever dimension the user didn't pick is sent as "all". The server
+    // 400s ("NoSpecificSalesman" / no branch) when a list is empty even with
+    // the matching all-checked flag, so always send the full id list for the
+    // untouched dimension.
+    final branchesMode = _selectedBranchIds.isNotEmpty;
+    final allSellersSelected = !branchesMode
+        ? _selectedDelegateIds.length == allDelegates.length
+        : true;
+    final allBranchesSelected = branchesMode ? _isAllSelected(all) : true;
+
+    final branchIdsToSend = _selectedBranchIds.isNotEmpty
+        ? _selectedBranchIds.toList()
+        : all.map((b) => b.branchId).toList();
+    final delegateIdsToSend = _selectedDelegateIds.isNotEmpty
+        ? _selectedDelegateIds.toList()
+        : allDelegates.map((d) => d.empId).toList();
+
+    // In seller mode capture the seller names (in the same order sent) so the
+    // result cards can show them; the server returns empty headers there.
+    final nameById = {for (final d in allDelegates) d.empId: d.empName};
+    setState(() {
+      _sellerHeaders = branchesMode
+          ? const []
+          : delegateIdsToSend.map((id) => nameById[id] ?? '').toList();
+    });
 
     context.read<LiveSalesReportBloc>().add(
           LoadLiveSalesReport(
             fromDate: _fromDate,
             toDate: _toDate,
-            branchIds: _selectedBranchIds.toList(),
+            branchIds: branchIdsToSend,
             delegateIds: delegateIdsToSend,
-            allBranchesChecked: _isAllSelected(all),
+            allBranchesChecked: allBranchesSelected,
             allSalesManChecked: allSellersSelected,
-            // The former "show by seller" report-option has been folded
-            // into the sellers card; requesting this screen implies
-            // wanting the by-seller breakdown.
-            showSalesManChecked: true,
+            // Break results down by seller ONLY in seller mode. In branch mode
+            // we want one aggregated card per branch (no per-seller split), so
+            // this flag is off.
+            showSalesManChecked: !branchesMode,
             weightChecked: _showWeight,
             showByBranchCurrencyChecked: _showByBranchCurrency,
             cultureName: context.locale.languageCode,
@@ -186,6 +210,10 @@ class _LiveSalesReportViewState extends State<_LiveSalesReportView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _BranchesCard(
+              // Disabled while any seller is picked — the two are mutually
+              // exclusive report dimensions.
+              enabled: _selectedDelegateIds.isEmpty,
+              disabledHint: 'live_sales_report.disabled_by_sellers'.tr(),
               selectedIds: _selectedBranchIds,
               isAllSelected: _isAllSelected,
               onSelectAll: _selectAllBranches,
@@ -193,6 +221,8 @@ class _LiveSalesReportViewState extends State<_LiveSalesReportView> {
             ),
             SizedBox(height: 12.h),
             _DelegatesCard(
+              enabled: _selectedBranchIds.isEmpty,
+              disabledHint: 'live_sales_report.disabled_by_branches'.tr(),
               selectedIds: _selectedDelegateIds,
               isAllSelected: _isAllDelegatesSelected,
               onSelectAll: _selectAllDelegates,
@@ -220,7 +250,7 @@ class _LiveSalesReportViewState extends State<_LiveSalesReportView> {
               onPreview: () => _preview(context),
             ),
             SizedBox(height: 16.h),
-            const _ResultsSection(),
+            _ResultsSection(sellerHeaders: _sellerHeaders),
           ],
         ),
       ),
@@ -232,12 +262,16 @@ class _LiveSalesReportViewState extends State<_LiveSalesReportView> {
 //  Branches card
 // ────────────────────────────────────────────────────────────────────────
 class _BranchesCard extends StatelessWidget {
+  final bool enabled;
+  final String? disabledHint;
   final Set<int> selectedIds;
   final bool Function(List<BranchModel>) isAllSelected;
   final void Function(List<BranchModel>) onSelectAll;
   final void Function(int) onToggle;
 
   const _BranchesCard({
+    this.enabled = true,
+    this.disabledHint,
     required this.selectedIds,
     required this.isAllSelected,
     required this.onSelectAll,
@@ -249,7 +283,10 @@ class _BranchesCard extends StatelessWidget {
     final isAr = context.locale.languageCode == 'ar';
     return _SectionCard(
       title: 'live_sales_report.branches'.tr(),
-      child: BlocBuilder<BranchBloc, BaseState<BranchModel>>(
+      child: _DisableWrap(
+        enabled: enabled,
+        hint: disabledHint,
+        child: BlocBuilder<BranchBloc, BaseState<BranchModel>>(
         builder: (context, bs) {
           if (bs.status == Status.loading) {
             return Padding(
@@ -291,6 +328,7 @@ class _BranchesCard extends StatelessWidget {
             ],
           );
         },
+        ),
       ),
     );
   }
@@ -300,12 +338,16 @@ class _BranchesCard extends StatelessWidget {
 //  Delegates (sellers) card
 // ────────────────────────────────────────────────────────────────────────
 class _DelegatesCard extends StatelessWidget {
+  final bool enabled;
+  final String? disabledHint;
   final Set<int> selectedIds;
   final bool Function(List<DelegateModel>) isAllSelected;
   final void Function(List<DelegateModel>) onSelectAll;
   final void Function(int) onToggle;
 
   const _DelegatesCard({
+    this.enabled = true,
+    this.disabledHint,
     required this.selectedIds,
     required this.isAllSelected,
     required this.onSelectAll,
@@ -316,7 +358,10 @@ class _DelegatesCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _SectionCard(
       title: 'live_sales_report.show_by_seller'.tr(),
-      child: BlocBuilder<DelegateBloc, BaseState<DelegateModel>>(
+      child: _DisableWrap(
+        enabled: enabled,
+        hint: disabledHint,
+        child: BlocBuilder<DelegateBloc, BaseState<DelegateModel>>(
         builder: (context, ds) {
           if (ds.status == Status.loading) {
             return Padding(
@@ -358,6 +403,7 @@ class _DelegatesCard extends StatelessWidget {
             ],
           );
         },
+        ),
       ),
     );
   }
@@ -537,7 +583,11 @@ class _DateField extends StatelessWidget {
 //  Results section
 // ────────────────────────────────────────────────────────────────────────
 class _ResultsSection extends StatelessWidget {
-  const _ResultsSection();
+  /// Ordered seller names to write into each result card's header (seller
+  /// mode only). Empty in branch mode — the server sets branch names itself.
+  final List<String> sellerHeaders;
+
+  const _ResultsSection({this.sellerHeaders = const []});
 
   @override
   Widget build(BuildContext context) {
@@ -587,9 +637,17 @@ class _ResultsSection extends StatelessWidget {
               children: [
                 _SummaryCards(pages: pagesForTotals),
                 SizedBox(height: 16.h),
-                ...branchPages.map((p) => Padding(
+                ...branchPages.asMap().entries.map((e) => Padding(
                       padding: EdgeInsets.only(bottom: 16.h),
-                      child: _ReportPageCard(page: p),
+                      child: _ReportPageCard(
+                        page: e.value,
+                        // Seller mode: fill the empty server header with the
+                        // matching seller name (by order). Ignored in branch
+                        // mode (sellerHeaders is empty).
+                        headerOverride: e.key < sellerHeaders.length
+                            ? sellerHeaders[e.key]
+                            : null,
+                      ),
                     )),
               ],
             );
@@ -784,10 +842,17 @@ class _SummaryCard extends StatelessWidget {
 class _ReportPageCard extends StatelessWidget {
   final SalesMovementsReportPage page;
 
-  const _ReportPageCard({required this.page});
+  /// When set (seller mode), used as the card title instead of the server's
+  /// [SalesMovementsReportPage.cardHeaderText].
+  final String? headerOverride;
+
+  const _ReportPageCard({required this.page, this.headerOverride});
 
   @override
   Widget build(BuildContext context) {
+    final headerText = (headerOverride != null && headerOverride!.isNotEmpty)
+        ? headerOverride!
+        : page.cardHeaderText;
     final stats = <(String, String)>[
       ('live_sales_report.value'.tr(), page.sumFinalValue),
       ('live_sales_report.sum_cost'.tr(), page.sumBliCost),
@@ -823,11 +888,11 @@ class _ReportPageCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-          if (page.cardHeaderText.isNotEmpty)
+          if (headerText.isNotEmpty)
             Padding(
               padding: EdgeInsets.fromLTRB(12.w, 14.h, 12.w, 4.h),
               child: Text(
-                page.cardHeaderText,
+                headerText,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15.sp,
@@ -1133,6 +1198,53 @@ class _SectionCard extends StatelessWidget {
           Padding(padding: EdgeInsets.all(12.w), child: child),
         ],
       ),
+    );
+  }
+}
+
+/// Greys out and blocks interaction with its [child] when [enabled] is false,
+/// showing an optional [hint] above it. Used to make the branches/sellers
+/// cards mutually exclusive.
+class _DisableWrap extends StatelessWidget {
+  final bool enabled;
+  final String? hint;
+  final Widget child;
+
+  const _DisableWrap({
+    required this.enabled,
+    required this.hint,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (enabled) return child;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (hint != null && hint!.isNotEmpty)
+          Padding(
+            padding: EdgeInsets.only(bottom: 8.h),
+            child: Row(
+              children: [
+                Icon(Icons.lock_outline,
+                    size: 14.sp, color: const Color(0xff8A8F99)),
+                SizedBox(width: 6.w),
+                Expanded(
+                  child: Text(
+                    hint!,
+                    style: TextStyle(
+                        fontSize: 11.sp, color: const Color(0xff8A8F99)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        Opacity(
+          opacity: 0.45,
+          child: IgnorePointer(ignoring: true, child: child),
+        ),
+      ],
     );
   }
 }

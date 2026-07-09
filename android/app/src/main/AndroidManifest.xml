@@ -4,6 +4,18 @@
          in the Barren stock-taking screen. -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!-- Bluetooth thermal receipt printing (print_bluetooth_thermal).
+         Classic/SPP: legacy BLUETOOTH/BLUETOOTH_ADMIN cap at API 30; on
+         Android 12+ (API 31+) BLUETOOTH_CONNECT/SCAN are requested at
+         runtime. neverForLocation avoids the location grant on 12+. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:maxSdkVersion="30" />
+
     <!-- The Zebra DataWedge intent-filter that the old app declared
          here is intentionally NOT added: MainActivity registers a
          runtime BroadcastReceiver for that action instead, which keeps
