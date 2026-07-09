@@ -23,8 +23,11 @@ class BasketTableHeader extends StatelessWidget {
     );
   }
 
-  Widget _headerCell(String text,
-      {required int flex, TextAlign align = TextAlign.center}) {
+  Widget _headerCell(
+    String text, {
+    required int flex,
+    TextAlign align = TextAlign.center,
+  }) {
     return Expanded(
       flex: flex,
       child: Text(
@@ -104,21 +107,21 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
         // Use the new single-call set logic instead of looping.
         if (diff != 0) {
           setState(() => _isProcessing = true);
-          
-          context.read<AddToBasketBloc>().add(
-            AddToBasket(
-              AddToBasketRequest(
-                customerID: customerModel.id,
-                productID: widget.item.productId,
-                productBarcode: widget.item.barCode,
-                item: widget.item,
-                quantity: newTotal,
-              ),
-            ),
-          );
 
-          // Refresh basket to update the counter
           if (mounted) {
+            context.read<AddToBasketBloc>().add(
+              AddToBasket(
+                AddToBasketRequest(
+                  customerID: customerModel.id,
+                  productID: widget.item.productId,
+                  productBarcode: widget.item.barCode,
+                  item: widget.item,
+                  quantity: newTotal,
+                ),
+              ),
+            );
+
+            // Refresh basket to update the counter
             context.read<BasketBloc>().add(const FetchBasketItems());
           }
         }
@@ -231,9 +234,7 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
             child: Container(
               decoration: BoxDecoration(
                 color: context.isDarkMode ? AppColors.codGray : Colors.white,
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey.shade300),
-                ),
+                border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
               ),
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
               child: Row(
@@ -371,8 +372,8 @@ class _ProductBasketItemState extends State<ProductBasketItem> {
         overflow: TextOverflow.ellipsis,
         style: AppTextTheme.caption.copyWith(
           fontSize: 11.sp,
-          color: color ??
-              (context.isDarkMode ? AppColors.white : AppColors.black),
+          color:
+              color ?? (context.isDarkMode ? AppColors.white : AppColors.black),
           fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
         ),
       ),

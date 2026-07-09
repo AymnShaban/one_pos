@@ -88,17 +88,20 @@ class _InvoiceBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _HeaderCard(invoice: invoice),
-          SizedBox(height: 12.h),
+          SizedBox(height: 8.h),
           _CustomerCard(invoice: invoice),
-          SizedBox(height: 12.h),
+          SizedBox(height: 8.h),
           _ItemsSection(invoice: invoice),
-          SizedBox(height: 12.h),
+          SizedBox(height: 8.h),
           _PaymentsSection(invoice: invoice),
-          SizedBox(height: 12.h),
-          _DiscountsSection(invoice: invoice),
-          SizedBox(height: 12.h),
+          // Discounts/additions only render when present.
+          if (invoice.discounts.isNotEmpty) ...[
+            SizedBox(height: 8.h),
+            _DiscountsSection(invoice: invoice),
+          ],
+          SizedBox(height: 8.h),
           _TotalsCard(invoice: invoice),
-          SizedBox(height: 12.h),
+          SizedBox(height: 8.h),
           _FooterBar(invoice: invoice),
           SizedBox(height: 20.h),
         ],
@@ -204,7 +207,7 @@ class _CustomerCard extends StatelessWidget {
   }
 }
 
-// ── Items ─────────────────────────────────────────────────────────────────────
+// ── Items (table layout, mirrors the basket table) ────────────────────────────
 class _ItemsSection extends StatelessWidget {
   final InvoiceDetailsModel invoice;
 
@@ -222,11 +225,14 @@ class _ItemsSection extends StatelessWidget {
           trailing: 'invoice_details.items_count'
               .tr(args: ['${invoice.items.length}']),
         ),
-        SizedBox(height: 8.h),
-        ...invoice.items.map(
-          (item) => Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
-            child: _ItemCard(item: item, isAr: isAr, symbol: invoice.symbol),
+        SizedBox(height: 6.h),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12.r),
+          child: Column(
+            children: [
+              const _ItemsTableHeader(),
+              ...invoice.items.map((item) => _ItemRow(item: item, isAr: isAr)),
+            ],
           ),
         ),
       ],
@@ -234,80 +240,96 @@ class _ItemsSection extends StatelessWidget {
   }
 }
 
-class _ItemCard extends StatelessWidget {
-  final InvoiceDetailsItem item;
-  final bool isAr;
-  final String symbol;
-
-  const _ItemCard({
-    required this.item,
-    required this.isAr,
-    required this.symbol,
-  });
+/// Blue column-header row, matching [BasketTableHeader].
+class _ItemsTableHeader extends StatelessWidget {
+  const _ItemsTableHeader();
 
   @override
   Widget build(BuildContext context) {
-    return _Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Container(
+      color: AppColors.mainAppColor,
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+      child: Row(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _MoneyChip(
-                value: item.totalValue,
-                symbol: symbol,
-                color: AppColors.mainAppColor,
-              ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: Text(
-                  item.displayName(isAr),
-                  textAlign: TextAlign.end,
-                  style: AppTextTheme.body2Bold.copyWith(color: AppColors.black),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 6.h),
-          Text(
-            [
-              if (item.productCode?.isNotEmpty == true)
-                '${'invoice_details.code'.tr()}: ${item.productCode}',
-              if (item.barCode?.isNotEmpty == true)
-                '${'invoice_details.barcode'.tr()}: ${item.barCode}',
-            ].join('  •  '),
-            textAlign: TextAlign.end,
-            style: AppTextTheme.labelSmall.copyWith(color: AppColors.grey),
-          ),
-          SizedBox(height: 10.h),
-          Row(
-            children: [
-              Expanded(
-                child: _StatBox(
-                  label: 'invoice_details.quantity'.tr(),
-                  value: item.unitName?.isNotEmpty == true
-                      ? '${_num(item.quantity)} ${item.unitName}'
-                      : _num(item.quantity),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: _StatBox(
-                  label: 'invoice_details.price'.tr(),
-                  value: _money(item.price),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: _StatBox(
-                  label: 'invoice_details.discount'.tr(),
-                  value: _money(item.discount),
-                ),
-              ),
-            ],
-          ),
+          _cell('item'.tr(), flex: 3, align: TextAlign.start),
+          _cell('discount_percentage'.tr(), flex: 2),
+          _cell('quantity'.tr(), flex: 2),
+          _cell('price'.tr(), flex: 2),
+          _cell('total'.tr(), flex: 2),
         ],
+      ),
+    );
+  }
+
+  Widget _cell(String text, {required int flex, TextAlign align = TextAlign.center}) {
+    return Expanded(
+      flex: flex,
+      child: Text(
+        text,
+        textAlign: align,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTextTheme.caption.copyWith(
+          color: AppColors.white,
+          fontSize: 11.sp,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+/// Read-only invoice line, styled like [ProductBasketItem]'s row.
+class _ItemRow extends StatelessWidget {
+  final InvoiceDetailsItem item;
+  final bool isAr;
+
+  const _ItemRow({required this.item, required this.isAr});
+
+  @override
+  Widget build(BuildContext context) {
+    final qty = item.unitName?.isNotEmpty == true
+        ? '${_num(item.quantity)} ${item.unitName}'
+        : _num(item.quantity);
+    return Container(
+      decoration: BoxDecoration(
+        color: context.isDarkMode ? AppColors.codGray : Colors.white,
+        border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
+      child: Row(
+        children: [
+          _cell(item.displayName(isAr),
+              flex: 3, align: TextAlign.start, bold: true),
+          _cell(_num(item.discount), flex: 2),
+          _cell(qty, flex: 2),
+          _cell(item.price.toStringAsFixed(2), flex: 2),
+          _cell(item.totalValue.toStringAsFixed(3), flex: 2),
+        ],
+      ),
+    );
+  }
+
+  Widget _cell(
+    String text, {
+    required int flex,
+    TextAlign align = TextAlign.center,
+    bool bold = false,
+  }) {
+    return Expanded(
+      flex: flex,
+      child: Builder(
+        builder: (context) => Text(
+          text,
+          textAlign: align,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextTheme.caption.copyWith(
+            fontSize: 11.sp,
+            color: context.isDarkMode ? AppColors.white : AppColors.black,
+            fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
+          ),
+        ),
       ),
     );
   }
@@ -329,7 +351,7 @@ class _PaymentsSection extends StatelessWidget {
           icon: Icons.payments_outlined,
           title: 'invoice_details.payment_methods'.tr(),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 6.h),
         _Card(
           child: Column(
             children: invoice.payWays.map((p) {
@@ -388,11 +410,8 @@ class _DiscountsSection extends StatelessWidget {
           icon: Icons.discount_outlined,
           title: 'invoice_details.discounts_additions'.tr(),
         ),
-        SizedBox(height: 8.h),
-        if (invoice.discounts.isEmpty)
-          DottedEmptyBox(text: 'invoice_details.no_discounts'.tr())
-        else
-          _Card(
+        SizedBox(height: 6.h),
+        _Card(
             child: Column(
               children: invoice.discounts.map((d) {
                 final name = isAr
@@ -612,62 +631,6 @@ class _LabeledValue extends StatelessWidget {
   }
 }
 
-class _StatBox extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _StatBox({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 6.w),
-      decoration: BoxDecoration(
-        color: AppColors.black.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(8.r),
-      ),
-      child: Column(
-        children: [
-          Text(value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style:
-                  AppTextTheme.labelMedium11Bold.copyWith(color: Colors.white)),
-          SizedBox(height: 2.h),
-          Text(label,
-              style: AppTextTheme.labelSmall
-                  .copyWith(color: Colors.white.withValues(alpha: 0.6))),
-        ],
-      ),
-    );
-  }
-}
-
-class _MoneyChip extends StatelessWidget {
-  final double value;
-  final String symbol;
-  final Color color;
-
-  const _MoneyChip({
-    required this.value,
-    required this.symbol,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8.r),
-      ),
-      child: Text('${_num(value)} $symbol',
-          style: AppTextTheme.captionBold.copyWith(color: color)),
-    );
-  }
-}
-
 class _TotalRow extends StatelessWidget {
   final String label;
   final String value;
@@ -690,31 +653,6 @@ class _TotalRow extends StatelessWidget {
         Text(value, style: style),
         Text(label, style: style),
       ],
-    );
-  }
-}
-
-class DottedEmptyBox extends StatelessWidget {
-  final String text;
-
-  const DottedEmptyBox({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 20.h),
-      decoration: BoxDecoration(
-        color: AppColors.grey.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: AppColors.grey.withValues(alpha: 0.4),
-          style: BorderStyle.solid,
-        ),
-      ),
-      child: Text(text,
-          textAlign: TextAlign.center,
-          style: AppTextTheme.caption.copyWith(color: AppColors.grey)),
     );
   }
 }
