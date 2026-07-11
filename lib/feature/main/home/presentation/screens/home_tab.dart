@@ -15,6 +15,7 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
+  bool _showReports = true;
   @override
   void initState() {
     super.initState();
@@ -67,25 +68,74 @@ class _HomeTabState extends State<HomeTab> {
                           ),
                         ),
                       ),
-                      const Icon(Icons.apps_rounded,
-                          color: Color(0xff8A8F99), size: 18),
+                      // const Icon(Icons.apps_rounded,
+                      //     color: Color(0xff8A8F99), size: 18),
+
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12.r),
+                        onTap: () {
+                          setState(() { _showReports = !_showReports; });
+                        },
+                        child: Container(
+                          width: 36.w,
+                          height: 36.h,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: AnimatedRotation(
+                            turns: _showReports ? 0 : 0.5,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            child: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: Color(0xff8A8F99),
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-              SliverPadding(
+
+              _showReports
+                  ? SliverPadding(
                 padding: EdgeInsets.symmetric(horizontal: 12.w),
                 sliver: SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
+                    crossAxisCount: 2,
                     mainAxisSpacing: 10.h,
                     crossAxisSpacing: 10.w,
-                    childAspectRatio: 1.05,
+                    childAspectRatio: 1.55,
                   ),
-                  delegate: SliverChildListDelegate(
-                    _reportCards(context),
+                  delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                      return _reportCards(context)[index]
+                          .animate()
+                          .fadeIn(
+                        duration: 400.ms,
+                        curve: Curves.easeOut,
+                      )
+                          .slideY(
+                        begin: 0.2,
+                        end: 0,
+                        duration: 400.ms,
+                        curve: Curves.easeOut,
+                      )
+                          .scale(
+                        begin: const Offset(0.95, 0.95),
+                        duration: 400.ms,
+                        curve: Curves.easeOut,
+                      );
+                    },
+                    childCount: _reportCards(context).length,
                   ),
                 ),
+              )
+                  : const SliverToBoxAdapter(
+                child: SizedBox.shrink(),
               ),
 
               // ── Live Sales feed ──────────────────────────────────────
@@ -121,24 +171,6 @@ class _HomeTabState extends State<HomeTab> {
 
     return [
       _ReportCard(
-        title: 'home.food_categories_report'.tr(),
-        subtitle: 'home.food_categories_subtitle'.tr(),
-        icon: Icons.local_grocery_store_rounded,
-        color: const Color(0xffE67E22),
-        onTap: () => underConstruction(
-          Icons.local_grocery_store_rounded,
-          'home.food_categories_report'.tr(),
-        ),
-      ),
-      _ReportCard(
-        title: 'home.top_selling_items'.tr(),
-        subtitle: 'home.top_selling_subtitle'.tr(),
-        icon: Icons.emoji_events_rounded,
-        color: const Color(0xffF5A623),
-        onTap: () =>
-            context.read<NavBloc>().add(const ChangeNavTab(3)), // Reports
-      ),
-      _ReportCard(
         title: 'home.live_sales'.tr(),
         subtitle: 'home.live_sales_subtitle'.tr(),
         icon: Icons.wifi_tethering_rounded,
@@ -151,6 +183,16 @@ class _HomeTabState extends State<HomeTab> {
           ),
         ),
       ),
+
+      _ReportCard(
+        title: 'home.top_selling_items'.tr(),
+        subtitle: 'home.top_selling_subtitle'.tr(),
+        icon: Icons.emoji_events_rounded,
+        color: const Color(0xffF5A623),
+        onTap: () =>
+            context.read<NavBloc>().add(const ChangeNavTab(3)), // Reports
+      ),
+
       _ReportCard(
         title: 'home.branches_analysis'.tr(),
         subtitle: 'home.branches_subtitle'.tr(),
@@ -159,6 +201,16 @@ class _HomeTabState extends State<HomeTab> {
         onTap: () => underConstruction(
           Icons.storefront_rounded,
           'home.branches_analysis'.tr(),
+        ),
+      ),
+      _ReportCard(
+        title: 'home.food_categories_report'.tr(),
+        subtitle: 'home.food_categories_subtitle'.tr(),
+        icon: Icons.local_grocery_store_rounded,
+        color: const Color(0xffE67E22),
+        onTap: () => underConstruction(
+          Icons.local_grocery_store_rounded,
+          'home.food_categories_report'.tr(),
         ),
       ),
       _ReportCard(
@@ -563,7 +615,7 @@ class _ReportCard extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextTheme.captionBold,
+                  style: AppTextTheme.body2Bold,
                 ),
               ),
               SizedBox(height: 2.h),
@@ -572,7 +624,7 @@ class _ReportCard extends StatelessWidget {
                   subtitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextTheme.caption
+                  style: AppTextTheme.captionBold
                       .copyWith(color: const Color(0xff8A8F99)),
                 ),
               ),

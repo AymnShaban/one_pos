@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:one_pos/feature/main/basket/basket_imports.dart';
 import 'package:one_pos/feature/main/settings/settings_imports.dart';
-
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/constant/end_points.dart';
 import '../../../core/helper/helper.dart';
 import '../../../core/services/service_locator/services_imports.dart';

@@ -591,71 +591,172 @@ class _ResultsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LiveSalesReportBloc, BaseState<SalesMovementsReportPage>>(
+    return BlocConsumer<LiveSalesReportBloc,
+        BaseState<SalesMovementsReportPage>>(
+      listener: (context, state) {
+        if (state.status == Status.success) {
+          if (state.items.isEmpty) return;
+
+          final branchPages = state.items
+              .where((p) =>
+          p.cardHeaderText.isNotEmpty || p.rows.isNotEmpty)
+              .toList();
+
+          final pagesForTotals =
+          branchPages.isNotEmpty ? branchPages : state.items;
+
+          _showBottomSheet(
+            context: context,
+            branchPages: branchPages,
+            pagesForTotals: pagesForTotals,
+            sellerHeaders: sellerHeaders,
+          );
+        }
+      },
       builder: (context, state) {
         switch (state.status) {
           case Status.loading:
             return Padding(
               padding: EdgeInsets.symmetric(vertical: 32.h),
-              child: const Center(child: CircularProgressIndicator()),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
             );
+
           case Status.failure:
             return Padding(
               padding: EdgeInsets.symmetric(vertical: 24.h),
               child: Center(
                 child: Text(
                   state.errorMessage ?? 'common.error'.tr(),
-                  style: TextStyle(color: Colors.red, fontSize: 13.sp),
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 13.sp,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
             );
+
           case Status.success:
-            if (state.items.isEmpty) {
-              return Padding(
-                padding: EdgeInsets.symmetric(vertical: 24.h),
-                child: Center(
-                  child: Text(
-                    'live_sales_report.no_results'.tr(),
-                    style: TextStyle(
-                        color: const Color(0xff8A8F99), fontSize: 13.sp),
-                  ),
-                ),
-              );
-            }
-            // The API appends a grand-total page (no branch title, no
-            // rows — only the sums). Its data is already covered by the
-            // summary cards on top, so drop it from the branch list and
-            // from the totals math (it would double-count otherwise).
-            final branchPages = state.items
-                .where((p) =>
-                    p.cardHeaderText.isNotEmpty || p.rows.isNotEmpty)
-                .toList();
-            final pagesForTotals =
-                branchPages.isNotEmpty ? branchPages : state.items;
-            return Column(
-              children: [
-                _SummaryCards(pages: pagesForTotals),
-                SizedBox(height: 16.h),
-                ...branchPages.asMap().entries.map((e) => Padding(
-                      padding: EdgeInsets.only(bottom: 16.h),
-                      child: _ReportPageCard(
-                        page: e.value,
-                        // Seller mode: fill the empty server header with the
-                        // matching seller name (by order). Ignored in branch
-                        // mode (sellerHeaders is empty).
-                        headerOverride: e.key < sellerHeaders.length
-                            ? sellerHeaders[e.key]
-                            : null,
-                      ),
-                    )),
-              ],
-            );
           case Status.initial:
           default:
             return const SizedBox.shrink();
         }
       },
+    );
+  }
+
+  void _showBottomSheet({
+    required BuildContext context,
+    required List<SalesMovementsReportPage> branchPages,
+    required List<SalesMovementsReportPage> pagesForTotals,
+    required List<String> sellerHeaders,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.92,
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(20.r),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.only(top: 10.h),
+                  width: 40.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade400,
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 12.h,
+                  ),
+                  child: Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(width: 24),
+                      Text(
+                        'live_sales'.tr(),
+                        style: TextStyle(
+                          fontSize: 17.sp,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xff1A2B5C),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: EdgeInsets.all(6.w),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            size: 24.w,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Column(
+                      children: [
+                        _SummaryCards(
+                          pages: pagesForTotals,
+                        ),
+                        SizedBox(height: 16.h),
+                        ...branchPages.asMap().entries.map(
+                              (e) => Padding(
+                            padding:
+                            EdgeInsets.only(bottom: 16.h),
+                            child: _ReportPageCard(
+                              page: e.value,
+                              headerOverride:
+                              e.key < sellerHeaders.length
+                                  ? sellerHeaders[e.key]
+                                  : null,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20.h),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -704,6 +805,7 @@ class _SummaryCards extends StatelessWidget {
     final profitRatio = totalValue == 0 ? 0.0 : totalProfit / totalValue * 100;
     final profitOfCost = totalCost == 0 ? 0.0 : totalProfit / totalCost * 100;
 
+    // البطاقات الستة
     final cards = <_SummaryCardData>[
       _SummaryCardData(
         label: 'live_sales_report.total_value'.tr(),
@@ -743,16 +845,27 @@ class _SummaryCards extends StatelessWidget {
       ),
     ];
 
-    return Column(
-      children: [
-        for (final c in cards)
-          Padding(
-            padding: EdgeInsets.only(bottom: 10.h),
-            child: _SummaryCard(data: c),
-          ),
-      ],
+
+
+
+    return   GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10.w,
+        mainAxisSpacing: 10.h,
+        childAspectRatio: 1.9,
+      ),
+      itemCount: cards.length,
+      itemBuilder: (context, index) => _SummaryCard(data: cards[index]),
     );
   }
+
+
+
+
+
 }
 
 class _SummaryCardData {
@@ -777,7 +890,7 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14.r),
         gradient: LinearGradient(
@@ -796,13 +909,13 @@ class _SummaryCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 44.w,
-            height: 44.w,
+            width: 33.w,
+            height: 33.w,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.18),
               borderRadius: BorderRadius.circular(12.r),
             ),
-            child: Icon(data.icon, color: Colors.white, size: 24.sp),
+            child: Icon(data.icon, color: Colors.white, size: 18.sp),
           ),
           SizedBox(width: 12.w),
           Expanded(
@@ -888,64 +1001,56 @@ class _ReportPageCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-          if (headerText.isNotEmpty)
-            Padding(
-              padding: EdgeInsets.fromLTRB(12.w, 14.h, 12.w, 4.h),
-              child: Text(
-                headerText,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+            if (headerText.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.fromLTRB(12.w, 16.h, 12.w, 6.h),
+                child: Text(
+                  headerText,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            ),
-          if (stats.isNotEmpty)
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
-              child: Row(
-                children: [
-                  for (final s in stats) ...[
-                    _HeaderStatChip(label: s.$1, value: s.$2),
-                    SizedBox(width: 6.w),
-                  ],
-                ],
+            if (stats.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.fromLTRB(18.w, 6.h, 18.w, 16.h),
+                child: _HeaderStatsGrid(stats: stats),
               ),
-            ),
-          if (page.rows.isNotEmpty ||
-              page.paymentMethods.trim().isNotEmpty ||
-              page.cardFooterText.isNotEmpty)
-            Container(
-              margin: EdgeInsets.fromLTRB(6.w, 2.h, 6.w, 6.h),
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14.r),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (page.rows.isNotEmpty) _RowsTable(page: page),
-                  _PaymentMethodChips(raw: page.paymentMethods),
-                  // cardFooterText is just a text dump of the payment
-                  // methods — only show it when there are no chips.
-                  if (page.cardFooterText.isNotEmpty &&
-                      page.paymentMethods.trim().isEmpty)
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 10.h),
-                      child: Text(
-                        page.cardFooterText,
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          color: const Color(0xff8A8F99),
+            if (page.rows.isNotEmpty ||
+                page.paymentMethods.trim().isNotEmpty ||
+                page.cardFooterText.isNotEmpty)
+              Container(
+                margin: EdgeInsets.fromLTRB(6.w, 0, 6.w, 6.h),
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (page.rows.isNotEmpty) _RowsTable(page: page),
+                    _PaymentMethodChips(raw: page.paymentMethods),
+                    // cardFooterText is just a text dump of the payment
+                    // methods — only show it when there are no chips.
+                    if (page.cardFooterText.isNotEmpty &&
+                        page.paymentMethods.trim().isEmpty)
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 10.h),
+                        child: Text(
+                          page.cardFooterText,
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: const Color(0xff8A8F99),
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -953,42 +1058,84 @@ class _ReportPageCard extends StatelessWidget {
   }
 }
 
-/// Small translucent stat chip inside the navy card header.
-class _HeaderStatChip extends StatelessWidget {
-  final String label;
-  final String value;
+/// Stats grid shown directly on the navy card background — 3 columns per
+/// row (matching the reference design: value/cost/profit on row one,
+/// qty/profit-ratio/cost-ratio on row two), with a thin divider between
+/// the two rows.
+class _HeaderStatsGrid extends StatelessWidget {
+  final List<(String, String)> stats;
 
-  const _HeaderStatChip({required this.label, required this.value});
+  const _HeaderStatsGrid({required this.stats});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
-      ),
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10.sp,
-              color: Colors.white.withValues(alpha: 0.85),
+    const perRow = 3;
+    final rows = <List<(String, String)>>[];
+    for (var i = 0; i < stats.length; i += perRow) {
+      final end = (i + perRow > stats.length) ? stats.length : i + perRow;
+      rows.add(stats.sublist(i, end));
+    }
+
+    return Column(
+      children: [
+        for (var r = 0; r < rows.length; r++) ...[
+          if (r > 0)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10.h),
+              child: Divider(
+                height: 1,
+                thickness: 1,
+                color: Colors.white.withValues(alpha: 0.15),
+              ),
             ),
-          ),
-          SizedBox(height: 2.h),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+          Row(
+            children: [
+              for (final s in rows[r])
+                Expanded(child: _HeaderStatItem(label: s.$1, value: s.$2)),
+              // Pad the last row so columns stay aligned even if the
+              // stat count isn't a multiple of 3.
+              for (var i = rows[r].length; i < perRow; i++)
+                const Expanded(child: SizedBox.shrink()),
+            ],
           ),
         ],
-      ),
+      ],
+    );
+  }
+}
+
+/// Single label/value pair inside [_HeaderStatsGrid] — plain text on the
+/// gradient background, no chip/box, matching the reference design.
+class _HeaderStatItem extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _HeaderStatItem({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 11.sp,
+            color: Colors.white.withValues(alpha: 0.75),
+          ),
+        ),
+        SizedBox(height: 5.h),
+        Text(
+          value,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1000,7 +1147,7 @@ class _RowsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final qtyLabel =  'live_sales_report.qty'.tr();
+    final qtyLabel = 'live_sales_report.qty'.tr();
     final valLabel = 'live_sales_report.value'.tr();
 
     TextStyle headerStyle = TextStyle(
@@ -1043,11 +1190,10 @@ class _RowsTable extends StatelessWidget {
           ),
         ),
         ...page.rows.asMap().entries.map(
-          (entry) => Container(
+              (entry) => Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 9.h),
-            color: entry.key.isEven
-                ? const Color(0xffF5F6FA)
-                : Colors.white,
+            color:
+            entry.key.isEven ? const Color(0xffF5F6FA) : Colors.white,
             child: Row(
               children: [
                 Expanded(
@@ -1080,7 +1226,7 @@ class _PaymentMethodChips extends StatelessWidget {
   const _PaymentMethodChips({required this.raw});
 
   static final _trailingNumber =
-      RegExp(r'^(.*?)[\s:،]*(-?[\d,]+(?:\.\d+)?)\s*$');
+  RegExp(r'^(.*?)[\s:،]*(-?[\d,]+(?:\.\d+)?)\s*$');
 
   List<(String, String)> _parse() {
     final tokens = raw
@@ -1092,7 +1238,7 @@ class _PaymentMethodChips extends StatelessWidget {
       final m = _trailingNumber.firstMatch(t);
       if (m != null && m.group(1)!.trim().isNotEmpty) {
         return (m.group(1)!.trim().replaceAll(RegExp(r'[:\s]+$'), ''),
-            m.group(2)!);
+        m.group(2)!);
       }
       return ('', t);
     }).toList();
@@ -1113,7 +1259,7 @@ class _PaymentMethodChips extends StatelessWidget {
             Container(
               constraints: BoxConstraints(minWidth: 90.w),
               padding:
-                  EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+              EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
               decoration: BoxDecoration(
                 color: const Color(0xffE9EFFF),
                 borderRadius: BorderRadius.circular(12.r),
