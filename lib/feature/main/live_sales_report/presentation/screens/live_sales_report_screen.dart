@@ -439,7 +439,7 @@ class _OptionsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _SectionCard(
-      title: 'live_sales_report.report_options'.tr(),
+      title: null,
       child: Row(
         children: [
           Expanded(
