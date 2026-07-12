@@ -207,27 +207,38 @@ class _LiveSalesReportViewState extends State<_LiveSalesReportView> {
       body: SingleChildScrollView(
         padding: EdgeInsets.all(12.w),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+
           children: [
-            _BranchesCard(
-              // Disabled while any seller is picked — the two are mutually
-              // exclusive report dimensions.
-              enabled: _selectedDelegateIds.isEmpty,
-              disabledHint: 'live_sales_report.disabled_by_sellers'.tr(),
-              selectedIds: _selectedBranchIds,
-              isAllSelected: _isAllSelected,
-              onSelectAll: _selectAllBranches,
-              onToggle: _toggleBranch,
+
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _BranchesCard(
+                    enabled: _selectedDelegateIds.isEmpty,
+                    disabledHint: 'live_sales_report.disabled_by_sellers'.tr(),
+                    selectedIds: _selectedBranchIds,
+                    isAllSelected: _isAllSelected,
+                    onSelectAll: _selectAllBranches,
+                    onToggle: _toggleBranch,
+                  ),
+                ),
+
+                SizedBox(width: 12.w),
+
+                Expanded(
+                  child: _DelegatesCard(
+                    enabled: _selectedBranchIds.isEmpty,
+                    disabledHint: 'live_sales_report.disabled_by_branches'.tr(),
+                    selectedIds: _selectedDelegateIds,
+                    isAllSelected: _isAllDelegatesSelected,
+                    onSelectAll: _selectAllDelegates,
+                    onToggle: _toggleDelegate,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 12.h),
-            _DelegatesCard(
-              enabled: _selectedBranchIds.isEmpty,
-              disabledHint: 'live_sales_report.disabled_by_branches'.tr(),
-              selectedIds: _selectedDelegateIds,
-              isAllSelected: _isAllDelegatesSelected,
-              onSelectAll: _selectAllDelegates,
-              onToggle: _toggleDelegate,
-            ),
+
             SizedBox(height: 12.h),
             _OptionsCard(
               showInBranchCurrency: _showByBranchCurrency,
@@ -429,17 +440,21 @@ class _OptionsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _SectionCard(
       title: 'live_sales_report.report_options'.tr(),
-      child: Column(
+      child: Row(
         children: [
-          _CheckRow(
-            label: 'live_sales_report.show_in_branch_currency'.tr(),
-            value: showInBranchCurrency,
-            onChanged: (v) => onChanged(_OptionKind.branchCurrency, v ?? false),
+          Expanded(
+            child: _CheckRow(
+              label: 'live_sales_report.show_in_branch_currency'.tr(),
+              value: showInBranchCurrency,
+              onChanged: (v) => onChanged(_OptionKind.branchCurrency, v ?? false),
+            ),
           ),
-          _CheckRow(
-            label: 'live_sales_report.show_weight'.tr(),
-            value: showWeight,
-            onChanged: (v) => onChanged(_OptionKind.weight, v ?? false),
+          Expanded(
+            child: _CheckRow(
+              label: 'live_sales_report.show_weight'.tr(),
+              value: showWeight,
+              onChanged: (v) => onChanged(_OptionKind.weight, v ?? false),
+            ),
           ),
         ],
       ),
