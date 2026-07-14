@@ -106,9 +106,9 @@ class _HomeTabState extends State<HomeTab> {
                 sliver: SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    mainAxisSpacing: 10.h,
-                    crossAxisSpacing: 10.w,
-                    childAspectRatio: 1.55,
+                    mainAxisSpacing: 4.h,
+                    crossAxisSpacing: 4.w,
+                    childAspectRatio: 2.5,
                   ),
                   delegate: SliverChildBuilderDelegate(
                         (context, index) {
@@ -173,7 +173,7 @@ class _HomeTabState extends State<HomeTab> {
       _ReportCard(
         title: 'home.live_sales'.tr(),
         subtitle: 'home.live_sales_subtitle'.tr(),
-        icon: Icons.wifi_tethering_rounded,
+        icon: AppAssets.liveSalesIcon,
         color: const Color(0xffE74C3C),
         highlight: true,
         onTap: () => Navigator.push(
@@ -185,90 +185,69 @@ class _HomeTabState extends State<HomeTab> {
       ),
 
       _ReportCard(
-        title: 'home.top_selling_items'.tr(),
-        subtitle: 'home.top_selling_subtitle'.tr(),
-        icon: Icons.emoji_events_rounded,
+        title: 'home.branch_profit'.tr(),
+        subtitle: 'home.branch_profit_subtitle'.tr(),
+        icon: AppAssets.netProfitsIcon,
         color: const Color(0xffF5A623),
-        onTap: () =>
-            context.read<NavBloc>().add(const ChangeNavTab(3)), // Reports
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const InvoiceItemsProfitScreen(),
+            ),
+          ),
+
       ),
 
       _ReportCard(
-        title: 'home.branches_analysis'.tr(),
-        subtitle: 'home.branches_subtitle'.tr(),
-        icon: Icons.storefront_rounded,
+        title: 'home.invoice_profit'.tr(),
+        subtitle: 'home.invoice_profit_subtitle'.tr(),
+        icon: AppAssets.invoiceProfitsIcon,
         color: const Color(0xff9B59B6),
-        onTap: () => underConstruction(
-          Icons.storefront_rounded,
-          'home.branches_analysis'.tr(),
-        ),
+        onTap: () => underConstruction( Icons.local_shipping_rounded, 'home.branch_profit'.tr(), ),
       ),
+
       _ReportCard(
-        title: 'home.food_categories_report'.tr(),
-        subtitle: 'home.food_categories_subtitle'.tr(),
-        icon: Icons.local_grocery_store_rounded,
-        color: const Color(0xffE67E22),
-        onTap: () => underConstruction(
-          Icons.local_grocery_store_rounded,
-          'home.food_categories_report'.tr(),
-        ),
+        title: 'home.invoice_items_profit'.tr(),
+        subtitle: 'home.invoice_items_profit_subtitle'.tr(),
+        icon: AppAssets.invoiceItemsProfitsIcon,
+        color: const Color(0xff3B82F6),
+        onTap: () => underConstruction( Icons.local_shipping_rounded, 'home.branch_profit'.tr(), ),
       ),
+
       _ReportCard(
-        title: 'home.stock_transfers'.tr(),
-        subtitle: 'home.stock_transfers_subtitle'.tr(),
-        icon: Icons.local_shipping_rounded,
-        color: const Color(0xff27AE60),
-        onTap: () => underConstruction(
-          Icons.local_shipping_rounded,
-          'home.stock_transfers'.tr(),
-        ),
-      ),
-      _ReportCard(
-        title: 'home.stock_taking'.tr(),
-        subtitle: 'home.stock_taking_subtitle'.tr(),
-        icon: Icons.fact_check_rounded,
-        color: const Color(0xff40C057),
-        onTap: () {
-          // Real feature — push the Barren stock-taking screen with its
-          // bloc provided (same wiring used by reports_tab's Stock Taking
-          // button).
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => BlocProvider<InvoiceCubit>(
-                create: (_) => GetIt.instance<InvoiceCubit>(),
-                child: const BarrenStockTakingScreen(),
-              ),
-            ),
-          );
-        },
-      ),
-      _ReportCard(
-        title: 'home.expiry_monitoring'.tr(),
-        subtitle: 'home.expiry_subtitle'.tr(),
-        icon: Icons.event_available_rounded,
-        color: const Color(0xff3B5BDB),
-        onTap: () => underConstruction(
-          Icons.event_available_rounded,
-          'home.expiry_monitoring'.tr(),
-        ),
-      ),
-      _ReportCard(
-        title: 'home.sales_reports'.tr(),
-        subtitle: 'home.sales_reports_subtitle'.tr(),
-        icon: Icons.insert_chart_rounded,
-        color: const Color(0xff4DABF7),
+        title: 'home.revenue_analysis'.tr(),
+        subtitle: 'home.revenue_analysis_subtitle'.tr(),
+        icon: AppAssets.revenueAnalysisIcon,
+        color: const Color(0xff14B8A6),
         onTap: () =>
-            context.read<NavBloc>().add(const ChangeNavTab(3)), // Reports
+            context.read<NavBloc>().add(const ChangeNavTab(3)),
       ),
-      // pos item
+
       _ReportCard(
-        title: 'home.pos'.tr(),
-        subtitle: 'home.pos_subtitle'.tr(),
-        icon: Icons.point_of_sale_rounded,
-        color: const Color(0xff20C997),
+        title: 'home.expenses_analysis'.tr(),
+        subtitle: 'home.expenses_analysis_subtitle'.tr(),
+        icon: AppAssets.expensesAnalysisIcon,
+        color: const Color(0xffF43F5E),
         onTap: () =>
-            context.read<NavBloc>().add(const ChangeNavTab(1)), // Sales
+            context.read<NavBloc>().add(const ChangeNavTab(3)),
+      ),
+
+      _ReportCard(
+        title: 'home.items_movement'.tr(),
+        subtitle: 'home.items_movement_subtitle'.tr(),
+        icon: AppAssets.itemsMovementIcon,
+        color: const Color(0xffF59E0B),
+        onTap: () =>
+            context.read<NavBloc>().add(const ChangeNavTab(3)),
+      ),
+
+      _ReportCard(
+        title: 'home.vouchers_movement'.tr(),
+        subtitle: 'home.vouchers_movement_subtitle'.tr(),
+        icon: AppAssets.vouchersMovementIcon,
+        color: const Color(0xff3B82F6),
+        onTap: () =>
+            context.read<NavBloc>().add(const ChangeNavTab(3)),
       ),
     ];
   }
@@ -528,7 +507,7 @@ class _StatCard extends StatelessWidget {
 class _ReportCard extends StatelessWidget {
   final String title;
   final String subtitle;
-  final IconData icon;
+  final String icon;
   final Color color;
   final VoidCallback onTap;
   final bool highlight;
@@ -546,16 +525,17 @@ class _ReportCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(16.r),
+      borderRadius: BorderRadius.circular(8.r),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16.r),
         child: Container(
-          padding: EdgeInsets.all(12.w),
+          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: BorderRadius.circular(8.r),
             border: highlight
-                ? Border.all(color: color.withValues(alpha: 0.4), width: 1.5) : null,
+                ? Border.all(color: color.withValues(alpha: 0.4), width: 1.5)
+                : null,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.04),
@@ -569,21 +549,18 @@ class _ReportCard extends StatelessWidget {
           // height (no Spacer-forced growth), the icon shrinks 48→38, and
           // Flexible around the text widgets lets them collapse / ellipsis
           // gracefully when the cell can't fit both lines comfortably.
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Container(
-                    width: 38.w,
-                    height: 38.w,
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                    child: Icon(icon, color: color, size: 20.sp),
+                  SvgPicture.asset(
+                    icon,
+                    width:40.sp,
+                    height: 40.sp,
+
                   ),
                   if (highlight)
                     Positioned(
@@ -609,25 +586,32 @@ class _ReportCard extends StatelessWidget {
                     ),
                 ],
               ),
-              SizedBox(height: 6.h),
-              Flexible(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextTheme.body2Bold,
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextTheme.labelMedium11Bold,
+                    ),
+
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextTheme.labelMedium
+                          .copyWith(color: const Color(0xff8A8F99)),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 2.h),
-              Flexible(
-                child: Text(
-                  subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextTheme.captionBold
-                      .copyWith(color: const Color(0xff8A8F99)),
-                ),
-              ),
+
+
             ],
           ),
         ),

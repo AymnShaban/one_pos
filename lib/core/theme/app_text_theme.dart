@@ -5,7 +5,8 @@ import '../constant/app_colors.dart';
 
 abstract interface class AppTextTheme {
   static final TextStyle _baseStyle = TextStyle(
-  fontFamily: 'Hacen',
+  fontFamily: 'Cairo',
+    //fontFamily: 'Hacen',
     // letterSpacing: 0.5,
     height: 1.5,
     color: AppColors.black,

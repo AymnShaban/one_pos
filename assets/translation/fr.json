@@ -31,7 +31,27 @@
     "sales": "Ventes",
     "invoices": "Factures",
     "reports": "Rapports",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "branch_profit": "Bénéfices des succursales",
+    "branch_profit_subtitle": "Suivi et comparaison des bénéfices de toutes les succursales",
+
+    "invoice_profit": "Bénéfices des factures",
+    "invoice_profit_subtitle": "Analyse des bénéfices de chaque facture",
+
+    "invoice_items_profit": "Bénéfices des articles des factures",
+    "invoice_items_profit_subtitle": "Analyse des bénéfices par article de facture",
+
+    "revenue_analysis": "Analyse des revenus",
+    "revenue_analysis_subtitle": "Analyse des revenus par période et par succursale",
+
+    "expenses_analysis": "Analyse des dépenses",
+    "expenses_analysis_subtitle": "Suivi des dépenses et des coûts",
+
+    "items_movement": "Mouvement des articles",
+    "items_movement_subtitle": "Suivi des ventes, achats et transferts",
+
+    "vouchers_movement": "Mouvement des reçus et paiements",
+    "vouchers_movement_subtitle": "Suivi des encaissements et des paiements"
   },
 
   "printing": {

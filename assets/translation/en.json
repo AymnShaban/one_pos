@@ -124,7 +124,29 @@
     "salmiya": "Salmiya",
     "hawalli": "Hawalli",
     "farwaniya": "Farwaniya",
-    "ahmadi": "Ahmadi"
+    "ahmadi": "Ahmadi",
+
+
+    "branch_profit": "Branch Profit",
+    "branch_profit_subtitle": "Compare profit across all branches",
+
+    "invoice_profit": "Invoice Profit",
+    "invoice_profit_subtitle": "Analyze profit for every invoice",
+
+    "invoice_category_profit": "Invoice Category Profit",
+    "invoice_category_profit_subtitle": "Analyze profit by invoice category",
+
+    "revenue_analysis": "Revenue Analysis",
+    "revenue_analysis_subtitle": "Revenue by period and branch",
+
+    "expense_analysis": "Expense Analysis",
+    "expense_analysis_subtitle": "Track expenses and costs",
+
+    "items_movement": "Items Movement",
+    "items_movement_subtitle": "Sales, purchases and transfers",
+
+    "receipts_payments": "Receipts & Payments",
+    "receipts_payments_subtitle": "Track collections and payments"
   },
 
   "sales": {
@@ -427,6 +449,6 @@
     "account":              "Account",
     "total":                "Total",
     "remaining":            "Remaining"
-  }
-
+  },
+  "time_period": "Date Range"
 }

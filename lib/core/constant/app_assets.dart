@@ -64,4 +64,19 @@ class AppAssets {
   static const String mobileWalletIcon = 'assets/icons/mobile_wallet.svg';
   static const String fawryIcon = 'assets/icons/Fawry.svg';
   static const String backgroundImage = 'assets/images/the_one_banner.jpg';
+
+
+
+  static const String invoiceProfitsIcon = 'assets/icons/invoice-profits_icon.svg';
+  static const String liveSalesIcon = 'assets/icons/live_sales_icon.svg';
+  static const String netProfitsIcon = 'assets/icons/net-profits_icon.svg';
+  static const String invoiceItemsProfitsIcon = 'assets/icons/invoice-items-profits_icon.svg';
+  static const String expensesAnalysisIcon = 'assets/icons/expenses-analysis_icon.svg';
+  static const String revenueAnalysisIcon = 'assets/icons/revenue-analysis_icon.svg';
+  static const String vouchersMovementIcon = 'assets/icons/vouchers-movement_icon.svg';
+  static const String itemsMovementIcon = 'assets/icons/items-movement_icon.svg';
+
+
+
+
 }

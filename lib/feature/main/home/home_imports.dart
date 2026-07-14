@@ -7,9 +7,11 @@ import '../../../core/constant/end_points.dart';
 import '../../../core/helper/helper.dart';
 import '../../../core/services/service_locator/services_imports.dart';
 import '../../../core/widgets/under_construction_screen.dart';
+
 import '../../barren/presentation/cubit/invoice_cubit.dart';
 import '../../barren/presentation/screens/home_screen.dart'
     show BarrenStockTakingScreen;
+import '../invoice_items_profit/presentation/screens/invoice_items_profit_screen.dart';
 import '../invoice_setup/invoice_setup_imports.dart';
 import '../live_sales_report/live_sales_report_imports.dart'
     show LiveSalesReportScreen;

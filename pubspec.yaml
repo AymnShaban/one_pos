@@ -38,7 +38,7 @@ dependencies:
   # "any version greater than or equal to the specified one, with the same major
   # version number." In this case, it means that the package will accept any
   # version greater than or equal to version 2.2.0 of flutter_svg.
-  flutter_svg: ^2.2.0
+  flutter_svg: ^2.3.0
   equatable: ^2.0.7
   get_it: ^8.2.0
   shared_preferences: ^2.5.3
@@ -80,6 +80,7 @@ dev_dependencies:
   hive_generator: ^2.0.1
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.1
 
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -117,9 +118,17 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Hacen
-      fonts:
-        - asset: assets/fonts/HacenEgypt.ttf
 
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/to/font-from-package
+
+    - family: Cairo
+      fonts:
+        - asset: assets/fonts/Cairo-VariableFont_slnt,wght.ttf
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/images/app_logo.png"
+  min_sdk_android: 24 # android min sdk min:16, default 21
+  adaptive_icon_background: "assets/images/app_logo.png"# You can use a color or image for the background
+  adaptive_icon_foreground: "assets/images/app_logo.png" # For adaptive icons on Android

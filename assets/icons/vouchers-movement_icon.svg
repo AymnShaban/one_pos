@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="vouchersBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1E40AF"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="12" fill="url(#vouchersBg)"/>
+  
+  <rect x="8" y="6" width="24" height="30" rx="3" fill="#FFFFFF" fill-opacity="0.88"/>
+  
+  <path d="M24,6 L32,14 L24,14 Z" fill="#FFFFFF" fill-opacity="0.4"/>
+  <line x1="24" y1="6" x2="32" y2="14" stroke="#1E40AF" stroke-opacity="0.2" stroke-width="1"/>
+  
+  <line x1="12" y1="19" x2="27" y2="19" stroke="#1E40AF" stroke-width="2" stroke-linecap="round"/>
+  <line x1="12" y1="24" x2="27" y2="24" stroke="#1E40AF" stroke-width="2" stroke-linecap="round"/>
+  <line x1="12" y1="29" x2="21" y2="29" stroke="#1E40AF" stroke-width="2" stroke-linecap="round"/>
+  
+  <circle cx="36" cy="36" r="10" fill="url(#vouchersBg)"/>
+  <circle cx="36" cy="36" r="10" stroke="#FFFFFF" stroke-width="2.5" fill="none"/>
+  <line x1="36" y1="30" x2="36" y2="42" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  <path d="M33,32 Q33,30 36,30 Q39,30 39,33 Q39,36 36,36 Q39,36 39,39 Q39,42 36,42 Q33,42 33,40" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

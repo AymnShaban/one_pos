@@ -145,7 +145,6 @@ class AuthDataSourceImpl implements AuthDataSource {
     }
   }
 
-  @override
   Future<Either<Failure, void>> checkDeviceActivation({
     required String activationCode,
     required String deviceCode,
