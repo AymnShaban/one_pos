@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="16" fill="#10B981"></rect>
+
+  <!-- Box -->
+  <path d="M16 24L32 16L48 24V42C48 43.1 47.1 44 46 44H18C16.9 44 16 43.1 16 42V24Z" stroke="white" stroke-width="3" stroke-linejoin="round"></path>
+
+  <path d="M16 24L32 32L48 24" stroke="white" stroke-width="3" stroke-linejoin="round"></path>
+
+  <path d="M32 32V44" stroke="white" stroke-width="3" stroke-linecap="round"></path>
+
+  <!-- Inventory Lines -->
+  <path d="M22 36H28" stroke="white" stroke-width="3" stroke-linecap="round"></path>
+
+  <path d="M36 36H42" stroke="white" stroke-width="3" stroke-linecap="round"></path>
+
+</svg>

@@ -1,7 +1,8 @@
 part of '../home_imports.dart';
 
-abstract interface class DashboardDataSource {
+abstract class DashboardDataSource {
   Future<Either<Failure, DashboardBalancesModel>> getBalances();
+
 }
 
 class DashboardDataSourceImpl implements DashboardDataSource {
@@ -16,4 +17,6 @@ class DashboardDataSourceImpl implements DashboardDataSource {
       fromJson: DashboardBalancesModel.fromJson,
     );
   }
+
+
 }

@@ -21,7 +21,7 @@ class AccountSearchDataSourceImpl implements AccountSearchDataSource {
     return _genericDataSource.fetchData<CustomerAccountModel>(
       endpoint: EndPoints.getCustomersAccountToEmployee,
       queryParameters: {
-        'SearchKey': searchKey,
+        'search': searchKey,
         'EmployeeID': employeeId,
       },
       fromJson: CustomerAccountModel.fromJson,

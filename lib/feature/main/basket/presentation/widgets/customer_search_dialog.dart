@@ -115,17 +115,20 @@ class _CustomerSearchViewState extends State<_CustomerSearchView> {
                           Divider(height: 1, color: Colors.grey.shade200),
                       itemBuilder: (context, i) {
                         final customer = state.items[i];
-                        return ListTile(
-                          dense: true,
-                          title: Text(
-                            customer.displayName(isAr),
-                            style: AppTextTheme.captionBold,
+                        return Material(
+                          color: Colors.transparent,
+                          child: ListTile(
+                            dense: true,
+                            title: Text(
+                              customer.displayName(isAr),
+                              style: AppTextTheme.captionBold,
+                            ),
+                            subtitle: Text(
+                              customer.phone??"",
+                              style: AppTextTheme.caption,
+                            ),
+                            onTap: () => Navigator.pop(context, customer),
                           ),
-                          subtitle: Text(
-                            customer.phone??"",
-                            style: AppTextTheme.caption,
-                          ),
-                          onTap: () => Navigator.pop(context, customer),
                         );
                       },
                     );

@@ -179,7 +179,11 @@ class HiveServiceImpl implements IUserCache, IBasket , InvoiceCache {
     await _settingsBox?.put(_activationCodeKey, code);
     await _settingsBox?.flush();
   }
-
+  Future<void> clearActivationCode() async {
+    await _settingsBox?.delete(_activationCodeKey);
+    await _settingsBox?.flush();
+ logger('[Hive] Activation code cleared');
+  }
   String? getActivationCode() {
     final value = _settingsBox?.get(_activationCodeKey);
     if (value is String && value.isNotEmpty) return value;

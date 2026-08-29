@@ -1,7 +1,7 @@
 part of '../../sales_imports.dart';
 
 
-class SalesTab extends StatefulWidget {
+class SalesTab extends StatefulWidget  {
   const SalesTab({super.key});
 
   @override
@@ -73,7 +73,8 @@ class _SalesTabState extends State<SalesTab> {
     return ProductListWrapper(
       child: Scaffold(
       backgroundColor:  AppColors.white,
-      bottomNavigationBar: const BasketBottomBar(),
+
+     bottomNavigationBar: const BasketBottomBar(),
       body: MultiBlocListener(
         listeners: [
           // Branches arrived → load patterns for the auto-selected branch
@@ -121,6 +122,7 @@ class _SalesTabState extends State<SalesTab> {
               slivers: [
                 HomeAppBar(
                   isOnline: context.read<HomeBloc>().isOnline,
+                  showBasket: true,
                   onSearchTap: () {
                     final setupBloc = context.read<InvoiceSetupBloc>();
                     Navigator.push(

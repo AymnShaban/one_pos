@@ -2,7 +2,7 @@ class AppAssets {
   AppAssets._();
 
   static const String bacSplash = 'assets/images/splash_background.png';
-  static const String appLogo = 'assets/images/app_logo.jpeg';
+  static const String appLogo = 'assets/images/app_logo.png';
   static const String testBanner = 'assets/images/test_baner.png';
   static const String testItem = 'assets/images/testItem.png';
   static const String category = 'assets/images/category.png';
@@ -75,7 +75,9 @@ class AppAssets {
   static const String revenueAnalysisIcon = 'assets/icons/revenue-analysis_icon.svg';
   static const String vouchersMovementIcon = 'assets/icons/vouchers-movement_icon.svg';
   static const String itemsMovementIcon = 'assets/icons/items-movement_icon.svg';
-
+ static const String itemsInventoryIcon = 'assets/icons/items_inventory.svg';
+  static const String itemsBalanceReportIcon =
+      'assets/icons/items_balance_report.svg';
 
 
 

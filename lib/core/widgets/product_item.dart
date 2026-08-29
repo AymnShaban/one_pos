@@ -318,7 +318,7 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
                 ),
 
                 const SizedBox(height: 4),
-                _buildUnitSelector(isArabic),
+              _buildUnitSelector(isArabic),
 
                 const SizedBox(height: 6),
 
@@ -348,7 +348,8 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
 
     String unitLabel(ProductUnit u) {
       final name = isArabic ? u.unitArName : u.unitEnName;
-      return '${_fmtUnitValue(u.unitValue)} $name'.trim();
+     // return '${_fmtUnitValue(u.unitValue)} $name'.trim();
+    return name;
     }
 
     if (units.length <= 1) {
@@ -361,7 +362,10 @@ class _EnhancedProductItemState extends State<EnhancedProductItem> {
               widget.product.defaultUnitEnName ??
               '');
       final unitString =
-          '${widget.product.unitValue ?? ""} $name'.trim();
+
+      //    '${widget.product.unitValue ?? ""} $name'.trim();
+          name.trim();
+
       if (unitString.isEmpty) return const SizedBox.shrink();
       return Text(
         unitString,

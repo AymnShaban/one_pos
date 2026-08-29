@@ -33,17 +33,40 @@ class MainScreen extends StatefulWidget {
       child: const SalesTab(),
     ),
 
-    // 2 — Accounts (not built yet)
-    const UnderConstructionScreen(),
 
-    // 3 — Reports
-    BlocProvider(
-      create: (_) => getIt<ReportsBloc>(),
-      child: const ReportsTab(),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => getIt<EntriesBloc>(),
+        ),
+        BlocProvider(
+          create: (_) => getIt<MainAccountsBloc>(),
+        ), BlocProvider(
+          create: (_) => getIt<FillAccountsBloc>(),
+        ),
+        BlocProvider(
+          create: (_) => getIt<VoucherCreationBloc>(),
+        ),
+        BlocProvider(
+          create: (_) => getIt<JournalEntryBloc>(),
+        ),
+        BlocProvider(
+          create: (_) => getIt<CurrenciesBloc>(),
+        ),
+        BlocProvider(
+          create: (_) => getIt<BranchesBloc>(), // ✅ أضف هذا
+        ),
+      ],
+      child:  VoucherCreationScreen(),
     ),
 
+    // 2 — Accounts (not built yet)
+     ClientStatementScreen(),
+
+
+
     // 4 — More (not built yet)
-    const UnderConstructionScreen(),
+
 
     // 5 — Settings
     BlocProvider(
@@ -60,7 +83,20 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    logger('🔥🔥🔥 MainScreen CREATED');
+    logger(StackTrace.current.toString());
     context.read<HomeBloc>().add(const InitHome());
+    context.read<DailyOperationsBloc>().add(const LoadDailyOperations());
+    final topSellingBloc = context.read<TopSellingBloc>();
+    if (topSellingBloc.state.status != Status.success) {
+      topSellingBloc.add(const LoadTopSellingItems());
+    }
+
+
+    final lowStockBloc = context.read<LowStockBloc>();
+    if (lowStockBloc.state.status != Status.success) {
+      lowStockBloc.add(const LoadLowStockItems());
+    }
   }
 
   @override
@@ -87,19 +123,24 @@ class _BottomNavBar extends StatelessWidget {
 
   const _BottomNavBar({required this.currentIndex});
 
-  static const _accent = Color(0xff3B5BDB);
-  static const _muted = Color(0xff8A8F99);
+  static const _accent = AppColors.mainAppColor;
+  static const _muted = AppColors.secondaryAppColor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.backgroundColor2,
+        border: Border(
+          top: BorderSide(
+            color: AppColors.mainAppColor.withValues(alpha: .12),
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, -2),
+            color: Colors.black.withValues(alpha: .04),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
@@ -124,30 +165,25 @@ class _BottomNavBar extends StatelessWidget {
                 Icons.sell_rounded,
                 'home.pos'.tr(),
               ),
+
               _item(
                 context,
                 2,
-                Icons.account_balance_wallet_outlined,
-                Icons.account_balance_wallet_rounded,
-                'nav_accounts'.tr(),
+                Icons.receipt_long_outlined,
+                Icons.receipt_long,
+                'nav_entries'.tr(),
               ),
               _item(
                 context,
                 3,
-                Icons.bar_chart_outlined,
-                Icons.bar_chart_rounded,
-                'nav_reports'.tr(),
+                Icons.receipt_long_outlined,
+                Icons.receipt_long_rounded,
+                'nav_accounts'.tr(),
               ),
+
               _item(
                 context,
                 4,
-                Icons.apps_outlined,
-                Icons.apps_rounded,
-                'nav_more'.tr(),
-              ),
-              _item(
-                context,
-                5,
                 Icons.settings_outlined,
                 Icons.settings_rounded,
                 'nav_settings'.tr(),

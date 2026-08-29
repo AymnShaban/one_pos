@@ -14,23 +14,23 @@ class PrintReceiptSheet extends StatefulWidget {
 }
 
 class _PrintReceiptSheetState extends State<PrintReceiptSheet> {
-
   // initState
   @override
   void initState() {
     super.initState();
     // Load paired devices on sheet open.
     context.read<PrinterBloc>().add(const LoadPairedDevices());
+    // ✅ تحقق من الطابعة المدمجة
+    context.read<PrinterBloc>().add(const CheckBuiltInPrinter());
   }
 
   final GlobalKey _receiptKey = GlobalKey();
   ReceiptPaperSize _size = ReceiptPaperSize.mm80;
   String? _selectedMac;
   bool _capturing = false;
+  bool _useBuiltIn = false;
 
   Future<bool> _ensurePermissions() async {
-    // Android 12+ needs runtime BLUETOOTH_CONNECT/SCAN. On older versions these
-    // resolve to granted immediately. Location is only needed pre-Android-12.
     final statuses = await [
       Permission.bluetoothConnect,
       Permission.bluetoothScan,
@@ -40,23 +40,21 @@ class _PrintReceiptSheetState extends State<PrintReceiptSheet> {
 
   /// Renders the off-screen receipt boundary to a PNG (+ its pixel size).
   Future<({Uint8List png, int w, int h})?> _capturePng() async {
-    // Let the selected-size receipt paint at least one frame before capture.
     await WidgetsBinding.instance.endOfFrame;
     final boundary = _receiptKey.currentContext?.findRenderObject()
-        as RenderRepaintBoundary?;
+    as RenderRepaintBoundary?;
     if (boundary == null) return null;
     final uiImage = await boundary.toImage(pixelRatio: 1);
     final byteData = await uiImage.toByteData(format: ui.ImageByteFormat.png);
     if (byteData == null) return null;
     return (
-      png: byteData.buffer.asUint8List(),
-      w: uiImage.width,
-      h: uiImage.height,
+    png: byteData.buffer.asUint8List(),
+    w: uiImage.width,
+    h: uiImage.height,
     );
   }
 
-  /// Option 1 — build a PDF and hand it to the OS print dialog (any printer,
-  /// or save / share as PDF). No Bluetooth permission or printer selection.
+  /// Option 1 — build a PDF and hand it to the OS print dialog.
   Future<void> _printPdf() async {
     setState(() => _capturing = true);
     try {
@@ -110,14 +108,38 @@ class _PrintReceiptSheetState extends State<PrintReceiptSheet> {
     }
   }
 
+  // ✅ دالة الطباعة على الطابعة المدمجة
+  Future<void> _printBuiltIn() async {
+    setState(() => _capturing = true);
+    try {
+      final cap = await _capturePng();
+      final image = cap == null ? null : img.decodePng(cap.png);
+      if (image == null) {
+        if (mounted) showCustomSnackBar(context, 'printing.render_failed'.tr());
+        return;
+      }
+      final bytes = await ReceiptBuilder.build(image, _size);
+      if (!mounted) return;
+
+      // ✅ الاتصال بالطابعة المدمجة والطباعة
+      context.read<PrinterBloc>().add(
+          PrintReceipt(
+              mac: PrinterDataSourceImpl.BUILT_IN_PRINTER_MAC,
+              bytes: bytes
+          )
+      );
+    } finally {
+      if (mounted) setState(() => _capturing = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
     return Stack(
       children: [
         _sheetContent(context, isAr),
-        // Off-screen render target — translated far away so it paints (needed
-        // for toImage) without being visible or affecting layout.
+        // Off-screen render target
         Positioned(
           left: 0,
           top: 0,
@@ -173,6 +195,30 @@ class _PrintReceiptSheetState extends State<PrintReceiptSheet> {
                     style: AppTextTheme.titleSmallBold
                         .copyWith(color: AppColors.black)),
                 SizedBox(height: 12.h),
+
+                // ✅ زر الطابعة المدمجة (يظهر فقط إذا كانت متوفرة)
+                if (state.isBuiltInPrinter)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 12.h),
+                    child: SizedBox(
+                      height: 48.h,
+                      child: ElevatedButton.icon(
+                        onPressed: busy ? null : _printBuiltIn,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.tealAccentColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r)),
+                        ),
+                        icon: Icon(Icons.print, color: Colors.white),
+                        label: Text(
+                          'printing.built_in_print'.tr(),
+                          style: AppTextTheme.body2Bold
+                              .copyWith(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+
                 // Paper size selector
                 Text('printing.paper_size'.tr(),
                     style: AppTextTheme.caption.copyWith(color: AppColors.grey)),
@@ -209,6 +255,7 @@ class _PrintReceiptSheetState extends State<PrintReceiptSheet> {
                   }).toList(),
                 ),
                 SizedBox(height: 16.h),
+
                 // Printer list header + refresh
                 Row(
                   children: [
@@ -220,8 +267,8 @@ class _PrintReceiptSheetState extends State<PrintReceiptSheet> {
                       onPressed: busy
                           ? null
                           : () => context
-                              .read<PrinterBloc>()
-                              .add(const LoadPairedDevices()),
+                          .read<PrinterBloc>()
+                          .add(const LoadPairedDevices()),
                       icon: Icon(Icons.refresh,
                           size: 20.sp, color: AppColors.mainAppColor),
                     ),
@@ -229,6 +276,7 @@ class _PrintReceiptSheetState extends State<PrintReceiptSheet> {
                 ),
                 _deviceList(context, state),
                 SizedBox(height: 16.h),
+
                 // Option 1 — PDF then system print dialog / share.
                 SizedBox(
                   height: 48.h,
@@ -244,17 +292,18 @@ class _PrintReceiptSheetState extends State<PrintReceiptSheet> {
                     label: Text(
                       'printing.pdf_print'.tr(),
                       style:
-                          AppTextTheme.body2Bold.copyWith(color: Colors.white),
+                      AppTextTheme.body2Bold.copyWith(color: Colors.white),
                     ),
                   ),
                 ),
                 SizedBox(height: 10.h),
+
                 // Option 2 — direct Bluetooth thermal print.
                 SizedBox(
                   height: 48.h,
                   child: OutlinedButton.icon(
                     onPressed:
-                        (_selectedMac == null || busy) ? null : _printBluetooth,
+                    (_selectedMac == null || busy) ? null : _printBluetooth,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.mainAppColor,
                       side: BorderSide(color: AppColors.mainAppColor),
@@ -263,11 +312,11 @@ class _PrintReceiptSheetState extends State<PrintReceiptSheet> {
                     ),
                     icon: busy
                         ? SizedBox(
-                            width: 18.w,
-                            height: 18.w,
-                            child: CircularProgressIndicator(
-                                color: AppColors.mainAppColor, strokeWidth: 2),
-                          )
+                      width: 18.w,
+                      height: 18.w,
+                      child: CircularProgressIndicator(
+                          color: AppColors.mainAppColor, strokeWidth: 2),
+                    )
                         : const Icon(Icons.bluetooth),
                     label: Text(
                       busy

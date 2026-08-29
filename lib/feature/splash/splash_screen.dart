@@ -5,6 +5,7 @@ import '../auth/bloc/activation_bloc/activation_event.dart';
 import '../auth/presentation/screens/activation_screen.dart';
 import '../auth/presentation/screens/login_screen.dart';
 import '../main/home/home_imports.dart';
+import '../main/home/manager/today_bills_bloc/daily_operation_bloc.dart';
 
 Route _activationRoute() => MaterialPageRoute(
       builder: (_) => BlocProvider(
@@ -44,11 +45,11 @@ class _SplashScreenState extends State<SplashScreen> {
       '[Splash] activationCode=$config | hasAppConfig=${appCfg != null} | userId=${cachedUser?.userId}',
     );
 
-    // ── Case 1: Never activated → open the activation screen directly ───────
-    if (config == null && appCfg == null) {
-      Navigator.pushReplacement(context, _activationRoute());
-      return;
-    }
+   // // ── Case 1: Never activated → open the activation screen directly ───────
+   //  if (config == null && appCfg == null) {
+   //    Navigator.pushReplacement(context, _activationRoute());
+   //    return;
+   //  }
 
     // ── Case 2: Activated but not logged in ──────────────────────────────────
     if (cachedUser == null) {
@@ -84,6 +85,17 @@ class _SplashScreenState extends State<SplashScreen> {
               // No ..add(InitHome()) here — HomeTab's initState fires it
               // when (and only when) the user opens the Home tab.
               create: (_) => getIt<HomeBloc>(),
+            ),BlocProvider(
+              create: (_) =>
+                  getIt<DailyOperationsBloc>(),
+            ),
+            BlocProvider<TopSellingBloc>(
+              create: (_) => getIt<TopSellingBloc>(),
+            ),
+
+
+            BlocProvider<LowStockBloc>(
+              create: (_) => getIt<LowStockBloc>(),
             ),
             BlocProvider(
               create: (_) => getIt<NavBloc>(),

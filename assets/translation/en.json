@@ -5,7 +5,7 @@
   "nav_reports": "Reports",
   "nav_settings": "Settings",
   "nav_live_sales": "Live Sales",
-  "nav_accounts": "Accounts",
+  "nav_accounts": "Account Statement",
   "nav_more": "More",
 
   "your_basket": "Your Basket",
@@ -63,7 +63,8 @@
     "activation_hint": "You can find the code in your email or from your service provider",
     "no_configuration_found": "No configuration found for this code",
     "device_deactivated": "This device has been deactivated",
-    "exit_confirmation": "Are you sure you want to exit?"
+    "exit_confirmation": "Are you sure you want to exit?",
+    "invalid_username_or_password": "Invalid username or password"
   },
   "home": {
     "title": "The One POS",
@@ -74,6 +75,7 @@
     "synced": "Synced",
     "offline": "Offline",
     "today_sales": "Today's Sales",
+
     "invoices": "Invoices",
     "products": "Products",
     "active": "Active",
@@ -129,13 +131,15 @@
 
     "branch_profit": "Branch Profit",
     "branch_profit_subtitle": "Compare profit across all branches",
-
+    "items_inventory": "Items Inventory",
+    "items_inventory_subtitle": "View and track item quantities and movements",
     "invoice_profit": "Invoice Profit",
     "invoice_profit_subtitle": "Analyze profit for every invoice",
 
     "invoice_category_profit": "Invoice Category Profit",
     "invoice_category_profit_subtitle": "Analyze profit by invoice category",
-
+    "items_balance_report": "Item Stock Balance Report",
+    "items_balance_report_subtitle": "View stock balances and quantities for all inventory items",
     "revenue_analysis": "Revenue Analysis",
     "revenue_analysis_subtitle": "Revenue by period and branch",
 
@@ -212,7 +216,11 @@
     "saudi_riyal": "Saudi Riyal",
     "top_products": "Top Selling Products",
     "units_sold": "{count} units",
-    "export_pdf": "Export Report (PDF)"
+    "export_pdf": "Export Report (PDF)",
+    "items_balance_report": "Item Stock Balance Report",
+    "items_balance_report_subtitle": "View inventory balances and item statistics",
+    "items_balance_report_header": "Item Stock Balance Report",
+    "items_balance_report_description": "View current stock quantities, inventory statistics, and top-performing items."
   },
 
   "settings": {
@@ -242,7 +250,13 @@
     "role_user": "User",
     "app_description": "Modern retail management system",
     "copyright": "© 2026 All Rights Reserved",
-    "logout": "Logout"
+    "logout": "Logout",
+    "reset_activation_title": "Reset Activation",
+    "reset_activation_message": "The current device activation will be removed and its activation data will be cleared. You can then enter a new activation code. Do you want to continue?",
+    "reset": "Reset",
+    "reset_activation": "Reset Device Activation",
+    "reset_activation_subtitle": "Remove the current activation and enter a new activation code",
+    "reset_success": "Activation reset successfully"
   },
 
   "common": {
@@ -294,7 +308,8 @@
     "render_failed": "Could not render the receipt",
     "connect_failed": "Could not connect to the printer",
     "write_failed": "Could not send data to the printer",
-    "thank_you": "Thank you"
+    "thank_you": "Thank you",
+    "built_in_print": "Print on Built-in Printer"
   },
   "invoice_details": {
     "title": "Invoice Details",
@@ -450,5 +465,519 @@
     "total":                "Total",
     "remaining":            "Remaining"
   },
-  "time_period": "Date Range"
+  "time_period": "Date Range",
+  "revenue_analysis": "Revenue Analysis",
+  "report_options": "Report Options",
+  "accounts": "Accounts",
+  "categories": "Categories",
+  "period_type": "Period Type",
+  "monthly": "Monthly",
+  "period": "Period",
+  "quarterly": "Quarterly",
+  "from_date": "From Date",
+  "to_date": "To Date",
+  "additional_options": "Additional Options",
+  "show_column_values": "Show Column Values",
+  "show_column_values_sub": "Show monthly values alongside total",
+  "detailed_cost_centers": "Detailed Cost Centers",
+  "detailed_cost_centers_sub": "Split revenue by cost centers",
+  "detailed_comparison": "Detailed Comparison",
+  "detailed_comparison_sub": "Detailed comparison between periods",
+  "view_report": "View Report",
+  "reset": "Reset",
+
+  "revenue_analysis_monthly": "Monthly Revenue Analysis",
+
+  "january_july_2026": "January – July 2026",
+  "total_revenue": "Total Revenue",
+  "total_expenses": "Total Expenses",
+  "7_months": "7 Months",
+  "total_7_months": "Total 7 Months",
+  "by_account": "By Account",
+
+  "show_more": "Show More",
+  "of": "of",
+  "advanced_filter": "Advanced Filter",
+  "sources_and_options": "Sources & Options",
+  "report_sources": "Report Sources",
+  "selected": "selected",
+  "select_all": "Select All",
+
+  "show_remaining": "Show Remaining",
+  "zero_invoices": "Zero Invoices",
+  "cost_from_last_purchase": "Cost from Last Purchase",
+  "free_cost": "Free Cost",
+  "show_paid": "Show Paid",
+  "show_client_branch": "Show Client Branch",
+  "total_weight": "Total Weight",
+  "hide_discount": "Hide Discount",
+  "total_reps": "Total Reps",
+  "apply": "Apply",
+  "back": "Back",
+  "invoice_profits": "Invoice Profits",
+  "basic_filters": "Basic Filters",
+
+  "invoice_data": "Invoice Data",
+  "account": "Account",
+  "select_account": "Select Account…",
+  "client": "Client",
+  "select_client": "Select Client…",
+  "rep": "Sales Rep",
+  "select_rep": "Select Sales Rep",
+  "cost_center": "Cost Center",
+  "select_cost_center": "Select Cost Center",
+  "view_mode": "View Mode",
+  "daily": "Daily",
+
+  "weekly": "Weekly",
+
+  "date_range": "28-07-2026 to 29-07-2026",
+  "date_range_full": "From 28-07-2026 to 29-07-2026",
+  "records": "Record",
+
+  "cost": "Cost",
+  "profits": "Profits",
+  "net_profit": "Net Profit",
+
+  "total_sum": "Total — Sum",
+  "net": "Net",
+  "discount": "Discount",
+  "additions": "Additions",
+  "net_value": "Net Value",
+  "profit_cost_percent": "Profit/Cost %",
+  "expense_analysis": "Expense Analysis",
+
+  "select_accounts": "Select one or more accounts…",
+
+  "compare_to_budget": "Compare to Budget",
+  "compare_to_budget_sub": "Compare actual to approved budget",
+  "multi_database": "Multiple Databases",
+  "multi_database_sub": "Include additional branches or companies",
+
+  "add": "+ Add",
+  "search": "Search",
+  "no_data_available": "No data available",
+  "select_parent_account": "Select Parent Account",
+  "cancel": "إلغاء",
+  "months": "Months",
+  "expense_analysis_monthly": "Monthly Expense Analysis",
+  "accounts_selected": "accounts selected",
+
+  "no_accounts_found": "No accounts found",
+  "loading_accounts": "Loading accounts...",
+  "no_accounts_available": "No accounts available",
+  "confirm": "Confirm",
+  "item_profit_report": "Item Profit Report",
+  "query_options": "Query Options",
+
+  "sale_price": "Sale Price",
+  "cost_price": "Cost Price",
+  "cost_filters": "Cost Filters",
+  "filter_cost_zero": "Zero Cost",
+  "filter_cost_equals_sale": "Cost Equals Sale",
+  "filter_cost_bigger_sale": "Cost Bigger Than Sale",
+  "display_options": "Display Options",
+  "show_returns": "Show Returns",
+  "without_customer": "Without Customer",
+  "customer_branch": "Customer Branch",
+  "branches": "Company Branches",
+  "select_branch": "Please select a branch",
+  "show_report": "Show Report",
+
+  "item_profit_results": "Item Profit Results",
+  "report_details": "Report Details",
+  "total_qty": "Total Qty",
+  "total_value": "Total Value",
+  "total_cost": "Total Cost",
+  "total_profit": "Total Profit",
+  "bills": "Bills",
+  "bill_no": "Bill No.",
+  "return": "Return",
+  "sale": "Sale",
+  "customer": "Customer",
+  "qty": "Qty",
+  "value": "Value",
+  "items": "Items",
+
+  "profit": "Profit",
+  "error": "Error",
+  "error_occurred": "An error occurred while loading data",
+  "retry": "Retry",
+  "no_data": "No data available",
+
+
+  "additional_filters": "Additional Filters",
+  "currency": "Currency",
+  "user": "User",
+  "branch": "Branch",
+  "pay_way": "Pay Way",
+  "bill_source": "Bill Source",
+
+  "report_source": "Report Source",
+
+
+  "advanced_filter_sub": "Advanced filter sub",
+
+
+  "select_currency": "Select Currency",
+  "select_user": "Select User",
+
+  "select_pay_way": "Select Pay Way",
+  "select_bill_source": "Select Bill Source",
+
+  "report_options_and_views": "Report Options & Views",
+
+
+  "discount_percent": "Discount %",
+
+  "view_controls": "View Controls",
+
+  "analytical": "Analytical",
+
+
+  "sort_by": "Sort By",
+  "date": "Date",
+  "invoice_number": "Invoice No.",
+  "loading_report": "Loading report...",
+  "please_wait": "Please wait...",
+  "all_branches": "All Branches",
+  "group_by": "Group By",
+  "pattern": "Pattern",
+  "group_customer": "Group Customer",
+  "group_date": "Group Date",
+  "price_types": "Price Types",
+  "warning": "Warning",
+
+  "cannot_select_account_with_client": "⚠️ You cannot select both an account and a client.\nThe current client selection will be cleared.",
+  "cannot_select_client_with_account": "⚠️ You cannot select both a client and an account.\nThe current account selection will be cleared.",
+
+  "receipts_payments_movement_report": "Receipts & Payments Movement Report",
+  "advanced_filters": "Advanced Filters",
+  "report_results": "Report Results",
+
+  "received_from": "Received From",
+  "delivered_to": "Delivered To",
+
+  "select_received_from": "Select Received From",
+  "select_delivered_to": "Select Delivered To",
+  "select_report_source": "Select Report Source",
+
+  "receipts": "Receipts",
+  "payments": "Payments",
+
+  "movement_type": "Movement Type",
+  "voucher_type": "Voucher Type",
+
+
+
+  "preview": "Preview",
+  "print": "Print",
+
+
+  "all": "All",
+
+  "amount": "Amount",
+  "vouchers_movement": "Vouchers Movement",
+  "exchange_rate": "Exchange Rate",
+
+
+  "show_zero_movements": "Show Zero Movements",
+
+  "voucher_number": "Voucher No.",
+
+  "description": "Description",
+
+  "no_data_found": "No Data Found",
+  "sources_options_fields": "Sources & Options",
+  "all_sources": "All Sources",
+  "receipt_vouchers": "Receipt Vouchers",
+  "payment_vouchers": "Payment Vouchers",
+
+  "show_net_voucher": "Show Net Voucher",
+  "show_posted": "Show Posted",
+  "show_unposted": "Show Unposted",
+  "rep_by_client": "Representative by Customer",
+
+  "order_by": "Order By",
+  "by_date": "By Date",
+  "by_voucher_number": "By Voucher Number",
+
+  "voucher_fields": "Voucher Fields",
+  "collection_voucher": "Receipt Voucher",
+  "check_number": "Check Number",
+  "due_date": "Due Date",
+  "rep_name": "Representative",
+  "note": "Note",
+  "from": "From",
+  "total_summary": "Total Summary",
+
+  "bill_type": "Bill Type",
+  "extra": "Extra",
+  "cost_profit_percentage": "Cost / Profit Percentage",
+  "receipt": "Receipt",
+
+  "posted": "Posted",
+  "yes": "Yes",
+  "no": "No",
+  "receipts_and_payments_movement": "Receipts and Payments Movement",
+  "total_receipt": "Total Receipt",
+  "total_payment": "Total Payment",
+  "net_movement": "Net Movement",
+  "vouchers": "Vouchers",
+  "customer_name": "Customer Name",
+  "notes": "Notes",
+  "display_options_order": "Display Options & Sorting",
+  "no_vouchers_found": "No vouchers found",
+  "back_to_filters": "Back to Filters",
+
+  "daily_operations": "Daily Operations",
+  "client_statement": "Client Statement",
+  "select_client_and_period": "Select Client and Period",
+
+  "choose_client": "Choose Client",
+  "view_statement": "View Statement",
+  "please_select_client": "Please select a client",
+  "no_clients_available": "No clients available",
+  "loading_clients": "Loading clients...",
+  "search_clients": "Search clients...",
+  "no_clients_found": "No clients found",
+  "period_range": "Period Range",
+
+  "total_debit": "Total Debit",
+  "total_credit": "Total Credit",
+  "net_balance": "Net Balance",
+
+  "doc_no": "Doc No.",
+
+  "debit": "Debit",
+  "credit": "Credit",
+
+  "opening_balance": "Opening Balance",
+  "closing_balance": "Closing Balance",
+  "error_loading_statement": "Error loading client statement",
+  "select_from_customer": "Select From Customer",
+  "search_customers": "Search Customers",
+  "select_accounts_and_period": "Select Accounts and Period",
+  "main_account": "Main Account",
+  "select_main_account": "Select Main Account",
+  "customer_range": "Customer Range",
+  "from_customer": "From Customer",
+  "to_customer": "To Customer",
+  "transactions": "Transactions",
+  "positive_balance": "Positive Balance",
+  "negative_balance": "Negative Balance",
+  "select_to_customer": "Select To Customer",
+  "loading_statement": "Loading Account Statement",
+  "loading": "Loading",
+  "search_accounts": "Search Accounts",
+  "please_select_customer": "Please select a customer",
+  "no_results_found": "No results found",
+  "please_select_account": "Please select an account",
+  "branch_profit_report": "Branch Profit Report",
+  "select_branches_and_period": "Select Branches and Period",
+  "branches_report": "Branches Report",
+  "profit_analysis": "Profit Analysis",
+  "total_sales": "Total Sales",
+  "daily_sales_disabled": "Disable Daily Sales",
+  "daily_sales_disabled_hint": "Disable Daily Sales Display",
+  "gross_profit": "Gross Profit",
+  "daily_sales": "Daily Sales",
+  "daily_sales_enabled": "Enable Daily Sales",
+  "daily_sales_enabled_hint": "Enable Daily Sales Display",
+  "show_expenses": "Show Revenue and Expenses",
+  "posted_only": "Do not show unposted invoices",
+  "profit_from_last_price": "Profit from Last Cost",
+  "analysis": "Analysis",
+
+  "order_by_branch": "Order By Branch",
+  "group_by_branch": "Group By Branch",
+  "top_selling": "Top Selling",
+  "low_stock": "Low Stock",
+  "no_top_selling": "No top selling items",
+  "no_low_stock": "No low stock items",
+  "units": "Unit",
+  "item_movement_report": "Item Movement Report",
+  "select_filters_for_item_movement_report": "Select filters to view the item movement report",
+  "material": "Material",
+  "select_material": "Select Material",
+  "group": "Group",
+  "select_group": "Select Group",
+  "store": "Store",
+  "select_store": "Select Store",
+  "unit": "Unit",
+  "select_unit": "Select Unit",
+  "sources": "Report Sources",
+  "select_sources": "Select Report Sources",
+  "options": "Options",
+  "show_quantity_previous_balance": "Show Previous Balance Quantity",
+  "is_group": "Group by Group",
+  "zero_value_only": "Zero Value Only",
+  "material_motion_analysis": "Material Movement Analysis",
+  "price_related_total_weight": "Price-Related Total Weight",
+  "customer_material_motion": "Customer Material Movement",
+  "show_serials": "Show Serial Numbers",
+  "expire_date": "Expiry Date",
+  "explanation_item": "Item Explanation",
+  "max_purchase_from_additions": "Maximum Purchase from Additions",
+  "arabic": "Arabic",
+  "product": "Product",
+  "multi_db": "Multiple Databases",
+  "select_product": "Select Product",
+  "search_products": "Search Products",
+  "search_groups": "Search Groups",
+  "search_stores": "Search Stores",
+  "search_cost_centers": "Search Cost Centers",
+  "search_currencies": "Search Currencies",
+  "code": "Code",
+  "total_in": "Total In",
+  "total_out": "Total Out",
+  "final_balance": "Final Balance",
+  "max_purchase": "Max Purchase Price",
+  "min_purchase": "Min Purchase Price",
+  "avg_purchase": "Average Purchase Price",
+  "max_sell": "Max Sell Price",
+  "min_sell": "Min Sell Price",
+  "avg_sell": "Average Sell Price",
+  "movement_details": "Movement Details",
+  "date_bill": "Date / Bill",
+  "in": "In",
+  "out": "Out",
+
+
+  "please_select_product": "Please select a product",
+
+  "item_movement_balance_report": "Item Movement & Balance Report",
+  "select_filters_for_report": "Select filters to view the item movement and balance report",
+
+  "incoming": "Incoming",
+  "outgoing": "Outgoing",
+  "items_details": "Items Details",
+  "barcode": "Barcode",
+  "quantities": "Quantities",
+  "opening": "Opening Balance",
+  "costs": "Costs",
+  "totals": "Totals",
+  "show_price": "Show Price",
+  "show_total": "Show Total",
+  "group_by_group": "Group by Group",
+  "show_empty": "Show Empty",
+  "output_at_cost": "Output at Cost",
+  "last_period": "Last Period",
+  "total_items": "Total Items",
+
+  "movements": "Movements",
+
+  "more_transactions": "More Transactions",
+  "entries": "Entries",
+  "manage_entries": "Manage Entries",
+  "select_entry_type_below": "Select entry type below",
+
+  "cash_receipt": "Cash Receipt",
+  "cash_receipt_description": "Add cash receipt voucher",
+  "check_receipt": "Check Receipt",
+  "check_receipt_description": "Add check receipt voucher",
+
+
+  "cash_payment": "Cash Payment",
+  "cash_payment_description": "Add cash payment voucher",
+  "check_payment": "Check Payment",
+  "check_payment_description": "Add check payment voucher",
+
+  "journal_entries": "Journal Entries",
+  "journal_entries_description": "Create new journal entry",
+  "journal_patterns": "Journal Patterns",
+  "journal_patterns_description": "View journal patterns",
+
+  "vouchers_report": "Vouchers Report",
+  "vouchers_report_description": "View vouchers report",
+  "journal_report": "Journal Report",
+  "journal_report_description": "View journal report",
+
+  "add_new": "Add New",
+  "add_cash_receipt": "Add cash receipt",
+  "add_check_receipt": "Add check receipt",
+  "add_cash_payment": "Add cash payment",
+  "add_check_payment": "Add check payment",
+  "add_journal_entry": "Add journal entry",
+
+  "journal_entry": "Journal Entry",
+  "create_journal_entry": "Create Journal Entry",
+
+  "voucher_details": "Voucher Details",
+
+  "voucher_info": "Voucher Information",
+  "voucher_accounts": "Voucher Accounts",
+  "create_voucher": "Create Voucher",
+  "save_voucher": "Save Voucher",
+  "voucher_created_success": "Voucher created successfully",
+  "error_creating_voucher": "Error creating voucher",
+
+
+  "difference": "Difference",
+
+
+  "select_date": "Select Date",
+
+
+
+  "pending": "Pending",
+  "save_journal": "Save Journal",
+  "journal_entry_saved": "Journal entry saved successfully",
+  "error_saving_journal": "Error saving journal entry",
+  "journal_not_balanced": "Journal is not balanced - Debit does not equal Credit",
+  "add_row": "Add Row",
+
+  "error_loading": "Error loading data",
+  "error_loading_vouchers": "Error loading vouchers",
+  "error_loading_voucher": "Error loading voucher details",
+  "no_results": "No results found",
+  "required_field": "This field is required",
+
+  "reports_section": "Reports",
+  "entries_reports": "Entries Reports",
+
+  "nav_entries": "Entries",
+  "select_pattern": "Select Pattern",
+  "search_pattern": "Search Pattern",
+  "search_branch": "Search Branch",
+  "select_counter_account": "Select Counter Account",
+
+  "cash_receipt_voucher": "Cash Receipt Voucher",
+  "check_receipt_voucher": "Check Receipt Voucher",
+  "cash_payment_voucher": "Cash Payment Voucher",
+  "check_payment_voucher": "Check Payment Voucher",
+  "payment_method": "Payment Method",
+  "select_payment_method": "Select Payment Method",
+  "no_account_selected": "No Account Selected",
+  "select_voucher_type": "Select Voucher Type",
+  "search_voucher_type": "Search Voucher Type",
+  "search_account": "Search Account",
+
+  "search_currency": "Search Currency",
+  "branch_profit": {
+    "total_debit": "Total Debit",
+    "total_credit": "Total Credit",
+    "net_balance": "Net Balance",
+    "period": "Period",
+    "debit": "Debit",
+    "credit": "Credit",
+    "balance": "Balance",
+    "analysis_header": "Profit Analysis",
+    "debit_ratio": "Debit Ratio",
+    "balance_ratio": "Balance Ratio",
+    "distribution": "Distribution",
+    "net_loss": "Net Loss",
+    "total_balance": "Total Balance"
+  },
+  "display_level": "Display Level",
+  "by_cost_center": "By Cost Center",
+  "display_by_account_desc": "Display data by account",
+  "display_by_cost_center_desc": "Display data by cost center",
+  "order_by_month": "Order by Month",
+  "order_by_branch_desc": "Order by Branch",
+  "no_person_account_selected": "No person account selected",
+  "person_account": "Person Account",
+  "select_person_account": "Select Person Account",
+  "search_person_account": "Search Person Account",
+  "search_main_account": "Search Main Account"
 }

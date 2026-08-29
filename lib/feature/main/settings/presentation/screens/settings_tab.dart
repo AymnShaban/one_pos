@@ -21,6 +21,34 @@ class _SettingsTabState extends State<SettingsTab> {
         listener: (context, state) {
           if (state.metadata['action'] == 'logout') {
             // Navigate to login — wire to your router
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BlocProvider(
+                  create: (_) => getIt<LoginBloc>(),
+                  child: const LoginScreen(),
+                ),
+              ),
+            );
+          }
+          if (state.metadata['action'] == 'reset_activation') {
+            // Navigate to activation screen
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BlocProvider(
+                  create: (context) {
+                    final bloc = getIt<ActivationBloc>();
+                    bloc.initDevice(context);
+                    return bloc;
+                  },
+                  child: const ActivationScreen(),
+                ),
+              ),
+            );
+
+            showCustomSnackBar(context, 'settings.reset_success'.tr());
+
           }
         },
         builder: (context, state) {
@@ -97,6 +125,13 @@ class _SettingsTabState extends State<SettingsTab> {
                             onTap: () => context.read<SettingsBloc>().add(
                               const UpdateDatabase(),
                             ),
+                          ),
+                          SettingsTile(
+                            icon: Icons.restart_alt_rounded,
+                            iconColor: Colors.orange,
+                            title: 'settings.reset_activation'.tr(),
+                            subtitle: 'settings.reset_activation_subtitle'.tr(),
+                            onTap: () => _showResetActivationDialog(context),
                           ),
                           SettingsTile(
                             icon: Icons.notifications_outlined,
@@ -220,7 +255,115 @@ void _showLogoutDialog(BuildContext context) {
     ),
   );
 }
+void _showResetActivationDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        backgroundColor: AppColors.whiteColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        contentPadding: EdgeInsets.all(24.w),
+        title: Column(
+          children: [
+            Container(
+              width: 64.w,
+              height: 64.w,
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.restart_alt_rounded,
+                color: Colors.orange,
+                size: 34.sp,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'settings.reset_activation_title'.tr(),
+              textAlign: TextAlign.center,
+              style: AppTextTheme.body1Bold.copyWith(
+                color: AppColors.black,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'settings.reset_activation_message'.tr(),
+          textAlign: TextAlign.center,
+          style: AppTextTheme.body2.copyWith(
+            color: AppColors.grey,
+            height: 1.5,
+          ),
+        ),
+        actionsPadding: EdgeInsets.fromLTRB(
+          16.w,
+          0,
+          16.w,
+          16.h,
+        ),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: AppColors.backgroundColor,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      vertical: 13.h,
+                    ),
+                  ),
+                  child: Text(
+                    'common.cancel'.tr(),
+                    style: AppTextTheme.body2Bold.copyWith(
+                      color: AppColors.grey,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
 
+                    context.read<SettingsBloc>().add(
+                      const ResetActivationRequested(),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      vertical: 13.h,
+                    ),
+                  ),
+                  child: Text(
+                    'settings.reset'.tr(),
+                    style: AppTextTheme.body2Bold.copyWith(
+                      color: AppColors.whiteColor,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    },
+  );
+}
 // ── App Branding ─────────────────────────────────────────────────────────────
 class _AppBranding extends StatelessWidget {
   @override

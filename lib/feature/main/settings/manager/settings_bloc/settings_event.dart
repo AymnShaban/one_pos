@@ -22,3 +22,6 @@ class UpdateDatabase extends SettingsEvent {
 class ToggleNotifications extends SettingsEvent {
   const ToggleNotifications();
 }
+class ResetActivationRequested extends SettingsEvent {
+  const ResetActivationRequested();
+}

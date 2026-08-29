@@ -45,7 +45,7 @@ extension ContextExtensions on BuildContext {
             Expanded(
               child: Text(
                 message,
-                style: AppTextTheme.headlineMedium.copyWith(color: Colors.white),
+                style: AppTextTheme.headlineMedium.copyWith(color: Colors.red),
                 textAlign: TextAlign.center,
               ),
             ),

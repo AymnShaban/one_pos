@@ -3,6 +3,7 @@ import '../../../../../core/helper/helper.dart';
 import '../../../../../core/widgets/custom_snack_bar.dart';
 import '../../../../core/services/service_locator/services_imports.dart';
 import '../../../main/home/home_imports.dart';
+import '../../../main/home/manager/today_bills_bloc/daily_operation_bloc.dart';
 import '../../bloc/log_in_bloc/log_in_bloc.dart';
 import '../../bloc/log_in_bloc/log_in_event.dart';
 
@@ -51,6 +52,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     BlocProvider(
                       create: (_) =>
                       getIt<HomeBloc>(),
+                    ),BlocProvider(
+                      create: (_) =>
+                          getIt<DailyOperationsBloc>(),
+                    ),  BlocProvider<TopSellingBloc>(
+                      create: (_) => getIt<TopSellingBloc>(),
+                    ),
+
+
+                    BlocProvider<LowStockBloc>(
+                      create: (_) => getIt<LowStockBloc>(),
                     ),
                     BlocProvider(
                       create: (_) => getIt<NavBloc>(),

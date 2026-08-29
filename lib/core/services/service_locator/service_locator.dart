@@ -4,30 +4,42 @@ final getIt = GetIt.instance;
 
 Future<void> setup() async {
   getIt.registerLazySingleton<Dio>(
-    () => Dio(
-        BaseOptions(
-          baseUrl: EndPoints.baseUrl,
-          receiveDataWhenStatusError: true,
-          connectTimeout: const Duration(seconds: 30),
-          receiveTimeout: const Duration(seconds: 30),
-          sendTimeout: const Duration(seconds: 30),
-          headers: {
-            'Accept': 'application/json',
-            'Accept-Language': 'ar',
-            'Content-Type': 'application/json',
-          },
-        ),
-      )
-      // Inject the Bearer token freshly from Hive on every request — so
-      // requests fired before login (e.g. activation) skip the header, and
-      // requests after login pick up the new JWT without recreating Dio.
+        () => Dio(
+      BaseOptions(
+        baseUrl: EndPoints.baseUrl,
+        receiveDataWhenStatusError: true,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(seconds: 30),
+        headers: {
+          'Accept': 'application/json',
+          'Accept-Language': 'ar',
+          'Content-Type': 'application/json',
+        },
+      ),
+    )
       ..interceptors.add(
         InterceptorsWrapper(
           onRequest: (options, handler) {
-            final token = getIt<HiveServiceImpl>().getJwtToken();
+            final hive = getIt<HiveServiceImpl>();
+
+            // BaseUrl الخاص بالعميل بعد Activation
+            final activatedBaseUrl = hive.getBaseUrl();
+
+            if (activatedBaseUrl != null &&
+                activatedBaseUrl.trim().isNotEmpty) {
+              options.baseUrl = activatedBaseUrl;
+            } else {
+              options.baseUrl = EndPoints.baseUrl;
+            }
+
+            // JWT فقط لو المستخدم عامل Login
+            final token = hive.getJwtToken();
+
             if (token != null && token.isNotEmpty) {
               options.headers['Authorization'] = 'Bearer $token';
             }
+
             handler.next(options);
           },
         ),
@@ -66,5 +78,17 @@ Future<void> setup() async {
   await InvoiceSetupServiceLocator.init(getIt: getIt);
   await InvoiceCollectionServiceLocator.init(getIt: getIt);
   await LiveSalesReportServiceLocator.init(getIt: getIt);
+  await EntriesServiceLocator.init(getIt: getIt);
   await BarrenServiceLocator.init(getIt: getIt);
+  await InvoiceProfitServiceLocator.init(getIt: getIt);
+  await ExpenseAnalysisServiceLocator.init(getIt: getIt);
+  await RevenueAnalysisServiceLocator.init(getIt: getIt);
+  await ItemProfitServiceLocator.init(getIt: getIt);
+  await ReceiptsAndPaymentsMovementServiceLocator.init(getIt: getIt);
+  await CustomerAccountStatementServiceLocator.init(getIt: getIt);
+  await BranchProfitServiceLocator.init(getIt: getIt);
+  await ItemMovementServiceLocator.init(getIt: getIt);
+  await ItemMovementBalanceServiceLocator.init(getIt: getIt);
+
+
 }

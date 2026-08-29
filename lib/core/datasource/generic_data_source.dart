@@ -89,6 +89,15 @@ class GenericDataSource {
     Map<String, dynamic>? data,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
+
+    T Function(Map<String, dynamic>)? fromJson,
+
+    T Function(List<dynamic>)? fromJsonList,
+
+    T Function(
+        List<dynamic>? list,
+        Map<String, dynamic>? map,
+        )? fromJsonListOrMap,
   }) async {
     final result = await _apiConsumer.post(
       endpoint,
@@ -96,40 +105,145 @@ class GenericDataSource {
       queryParameters: queryParameters,
       headers: headers,
     );
-    return result.fold((left) => Left(left), (right) {
-      try {
-        if (T == Null) {
-          return Right(null as T);
-        } else if (T == String) {
-          log('right: $right');
-          // Business-rule rejections that come back as a non-JSON string get
-          // wrapped by the consumer as {'data': '<msg>'} or {'message': ...}
-          // — surface those as a failure instead of a fake-success.
-          if (right is Map) {
-            // A saved invoice comes back as {message, invoiceID, invoiceNo}.
-            // Only treat a message-bearing body as a rejection when there's
-            // no invoice id (either casing) — otherwise it's a real success.
-            final hasInvoiceId =
-                right['invoiceID'] != null || right['InvoiceID'] != null;
-            if (!hasInvoiceId && right['message'] is String) {
-              return Left(ServerFailure(message: right['message'] as String));
+
+    return result.fold(
+          (left) => Left(left),
+          (right) {
+        try {
+          // Null
+          if (T == Null) {
+            return Right(null as T);
+          }
+
+          // ---------------------------------------------------------
+          // String
+          // ---------------------------------------------------------
+          if (T == String) {
+            log('right: $right');
+
+            if (right is Map<String, dynamic>) {
+              // Business-rule rejection
+              final hasInvoiceId =
+                  right['invoiceID'] != null ||
+                      right['InvoiceID'] != null;
+
+              if (!hasInvoiceId && right['message'] is String) {
+                return Left(
+                  ServerFailure(
+                    message: right['message'] as String,
+                  ),
+                );
+              }
             }
+
+            // Preserve old behavior:
+            // Map/List -> JSON String
+            // String -> String
+            if (right is String) {
+              return Right(right as T);
+            }
+
+            return Right(jsonEncode(right) as T);
           }
-          return Right(jsonEncode(right) as T);
-        } else if (T == int) {
-          if (right is Map) {
-            return Right((right['result'] ?? 0) as T);
+
+          // ---------------------------------------------------------
+          // Int
+          // ---------------------------------------------------------
+          if (T == int) {
+            if (right is Map<String, dynamic>) {
+              return Right(
+                (right['result'] ?? 0) as T,
+              );
+            }
+
+            return Right(
+              (right is int ? right : 0) as T,
+            );
           }
-          return Right((right is int ? right : 0) as T);
-        } else {
-          return Right(null as T);
+
+          // ---------------------------------------------------------
+          // List OR Map
+          // ---------------------------------------------------------
+          if (fromJsonListOrMap != null) {
+            if (right is List<dynamic>) {
+              return Right(
+                fromJsonListOrMap(right, null),
+              );
+            }
+
+            if (right is Map<String, dynamic>) {
+              return Right(
+                fromJsonListOrMap(null, right),
+              );
+            }
+
+            return Left(
+              ParsingFailure(
+                message:
+                'Expected List or Map response but received '
+                    '${right.runtimeType}',
+              ),
+            );
+          }
+
+          // ---------------------------------------------------------
+          // Map
+          // ---------------------------------------------------------
+          if (fromJson != null) {
+            if (right is! Map<String, dynamic>) {
+              return Left(
+                ParsingFailure(
+                  message:
+                  'Expected Map response but received '
+                      '${right.runtimeType}',
+                ),
+              );
+            }
+
+            return Right(
+              fromJson(right),
+            );
+          }
+
+          // ---------------------------------------------------------
+          // List
+          // ---------------------------------------------------------
+          if (fromJsonList != null) {
+            if (right is! List<dynamic>) {
+              return Left(
+                ParsingFailure(
+                  message:
+                  'Expected List response but received '
+                      '${right.runtimeType}',
+                ),
+              );
+            }
+
+            return Right(
+              fromJsonList(right),
+            );
+          }
+
+          // ---------------------------------------------------------
+          // Fallback
+          // ---------------------------------------------------------
+          return Right(right as T);
+        } catch (e, stackTrace) {
+          log(stackTrace.toString());
+          log(e.toString());
+
+          if (e is Failure) {
+            return Left(e);
+          }
+
+          return Left(
+            ParsingFailure(
+              message: e.toString(),
+            ),
+          );
         }
-      } catch (e, stackTrace) {
-        log(stackTrace.toString());
-        log(e.toString());
-        return Left(ParsingFailure(message: e.toString()));
-      }
-    });
+      },
+    );
   }
 
   Future<Either<Failure, T>> postFormData<T>({
@@ -156,7 +270,8 @@ class GenericDataSource {
         } else if (T == String) {
           log('right: $right');
           return Right(
-              ((right is Map ? right['redirect_url'] : null) ?? "") as T);
+            ((right is Map ? right['redirect_url'] : null) ?? "") as T,
+          );
         } else {
           return Right(null as T);
         }
@@ -234,7 +349,8 @@ class GenericDataSource {
         } else if (T == String) {
           log('right: $right');
           return Right(
-              ((right is Map ? right['redirect_url'] : null) ?? "") as T);
+            ((right is Map ? right['redirect_url'] : null) ?? "") as T,
+          );
         } else {
           return Right(null as T);
         }
@@ -267,7 +383,8 @@ class GenericDataSource {
         } else if (T == String) {
           log('right: $right');
           return Right(
-              ((right is Map ? right['redirect_url'] : null) ?? "") as T);
+            ((right is Map ? right['redirect_url'] : null) ?? "") as T,
+          );
         } else {
           return Right(null as T);
         }
@@ -300,7 +417,8 @@ class GenericDataSource {
         } else if (T == String) {
           log('right: $right');
           return Right(
-              ((right is Map ? right['redirect_url'] : null) ?? "") as T);
+            ((right is Map ? right['redirect_url'] : null) ?? "") as T,
+          );
         } else {
           return Right(null as T);
         }
@@ -330,7 +448,8 @@ class GenericDataSource {
         } else if (T == String) {
           log('right: $right');
           return Right(
-              ((right is Map ? right['redirect_url'] : null) ?? "") as T);
+            ((right is Map ? right['redirect_url'] : null) ?? "") as T,
+          );
         } else {
           return Right(null as T);
         }

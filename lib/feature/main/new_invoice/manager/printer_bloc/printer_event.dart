@@ -1,5 +1,6 @@
 part of '../../new_invoice_imports.dart';
 
+
 abstract class PrinterEvent extends Equatable {
   const PrinterEvent();
 
@@ -31,4 +32,16 @@ class PrintReceipt extends PrinterEvent {
 
   @override
   List<Object?> get props => [mac, bytes];
+}
+
+// ✅ أحداث جديدة للطابعة المدمجة
+
+/// Connect to the built-in printer.
+class ConnectBuiltInPrinter extends PrinterEvent {
+  const ConnectBuiltInPrinter();
+}
+
+/// Check if built-in printer is available.
+class CheckBuiltInPrinter extends PrinterEvent {
+  const CheckBuiltInPrinter();
 }

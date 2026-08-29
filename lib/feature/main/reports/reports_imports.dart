@@ -18,3 +18,6 @@ part 'presentation/screens/reports_tab.dart';
 part 'models/reports_model.dart';
 part 'manager/reports_bloc/reports_bloc.dart';
 part 'manager/reports_bloc/reports_event.dart';
+part 'presentation/screens/items_balance_report_screen.dart';
+part 'presentation/widgets/stock_taking_button.dart';
+

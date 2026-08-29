@@ -3,10 +3,7 @@ import 'package:hive_flutter/adapters.dart';
 
 part 'user_model.g.dart';
 
-/// Maps the response from `POST /api/Auth/login`. The JWT itself lives in
-/// `token` and is *also* persisted separately via `HiveServiceImpl.saveJwtToken`
-/// so the Dio interceptor can stamp the `Authorization: Bearer …` header
-/// without having to deserialize the user model on every request.
+
 @HiveType(typeId: 0)
 class UserModel extends Equatable {
   @HiveField(0)

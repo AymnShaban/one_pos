@@ -1,0 +1,30 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Background -->
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="#EEF2FF"></rect>
+
+  <!-- Box -->
+  <path d="M28 52L46 42L64 52L46 62L28 52Z" fill="#6366F1"></path>
+
+  <path d="M28 52V78L46 88V62L28 52Z" fill="#7C83F7"></path>
+
+  <path d="M64 52V78L46 88V62L64 52Z" fill="#4F46E5"></path>
+
+  <!-- Report -->
+  <rect x="66" y="32" width="28" height="42" rx="6" fill="white" stroke="#6366F1" stroke-width="2"></rect>
+
+  <rect x="72" y="56" width="4" height="10" rx="2" fill="#10B981"></rect>
+
+  <rect x="79" y="49" width="4" height="17" rx="2" fill="#3B82F6"></rect>
+
+  <rect x="86" y="42" width="4" height="24" rx="2" fill="#6366F1"></rect>
+
+  <!-- Trend -->
+  <path d="M72 46L78 41L83 44L90 37" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+
+  <!-- Small badge -->
+  <circle cx="92" cy="28" r="8" fill="#10B981"></circle>
+
+  <path d="M92 24V32M88 28H96" stroke="white" stroke-width="2" stroke-linecap="round"></path>
+
+</svg>

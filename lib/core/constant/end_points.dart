@@ -165,4 +165,134 @@ class EndPoints {
   // Live Sales report — sellers ("delegates") multi-select. Query param
   // `search`; call with an empty value to get every delegate.
   static const String getDelegates = '/api/EtMovement/delegates';
+
+
+// Invoice Profit
+
+  static const String getInvoiceProfitParentAccounts =
+      "/api/BillRevenue/parent-accounts";
+
+  static const String getInvoiceProfitCustomers =
+      "/api/BillRevenue/customers";
+
+  static const String getInvoiceProfitEmployees =
+      "/api/Employee";
+
+  static const String getInvoiceProfitCostCenters =
+      "/api/CostCenter/GetCostCenters";
+
+  static const String getInvoiceProfitUsers =
+      "/api/BillRevenue/users";
+
+  static const String getInvoiceProfitCompanyBranches =
+      "/api/GBranch";
+
+  static const String getInvoiceProfitSources =
+      "/api/BillRevenue/bill-sources";
+
+  /// Invoice Profit Report Preview
+  static const String getInvoiceProfitReport =
+      "/api/BillRevenue/report";
+
+
+  // ============================================================
+  // EXPENSE ANALYSIS
+  // ============================================================
+  static const String expenseAccounts = '/api/ExpendedAnalysis/AllExpendedAccounts';
+  static const String expenseReportDetails = '/api/ExpendedAnalysis/report-details';
+  // ============================================================
+  // REVENUE ANALYSIS
+  // ============================================================
+  static const String revenueAccounts = '/api/RevenuesAnalysis/AllRevenuesAccounts';
+  static const String revenueReport = '/api/RevenuesAnalysis/BuildReports';
+
+  // ============================================================
+  // Profit Report
+  // ============================================================
+  static const String materialProfitReport = '/api/BillRevenue/Material-profit-report';
+
+  static const String getDeliveredTo = '/api/EtMovement/DeliveredTo';
+  static const String getReportSources = '/api/EtMovement/ReportSources';
+  static const String getReceivedFrom = '/api/EtMovement/ReceivedFrom';
+  static const String getVouchersReport = '/api/EtMovement/report';
+  // ============================================================
+  // daily_operation
+  // ============================================================
+  static const String getDailyOperation = '/api/BLI/GetTodayBills';
+  // ============================================================
+  // lowStockItems
+  // ============================================================
+  static const String getLowStockItems = '/api/MTI/GetLowStockItems';
+  // ============================================================
+  // topSellingItems
+  // ============================================================
+  static const String getTopSellingItems = '/api/MTI/GetTopSellingItems';
+
+  // ============================================================
+
+
+
+  // customer-statement
+  // ============================================================
+  static const String mainAccounts = '/api/CustomerAccounts/main-accounts';
+  static const String customerSuppliers = '/api/CustomerAccounts/all-customers-suppliers';
+  static const String customerStatementReport = '/api/CustomerAccounts/report';
+  static const String getCustomerAccountReportSources = '/api/CustomerAccounts/report-sources';
+ // static const String customerStatementReport = '/api/CustomerAccounts/report';
+
+// ============================================================
+// Branch Profit Report
+// ============================================================
+  static const String branchProfitReport = '/api/AccountMenu/GetReport';
+
+
+  static const String getAllItems = '/api/ProductMnu/GetAllItems';
+  static const String getGroups = '/api/Category/Groups';
+  static const String getStores = '/api/Store/GetStores';
+  // ============================================================
+// Items Movement Report
+// ============================================================
+  static const String getReportSourcesMti = '/api/MTI/GetReportSources?arabic=true';
+  static const String itemMovementReport = '/api/MTI/GetMaterialMotion';
+ // ============================================================
+// Get Group Motion
+// ============================================================
+
+  static const String itemMovementBalanceReport = '/api/ProductMnu/GetGroupMotion';
+
+
+  /// GET /api/Entry/EtsTypes
+  static const String getVoucherTypes =
+      '/api/Entry/EtsTypes';
+
+  /// GET /api/Entry/AllAccounts
+  static const String getAllAccounts =
+      '/api/Entry/AllAccounts';
+static const String fillAccountList =
+      '/api/Entry/FillAccountList';
+
+  /// GET /api/Entry/EtsDetails/{frmNum}
+  static const String getVoucherTypeDetails =
+      '/api/Entry/EtsDetails';
+
+  /// GET /api/Entry/Vouchers?vouchTypeId={id}
+  static const String getVouchers =
+      '/api/Entry/Vouchers';
+
+  /// GET /api/Entry/GetVoucherById?frmNum={frmNum}&etNumber={etNumber}
+  static const String getVoucherById =
+      '/api/Entry/GetVoucherById';
+
+  /// POST /api/Entry/PostEntry
+  static const String postEntry =
+      '/api/Entry/PostEntry';
+
+  /// POST /api/EntryJour/SaveJournalEntry
+  static const String saveJournalEntry =
+      '/api/EntryJour/SaveJournalEntry';
+
+  /// GET /api/EntryJour/EtsPatterns/by-voucher-type?vouchTypeId={id}
+  static const String getEtsPatterns =
+      '/api/EntryJour/EtsPatterns/by-voucher-type';
+  static  String getAccountBalance({required num acId}) => '/api/Entry/AccountBalance/$acId';
 }

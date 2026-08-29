@@ -6,9 +6,16 @@ class ReportTypeSelector extends StatelessWidget {
   const ReportTypeSelector({super.key, required this.selected});
 
   static const _types = [
-    (type: ReportType.dailySales,  icon: Icons.attach_money_rounded,  color: Color(0xff3B5BDB)),
-    (type: ReportType.itemsReport, icon: Icons.inventory_2_rounded,   color: Color(0xff40C057)),
-    (type: ReportType.trends,      icon: Icons.trending_up_rounded,   color: Color(0xff9B59B6)),
+    (
+    type: ReportType.dailySales,
+    icon: Icons.attach_money_rounded,
+    color: Color(0xff3B5BDB),
+    ),
+    (
+    type: ReportType.trends,
+    icon: Icons.trending_up_rounded,
+    color: Color(0xff9B59B6),
+    ),
   ];
 
   @override

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../helper/app_date_picker.dart';
 import 'app_date_field.dart';
 
 
@@ -25,13 +26,11 @@ class AppDateRangePicker extends StatelessWidget {
       DateTime initial,
       ValueChanged<DateTime> onPicked,
       ) async {
-
-    final picked = await showDatePicker(
+    final picked = await AppDatePicker.show(
       context: context,
       initialDate: initial,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
     );
+
 
     if (picked != null) {
       onPicked(picked);

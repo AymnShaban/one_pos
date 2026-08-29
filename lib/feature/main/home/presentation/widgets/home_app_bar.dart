@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:one_pos/core/constant/app_assets.dart';
 
+import '../../../sales/sales_imports.dart';
+
 class HomeAppBar extends StatelessWidget {
   final bool isOnline;
   final VoidCallback? onSearchTap;
   final VoidCallback? onScanTap;
-
+  final bool showBasket;
   const HomeAppBar({
     super.key,
+    this.showBasket = false,
     required this.isOnline,
     this.onSearchTap,
     this.onScanTap,
@@ -19,6 +22,8 @@ class HomeAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverAppBar(
       pinned: true,
+
+      toolbarHeight: 70.h,
       backgroundColor: const Color(0xff3B5BDB),
       expandedHeight: 70.h,
       automaticallyImplyLeading: false,
@@ -32,13 +37,14 @@ class HomeAppBar extends StatelessWidget {
                 SizedBox(width: 12.w),
                 _buildTitle(),
 
-                const Spacer(),
-
+                SizedBox(width:10.w),
+                (showBasket)?
+                BasketIconButton():Spacer(),
                 if (onSearchTap != null) _buildActionIcon(Icons.search, onSearchTap!),
                 if (onScanTap != null) ...[
                   SizedBox(width: 4.w),
                   _buildActionIcon(Icons.qr_code_scanner, onScanTap!),
-                  SizedBox(width: 12.w),
+
                 ],
 
                 _buildConnectivityIndicator(),
@@ -114,4 +120,6 @@ class HomeAppBar extends StatelessWidget {
       ),
     );
   }
+
+
 }

@@ -2,22 +2,27 @@ part of '../../settings_imports.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, BaseState<UserSettingsModel>> {
   final HiveServiceImpl _hiveService;
+  final AuthDataSource _authDataSource; // ✅ أضفنا هذا
 
   SystemInfoModel systemInfo = const SystemInfoModel();
 
-  SettingsBloc({required HiveServiceImpl hiveService})
-      : _hiveService = hiveService,
+  SettingsBloc({
+    required HiveServiceImpl hiveService,
+    required AuthDataSource authDataSource, // ✅ أضفنا هذا في constructor
+  })  : _hiveService = hiveService,
+        _authDataSource = authDataSource, // ✅ أضفنا هذا
         super(const BaseState()) {
     on<LoadSettings>(_onLoad);
     on<LogoutRequested>(_onLogout);
     on<UpdateDatabase>(_onUpdateDatabase);
     on<ToggleNotifications>(_onToggleNotifications);
+    on<ResetActivationRequested>(_onResetActivation);
   }
 
   void _onLoad(
-    LoadSettings event,
-    Emitter<BaseState<UserSettingsModel>> emit,
-  ) {
+      LoadSettings event,
+      Emitter<BaseState<UserSettingsModel>> emit,
+      ) {
     emit(state.copyWith(status: Status.loading));
     try {
       // Read the typed UserModel that login persisted via cacheUserModel().
@@ -94,5 +99,78 @@ class SettingsBloc extends Bloc<SettingsEvent, BaseState<UserSettingsModel>> {
       Emitter<BaseState<UserSettingsModel>> emit,
       ) {
     // Wire to local settings later
+  }
+
+  // ✅ الدالة المطورة مع deactivateDevice
+  void _onResetActivation(
+      ResetActivationRequested event,
+      Emitter<BaseState<UserSettingsModel>> emit,
+      ) async {
+    emit(state.copyWith(status: Status.loading));
+
+    try {
+      // 1️⃣ جلب كود التفعيل من Hive
+      final activationCode = _hiveService.getActivationCode();
+      debugPrint('[Settings] Activation code found: $activationCode');
+
+      // 2️⃣ لو في كود تفعيل، نطلبه من السيرفر
+      if (activationCode != null && activationCode.isNotEmpty) {
+        debugPrint('[Settings] Calling deactivateDevice for: $activationCode');
+
+        final result = await _authDataSource.deactivateDevice(
+          activationCode: activationCode,
+        );
+
+        if (result.isError) {
+          // لو السيرفر رجع error، نعرض رسالة للمستخدم
+          debugPrint('[Settings] Deactivation failed: ${result.throwError().message}');
+          emit(
+            state.copyWith(
+              status: Status.failure,
+              errorMessage: 'settings.deactivation_failed'.tr(),
+            ),
+          );
+          return;
+        }
+
+        // لو نجحنا، نطبع log للتأكيد
+        debugPrint('[Settings] Device deactivated successfully: $activationCode');
+      } else {
+        // لو مفيش كود تفعيل، نكمل عادي
+        debugPrint('[Settings] No activation code found to deactivate');
+      }
+
+      // 3️⃣ مسح كل البيانات المحلية
+      await _hiveService.clearActivationCode();
+      await _hiveService.clearAppConfig();
+      await _hiveService.clearJwtToken();
+      await _hiveService.clearUserModel();
+      await _hiveService.clearBasket(); // اختياري: مسح السلة
+
+      debugPrint('[Settings] All local data cleared successfully');
+
+      // 4️⃣ إرسال تحديث الحالة مع metadata
+      emit(
+        state.copyWith(
+          status: Status.success,
+          metadata: {'action': 'reset_activation'},
+        ),
+      );
+    } catch (e) {
+      // 5️⃣ أي خطأ غير متوقع
+      debugPrint('[Settings] Reset activation error: $e');
+      emit(
+        state.copyWith(
+          status: Status.failure,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  @override
+  Future<void> close() {
+    // تنظيف الموارد لو محتاج
+    return super.close();
   }
 }

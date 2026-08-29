@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:one_pos/feature/main/home/manager/today_bills_bloc/daily_operation_bloc.dart';
 
 import '../../../feature/auth/bloc/activation_bloc/activation_bloc.dart';
 import '../../../feature/auth/bloc/areas_bloc/areas_bloc.dart';
@@ -12,7 +13,7 @@ import '../../../feature/main/basket/basket_imports.dart';
 import '../../../feature/main/home/home_imports.dart';
 import '../../../feature/main/invoice_collection/invoice_collection_imports.dart';
 import '../../../feature/main/invoice_setup/invoice_setup_imports.dart';
-import '../../../feature/main/live_sales_report/live_sales_report_imports.dart';
+import '../../../feature/main/main_reports/live_sales_report/live_sales_report_imports.dart';
 import '../../../feature/main/invoices/invoices_imports.dart';
 import '../../../feature/main/new_invoice/new_invoice_imports.dart';
 import '../../../feature/main/reports/reports_imports.dart';
@@ -25,6 +26,16 @@ import '../../helper/sync_manager.dart';
 import '../../http/api_consumer.dart';
 import '../../local/hive_service_impl.dart';
 import '../../models/item_model.dart';
+import 'customer_statement_service_locator/customer_account_statement_service_locator.dart';
+import 'entries_service_locator/entries_service_locator.dart';
+import 'main_reports/branch_profit_service_locator.dart';
+import 'main_reports/expense_analysis_service_locator.dart';
+import 'invoice_profit_service_locator/invoice_profit_services_locator.dart';
+import 'main_reports/item_movement_balance_report_locator.dart.dart';
+import 'main_reports/item_profit_report_locator.dart.dart';
+import 'invoice_profit_service_locator/receipts_and_payments_movement_report_servies.dart';
+import 'main_reports/item_movement_service_locator.dart';
+import 'main_reports/revenue_analysis_service_locator.dart';
 
 
 part 'auth_service_locator/auth_service_locator.dart';

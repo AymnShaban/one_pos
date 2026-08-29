@@ -1,9 +1,5 @@
 part of '../../new_invoice_imports.dart';
 
-/// Read-only invoice details view, opened after a successful sale (or from any
-/// invoice list) with the `invoiceId` / `invoiceNo` returned by the API.
-/// Mirrors the printed-invoice layout: header, customer, items, payments,
-/// discounts/additions, totals and footer metadata.
 class InvoiceDetailsScreen extends StatelessWidget {
   final int invoiceId;
   final int invoiceNo;
@@ -39,7 +35,7 @@ class _InvoiceDetailsViewState extends State<_InvoiceDetailsView> {
   void initState() {
     super.initState();
     // Load invoice details when the screen is first built
-    context.read<InvoiceDetailsBloc>().add(LoadInvoiceDetails(invoiceId: 0, invoiceNo: widget.invoiceNo));
+    context.read<InvoiceDetailsBloc>().add(LoadInvoiceDetails(invoiceId: widget.invoiceId, invoiceNo: widget.invoiceNo));
   }
 
 
@@ -94,7 +90,7 @@ class _InvoiceDetailsViewState extends State<_InvoiceDetailsView> {
               message: state.errorMessage ?? 'common.error'.tr(),
               onRetry: () => context.read<InvoiceDetailsBloc>().add(
                     LoadInvoiceDetails(
-                      invoiceId: state.data?.invoiceId ?? 0,
+                      invoiceId: state.data?.invoiceId ?? widget.invoiceId??0,
                       invoiceNo: widget.invoiceNo,
                     ),
                   ),

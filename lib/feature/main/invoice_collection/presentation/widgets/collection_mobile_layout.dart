@@ -856,12 +856,12 @@ class _DateButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        final picked = await showDatePicker(
+        final picked = await AppDatePicker.show(
           context: context,
           initialDate: DateTime.now(),
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
         );
+
+
         if (picked != null) {
           // yyyy/MM/dd — see `_today()` in CollectionMobileLayout.
           onPicked(

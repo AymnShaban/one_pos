@@ -1,273 +1,434 @@
 part of '../../home_imports.dart';
 
-/// Redesigned home tab — gradient blue header (logo + notifications +
-/// hamburger + welcome + date), a row of 4 stat cards (revenue / expenses
-/// / profit / today invoices), a 2×4 grid of "Main Reports" cards, the
-/// live-sales feed, and the two summary charts. Tap any report card to
-/// either switch the bottom-nav tab (Live Sales / Reports) or push a
-/// dedicated feature route (Stock Taking) — anything not yet built lands
-/// on the shared [UnderConstructionScreen].
-class HomeTab extends StatefulWidget {
+class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
 
-  @override
-  State<HomeTab> createState() => _HomeTabState();
-}
+  Future<void> _onRefresh(BuildContext context) async {
+    context.read<HomeBloc>().add(
+      const InitHome(),
+    );
 
-class _HomeTabState extends State<HomeTab> {
-  bool _showReports = true;
-  @override
-  void initState() {
-    super.initState();
-    // Lazy-load the dashboard only when this tab actually mounts —
-    // navigating to Settings (or any other tab) on launch should not
-    // trigger any network calls.
-    final bloc = context.read<HomeBloc>();
-    if (bloc.state.status != Status.success) {
-      bloc.add(const InitHome());
-    }
+    context.read<TopSellingBloc>().add(
+      const LoadTopSellingItems(),
+    );
+
+    context.read<LowStockBloc>().add(
+      const LoadLowStockItems(),
+    );
+
+    context.read<DailyOperationsBloc>().add(
+      const LoadDailyOperations(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xffF0F2F8),
-      body: BlocBuilder<HomeBloc, BaseState<HomeStatsModel>>(
-        builder: (context, state) {
-          final stats = state.items.isNotEmpty
-              ? state.items.first
-              : const HomeStatsModel();
-          return CustomScrollView(
-            slivers: [
-              // ── Header: logo, bell, hamburger, welcome, date + stats ──
-              SliverToBoxAdapter(child: _HomeHeader(stats: stats)),
+    return BlocProvider(
+      create: (_) => ReportsVisibilityBloc(),
+      child: Scaffold(
+        backgroundColor: const Color(0xffF0F2F8),
+        body: CustomRefreshIndicator(
+          onRefresh: () => _onRefresh(context),
+          trigger: IndicatorTrigger.leadingEdge,
+          builder: (
+              BuildContext context,
+              Widget child,
+              IndicatorController controller,
+              ) {
+            return Stack(
+              children: [
+                child,
 
-              // ── Main Reports grid ────────────────────────────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 8.h),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: 4.w,
-                        height: 18.h,
-                        decoration: BoxDecoration(
-                          color: const Color(0xff3B5BDB),
-                          borderRadius: BorderRadius.circular(2.r),
+                if (controller.value > 0)
+                  Positioned(
+                    top: 60.h,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: BouncingBallRefreshIndicator(
+                        progress: controller.value.clamp(
+                          0.0,
+                          1.0,
                         ),
+                        isRefreshing: controller.isLoading,
                       ),
-                      SizedBox(width: 8.w),
-                      Expanded(
-                        child: Text(
-                          'home.main_reports'.tr(),
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xff1A1A1A),
-                          ),
-                        ),
-                      ),
-                      // const Icon(Icons.apps_rounded,
-                      //     color: Color(0xff8A8F99), size: 18),
-
-                      InkWell(
-                        borderRadius: BorderRadius.circular(12.r),
-                        onTap: () {
-                          setState(() { _showReports = !_showReports; });
-                        },
-                        child: Container(
-                          width: 36.w,
-                          height: 36.h,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: AnimatedRotation(
-                            turns: _showReports ? 0 : 0.5,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                            child: const Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: Color(0xff8A8F99),
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+              ],
+            );
+          },
+          child: const _HomeScrollView(),
+        ),
+      ),
+    );
+  }
+}
+class _HomeScrollView extends StatelessWidget {
+  const _HomeScrollView();
 
-              _showReports
-                  ? SliverPadding(
-                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                sliver: SliverGrid(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 4.h,
-                    crossAxisSpacing: 4.w,
-                    childAspectRatio: 2.5,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                      return _reportCards(context)[index]
-                          .animate()
-                          .fadeIn(
-                        duration: 400.ms,
-                        curve: Curves.easeOut,
-                      )
-                          .slideY(
-                        begin: 0.2,
-                        end: 0,
-                        duration: 400.ms,
-                        curve: Curves.easeOut,
-                      )
-                          .scale(
-                        begin: const Offset(0.95, 0.95),
-                        duration: 400.ms,
-                        curve: Curves.easeOut,
-                      );
-                    },
-                    childCount: _reportCards(context).length,
-                  ),
-                ),
-              )
-                  : const SliverToBoxAdapter(
-                child: SizedBox.shrink(),
-              ),
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
 
-              // ── Live Sales feed ──────────────────────────────────────
-              const SliverToBoxAdapter(child: _LiveSalesSection()),
 
-              // ── Charts ───────────────────────────────────────────────
-              const SliverToBoxAdapter(child: _ChartsSection()),
+        const SliverToBoxAdapter(
+          child: _HomeHeaderSection(),
+        ),
 
-              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
-            ],
-          );
-        },
+
+        const ReportsSection(),
+
+
+
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(
+            16.w,
+            16.h,
+            16.w,
+            8.h,
+          ),
+          sliver: const SliverToBoxAdapter(
+            child: TopSellingWidget(),
+          ),
+        ),
+
+
+
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(
+            16.w,
+            0,
+            16.w,
+            8.h,
+          ),
+          sliver: const SliverToBoxAdapter(
+            child: LowStockWidget(),
+          ),
+        ),
+
+
+
+        const SliverToBoxAdapter(
+          child: DailyOperationList(),
+        ),
+
+
+
+        const SliverToBoxAdapter(
+          child: _ChartsSection(),
+        ),
+
+
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 24.h,
+          ),
+        ),
+      ],
+    );
+  }
+}
+List<Widget> _reportCards(BuildContext context) {
+  // Tap actions either flip the bottom-nav tab, push a real screen, or
+  // land on the shared UnderConstructionScreen for features that
+  // aren't built yet.
+  void underConstruction(IconData icon, String title) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => UnderConstructionScreen(
+          title: title,
+          icon: icon,
+          showAppBar: true,
+        ),
       ),
     );
   }
 
-  List<Widget> _reportCards(BuildContext context) {
-    // Tap actions either flip the bottom-nav tab, push a real screen, or
-    // land on the shared UnderConstructionScreen for features that
-    // aren't built yet.
-    void underConstruction(IconData icon, String title) {
-      Navigator.push(
+  return [
+    _ReportCard(
+      title: 'home.live_sales'.tr(),
+      subtitle: 'home.live_sales_subtitle'.tr(),
+      icon: AppAssets.liveSalesIcon,
+      color: const Color(0xffE74C3C),
+      highlight: true,
+      onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => UnderConstructionScreen(
-            title: title,
-            icon: icon,
-            showAppBar: true,
-          ),
+          builder: (_) => const LiveSalesReportScreen(),
         ),
-      );
-    }
+      ),
+    ),
 
-    return [
-      _ReportCard(
-        title: 'home.live_sales'.tr(),
-        subtitle: 'home.live_sales_subtitle'.tr(),
-        icon: AppAssets.liveSalesIcon,
-        color: const Color(0xffE74C3C),
-        highlight: true,
-        onTap: () => Navigator.push(
+    _ReportCard(
+      title: 'home.branch_profit'.tr(),
+      subtitle: 'home.branch_profit_subtitle'.tr(),
+      icon: AppAssets.netProfitsIcon,
+      color: const Color(0xffF5A623),
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const BranchProfitScreen(),
+          ),
+        );
+      },
+    ),
+
+    _ReportCard(
+      title: 'home.invoice_profit'.tr(),
+      subtitle: 'home.invoice_profit_subtitle'.tr(),
+      icon: AppAssets.invoiceProfitsIcon,
+      color: const Color(0xff9B59B6),
+      onTap: () {
+        Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const LiveSalesReportScreen(),
-          ),
-        ),
-      ),
+            builder: (context) => MultiBlocProvider(
+              providers: [
 
-      _ReportCard(
-        title: 'home.branch_profit'.tr(),
-        subtitle: 'home.branch_profit_subtitle'.tr(),
-        icon: AppAssets.netProfitsIcon,
-        color: const Color(0xffF5A623),
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const InvoiceItemsProfitScreen(),
+                BlocProvider<ParentAccountsBloc>(
+                  create: (_) => getIt<ParentAccountsBloc>(),
+                ),
+                BlocProvider<CustomersBloc>(
+                  create: (_) => getIt<CustomersBloc>(),
+                ),
+                BlocProvider<EmployeesBloc>(
+                  create: (_) => getIt<EmployeesBloc>(),
+                ),
+                BlocProvider<CostCentersBloc>(
+                  create: (_) => getIt<CostCentersBloc>(),
+                ),
+                BlocProvider<CurrenciesBloc>(
+                  create: (_) => getIt<CurrenciesBloc>(),
+                ),
+                BlocProvider<UsersBloc>(
+                  create: (_) => getIt<UsersBloc>(),
+                ),
+                BlocProvider(
+                  create: (_) => BranchesBloc(
+                    dataSource: getIt<BranchesDataSource>(),
+                  ),
+                ),
+                BlocProvider<PayWaysBloc>(
+                  create: (_) => getIt<PayWaysBloc>(),
+                ),
+                BlocProvider<BillSourcesBloc>(
+                  create: (_) => getIt<BillSourcesBloc>(),
+                ),
+                BlocProvider<InvoiceProfitBloc>(
+                  create: (_) => getIt<InvoiceProfitBloc>(),
+                ),
+              ],
+              child: const InvoiceProfitBasicFiltersScreen(),
             ),
           ),
+        );
+      },
+    ),
 
-      ),
+    _ReportCard(
+      title: 'home.invoice_items_profit'.tr(),
+      subtitle: 'home.invoice_items_profit_subtitle'.tr(),
+      icon: AppAssets.invoiceItemsProfitsIcon,
+      color: const Color(0xff3B82F6),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ItemProfitScreen(),
+          ),
+        );
+      },
+    ),
 
-      _ReportCard(
-        title: 'home.invoice_profit'.tr(),
-        subtitle: 'home.invoice_profit_subtitle'.tr(),
-        icon: AppAssets.invoiceProfitsIcon,
-        color: const Color(0xff9B59B6),
-        onTap: () => underConstruction( Icons.local_shipping_rounded, 'home.branch_profit'.tr(), ),
-      ),
+    _ReportCard(
+      title: 'home.revenue_analysis'.tr(),
+      subtitle: 'home.revenue_analysis_subtitle'.tr(),
+      icon: AppAssets.revenueAnalysisIcon,
+      color: const Color(0xff14B8A6),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const RevenueAnalysisScreen(),
+          ),
+        );
+      },
+    ),
 
-      _ReportCard(
-        title: 'home.invoice_items_profit'.tr(),
-        subtitle: 'home.invoice_items_profit_subtitle'.tr(),
-        icon: AppAssets.invoiceItemsProfitsIcon,
-        color: const Color(0xff3B82F6),
-        onTap: () => underConstruction( Icons.local_shipping_rounded, 'home.branch_profit'.tr(), ),
-      ),
+    _ReportCard(
+      title: 'home.expenses_analysis'.tr(),
+      subtitle: 'home.expenses_analysis_subtitle'.tr(),
+      icon: AppAssets.expensesAnalysisIcon,
+      color: const Color(0xffF43F5E),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ExpenseAnalysisScreen(), // ✅ بسيط جدًا
+          ),
+        );
+      },
+    ),
 
-      _ReportCard(
-        title: 'home.revenue_analysis'.tr(),
-        subtitle: 'home.revenue_analysis_subtitle'.tr(),
-        icon: AppAssets.revenueAnalysisIcon,
-        color: const Color(0xff14B8A6),
-        onTap: () =>
-            context.read<NavBloc>().add(const ChangeNavTab(3)),
-      ),
-
-      _ReportCard(
-        title: 'home.expenses_analysis'.tr(),
-        subtitle: 'home.expenses_analysis_subtitle'.tr(),
-        icon: AppAssets.expensesAnalysisIcon,
-        color: const Color(0xffF43F5E),
-        onTap: () =>
-            context.read<NavBloc>().add(const ChangeNavTab(3)),
-      ),
-
-      _ReportCard(
+    _ReportCard(
         title: 'home.items_movement'.tr(),
         subtitle: 'home.items_movement_subtitle'.tr(),
         icon: AppAssets.itemsMovementIcon,
         color: const Color(0xffF59E0B),
-        onTap: () =>
-            context.read<NavBloc>().add(const ChangeNavTab(3)),
-      ),
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context){
+            return ItemMovementScreen();
 
-      _ReportCard(
-        title: 'home.vouchers_movement'.tr(),
-        subtitle: 'home.vouchers_movement_subtitle'.tr(),
-        icon: AppAssets.vouchersMovementIcon,
-        color: const Color(0xff3B82F6),
-        onTap: () =>
-            context.read<NavBloc>().add(const ChangeNavTab(3)),
-      ),
-    ];
+          }));
+
+        }
+      //    context.read<NavBloc>().add(const ChangeNavTab(3)),
+    ),
+
+    _ReportCard(
+      title: 'home.vouchers_movement'.tr(),
+      subtitle: 'home.vouchers_movement_subtitle'.tr(),
+      icon: AppAssets.vouchersMovementIcon,
+      color: const Color(0xff3B82F6),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MultiBlocProvider(
+              providers: [
+
+                BlocProvider<ReceivedFromBloc>(
+                  create: (_) => getIt<ReceivedFromBloc>(),
+                ),
+
+                BlocProvider<DeliveredToBloc>(
+                  create: (_) => getIt<DeliveredToBloc>(),
+                ),
+
+                BlocProvider<ReportSourceBloc>(
+                  create: (_) => getIt<ReportSourceBloc>(),
+                ),
+
+                BlocProvider<EmployeesBloc>(
+                  create: (_) => getIt<EmployeesBloc>(),
+                ),
+                // ✅ Cost Centers
+                BlocProvider<CostCentersBloc>(
+                  create: (_) => getIt<CostCentersBloc>(),
+                ),
+
+                BlocProvider<CurrenciesBloc>(
+                  create: (_) => getIt<CurrenciesBloc>(),
+                ),
+
+                BlocProvider<BranchesBloc>(
+                  create: (_) => getIt<BranchesBloc>(),
+                ),
+                BlocProvider<VouchersBloc>(
+                  create: (_) => getIt<VouchersBloc>(),
+                ),
+              ],
+              child: const VouchersBasicFiltersScreen(),
+            ),
+          ),
+        );
+      },
+    ),
+    _ReportCard(
+        title: 'home.items_inventory'.tr(),
+        subtitle: 'home.items_inventory_subtitle'.tr(),
+        icon: AppAssets.itemsInventoryIcon,
+        color: const Color(0xff10B981),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BlocProvider<InvoiceCubit>(
+                create: (_) => getIt<InvoiceCubit>(),
+                child: const BarrenStockTakingScreen(),
+              ),
+            ),
+          );
+
+
+
+        }
+      // context.read<NavBloc>().add(const ChangeNavTab(4)),
+    ),
+    _ReportCard(
+      title: 'home.items_balance_report'.tr(),
+      subtitle: 'home.items_balance_report_subtitle'.tr(),
+      icon: AppAssets.itemsBalanceReportIcon,
+      color: const Color(0xff6366F1),
+      onTap: () {
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (_) => BlocProvider(
+        //       create: (_) => getIt<ReportsBloc>()
+        //         ..add(const ChangeReportType(ReportType.itemsReport))
+        //         ..add(const FetchReport()),
+        //       child: const ItemsBalanceReportScreen(),
+        //     ),
+        //   ),
+        // );
+
+        Navigator.push(context, MaterialPageRoute(builder: (context){
+
+          return
+            ItemMovementBalanceScreen();
+        }));
+      },
+    ),
+  ];
+}
+class _HomeHeaderSection extends StatelessWidget {
+  const _HomeHeaderSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<
+        HomeBloc,
+        BaseState<HomeStatsModel>,
+        HomeStatsModel>(
+      selector: (state) {
+        if (state.items.isEmpty) {
+          return const HomeStatsModel();
+        }
+
+        return state.items.first;
+      },
+      builder: (context, stats) {
+        return _HomeHeader(
+          stats: stats,
+        );
+      },
+    );
   }
 }
-
-// ────────────────────────────────────────────────────────────────────────
-//  Header
-// ────────────────────────────────────────────────────────────────────────
-
 class _HomeHeader extends StatelessWidget {
   final HomeStatsModel stats;
 
-  const _HomeHeader({required this.stats});
+  const _HomeHeader({
+    required this.stats,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        image: DecorationImage(image: AssetImage(AppAssets.backgroundImage), fit: BoxFit.cover),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+        image: DecorationImage(
+          image: AssetImage(
+            AppAssets.backgroundImage,
+          ),
+          fit: BoxFit.cover,
+        ),
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(24),
+        ),
       ),
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 12.h,
@@ -277,48 +438,8 @@ class _HomeHeader extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Top row: hamburger | logo | notifications
-          // Row(
-          //   children: [
-          //     const _HeaderIcon(icon: Icons.menu_rounded),
-          //
-          //     const Spacer(),
-          //     const _HeaderIcon(
-          //       icon: Icons.notifications_none_rounded,
-          //       badge: 3,
-          //     ),
-          //   ],
-          // ),
-          SizedBox(height:80.h),
+          SizedBox(height: 80.h),
 
-          // Welcome line
-          // Row(
-          //   children: [
-          //     Text(
-          //       '👋',
-          //       style: TextStyle(fontSize: 18.sp),
-          //     ),
-          //     SizedBox(width: 6.w),
-          //     Expanded(
-          //       child: Text(
-          //         'home.welcome_admin'.tr(),
-          //         style: AppTextTheme.body2.copyWith(color: AppColors.black)
-          //       ),
-          //     ),
-          //     const Icon(Icons.calendar_today_outlined,
-          //         color: Colors.white70, size: 16),
-          //     SizedBox(width: 4.w),
-          //     Text(
-          //       _today(context),
-          //       style: TextStyle(
-          //         color: Colors.white70,
-          //         fontSize: 12.sp,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-
-          // 3 stat cards — Sales / Costs / Daily Sales
           Row(
             children: [
               Expanded(
@@ -331,7 +452,9 @@ class _HomeHeader extends StatelessWidget {
                   accent: const Color(0xff40C057),
                 ),
               ),
-              SizedBox(width: 8.w),
+
+
+
               Expanded(
                 child: _StatCard(
                   label: 'home.costs'.tr(),
@@ -342,7 +465,9 @@ class _HomeHeader extends StatelessWidget {
                   accent: const Color(0xffE74C3C),
                 ),
               ),
-              SizedBox(width: 8.w),
+
+
+
               Expanded(
                 child: _StatCard(
                   label: 'home.daily_sales'.tr(),
@@ -359,66 +484,151 @@ class _HomeHeader extends StatelessWidget {
       ),
     );
   }
-
-  // String _today(BuildContext context) {
-  //   final now = DateTime.now();
-  //   return '${now.day}/${now.month}/${now.year}';
-  // }
 }
+class ReportsSection extends StatelessWidget {
+  const ReportsSection({super.key});
 
-// class _HeaderIcon extends StatelessWidget {
-//   final IconData icon;
-//   final int? badge;
-//
-//   const _HeaderIcon({required this.icon, this.badge});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Stack(
-//       clipBehavior: Clip.none,
-//       children: [
-//         Container(
-//           width: 36.w,
-//           height: 36.w,
-//           alignment: Alignment.center,
-//           decoration: BoxDecoration(
-//             color: Colors.white.withValues(alpha: 0.15),
-//             borderRadius: BorderRadius.circular(10.r),
-//           ),
-//           child: Icon(icon, color: Colors.white, size: 20.sp),
-//         ),
-//         if (badge != null && badge! > 0)
-//           Positioned(
-//             top: -4,
-//             right: -4,
-//             child: Container(
-//               padding: EdgeInsets.all(4.w),
-//               constraints: BoxConstraints(minWidth: 16.w, minHeight: 16.w),
-//               decoration: const BoxDecoration(
-//                 color: Color(0xffE74C3C),
-//                 shape: BoxShape.circle,
-//               ),
-//               child: Center(
-//                 child: Text(
-//                   '$badge',
-//                   style: TextStyle(
-//                     color: Colors.white,
-//                     fontSize: 9.sp,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//       ],
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ReportsVisibilityBloc, bool>(
+      buildWhen: (previous, current) => previous != current,
+      builder: (context, showReports) {
+        return SliverMainAxisGroup(
+          slivers: [
+            SliverToBoxAdapter(
+              child: _ReportsHeader(
+                showReports: showReports,
+              ),
+            ),
 
-// ────────────────────────────────────────────────────────────────────────
-//  Stat card (top header — money / count variants)
-// ────────────────────────────────────────────────────────────────────────
+            if (showReports)
+              const _ReportsGrid(),
+          ],
+        );
+      },
+    );
+  }
+}
+class _ReportsGrid extends StatelessWidget {
+  const _ReportsGrid();
 
+  @override
+  Widget build(BuildContext context) {
+    final cards = _reportCards(context);
+    final crossAxisCount = AppResponsive.isMobile(context) ? 2 : 4;
+    return SliverPadding(
+      padding: EdgeInsets.symmetric(
+        horizontal: 12.w,
+      ),
+      sliver: SliverGrid(
+        gridDelegate:
+        SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          mainAxisSpacing: 4.h,
+          crossAxisSpacing: 4.w,
+          childAspectRatio: 2.5,
+        ),
+        delegate: SliverChildBuilderDelegate(
+              (context, index) {
+            return cards[index]
+                .animate()
+                .fadeIn(
+              duration: 350.ms,
+              delay: Duration(
+                milliseconds: index * 40,
+              ),
+              curve: Curves.easeOut,
+            )
+                .slideY(
+              begin: 0.15,
+              end: 0,
+              duration: 350.ms,
+              delay: Duration(
+                milliseconds: index * 40,
+              ),
+              curve: Curves.easeOutCubic,
+            )
+             ;
+          },
+          childCount: cards.length,
+        ),
+      ),
+    );
+  }
+}
+class _ReportsHeader extends StatelessWidget {
+  final bool showReports;
+
+  const _ReportsHeader({
+    required this.showReports,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        16.w,
+        24.h,
+        16.w,
+        8.h,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 4.w,
+            height: 18.h,
+            decoration: BoxDecoration(
+              color: const Color(0xff3B5BDB),
+              borderRadius: BorderRadius.circular(2.r),
+            ),
+          ),
+
+          SizedBox(width: 8.w),
+
+          Expanded(
+            child: Text(
+              'home.main_reports'.tr(),
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xff1A1A1A),
+              ),
+            ),
+          ),
+
+          InkWell(
+            borderRadius: BorderRadius.circular(12.r),
+            onTap: () {
+              context.read<ReportsVisibilityBloc>().add(
+                const ToggleReportsVisibility(),
+              );
+            },
+            child: Container(
+              width: 36.w,
+              height: 36.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: AnimatedRotation(
+                turns: showReports ? 0 : 0.5,
+                duration: const Duration(
+                  milliseconds: 300,
+                ),
+                curve: Curves.easeInOut,
+                child: const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: Color(0xff8A8F99),
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 class _StatCard extends StatelessWidget {
   final String label;
   final num value;
@@ -499,11 +709,6 @@ class _StatCard extends StatelessWidget {
     return buf.toString();
   }
 }
-
-// ────────────────────────────────────────────────────────────────────────
-//  Main Reports grid card
-// ────────────────────────────────────────────────────────────────────────
-
 class _ReportCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -526,9 +731,9 @@ class _ReportCard extends StatelessWidget {
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(8.r),
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16.r),
+
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
           decoration: BoxDecoration(
@@ -619,176 +824,6 @@ class _ReportCard extends StatelessWidget {
     );
   }
 }
-
-// ────────────────────────────────────────────────────────────────────────
-//  Live Sales feed
-// ────────────────────────────────────────────────────────────────────────
-
-class _LiveSalesSection extends StatelessWidget {
-  const _LiveSalesSection();
-
-  @override
-  Widget build(BuildContext context) {
-    final samples = [
-      _LiveSale('home.live_sales_now'.tr(), '100043', '09:41 AM', 1.5,
-          Icons.local_drink_outlined),
-      _LiveSale('Khobz', '100045', '09:40 AM', 0.75, Icons.bakery_dining_outlined),
-      _LiveSale('Pepsi', '100042', '09:39 AM', 1.2, Icons.local_drink_outlined),
-    ];
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 8.w,
-                height: 8.w,
-                decoration: const BoxDecoration(
-                  color: Color(0xffE74C3C),
-                  shape: BoxShape.circle,
-                ),
-              ),
-              SizedBox(width: 6.w),
-              Text(
-                'home.live_sales_now'.tr(),
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xff1A1A1A),
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: () =>
-                    context.read<NavBloc>().add(const ChangeNavTab(1)),
-                child: Text(
-                  'home.view_all'.tr(),
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    color: const Color(0xff3B5BDB),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10.h),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14.r),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              children: List.generate(samples.length, (i) {
-                final s = samples[i];
-                return Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 12.w, vertical: 10.h),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 36.w,
-                            height: 36.w,
-                            decoration: BoxDecoration(
-                              color: const Color(0xffF0F2F8),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Icon(s.icon,
-                                color: const Color(0xff8A8F99), size: 18.sp),
-                          ),
-                          SizedBox(width: 10.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  s.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: const Color(0xff1A1A1A),
-                                  ),
-                                ),
-                                SizedBox(height: 2.h),
-                                Text(
-                                  '${'new_invoice.product_code'.tr()}: ${s.code}',
-                                  style: TextStyle(
-                                    fontSize: 10.sp,
-                                    color: const Color(0xff8A8F99),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                '${s.value.toStringAsFixed(3)} '
-                                '${'common.EGP'.tr()}',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xff40C057),
-                                ),
-                              ),
-                              SizedBox(height: 2.h),
-                              Text(
-                                s.time,
-                                style: TextStyle(
-                                  fontSize: 10.sp,
-                                  color: const Color(0xff8A8F99),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (i != samples.length - 1)
-                      Divider(
-                        height: 1,
-                        indent: 12.w,
-                        endIndent: 12.w,
-                        color: const Color(0xffF0F2F8),
-                      ),
-                  ],
-                );
-              }),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LiveSale {
-  final String name;
-  final String code;
-  final String time;
-  final double value;
-  final IconData icon;
-  _LiveSale(this.name, this.code, this.time, this.value, this.icon);
-}
-
-// ────────────────────────────────────────────────────────────────────────
-//  Charts section (placeholders — no chart lib in pubspec)
-// ────────────────────────────────────────────────────────────────────────
-
 class _ChartsSection extends StatelessWidget {
   const _ChartsSection();
 
@@ -800,7 +835,7 @@ class _ChartsSection extends StatelessWidget {
     // the row's height to the tallest child first, so stretch then matches
     // both cards to that bounded height.
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 0),
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 0),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -814,7 +849,6 @@ class _ChartsSection extends StatelessWidget {
     );
   }
 }
-
 class _BranchPie extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -908,7 +942,6 @@ class _BranchPie extends StatelessWidget {
     );
   }
 }
-
 class _WeeklyTrend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

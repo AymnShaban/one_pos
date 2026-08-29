@@ -218,15 +218,15 @@ final class BaseApiConsumer implements ApiConsumer {
 
   @override
   Future<Either<Failure, dynamic>> post(
-    String url, {
-    Map<String, dynamic>? data,
-    FormData? formData,
-    Map<String, dynamic>? queryParameters,
-    Map<String, dynamic>? headers,
-    CancelToken? cancelToken,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  }) async {
+      String url, {
+        Map<String, dynamic>? data,
+        FormData? formData,
+        Map<String, dynamic>? queryParameters,
+        Map<String, dynamic>? headers,
+        CancelToken? cancelToken,
+        ProgressCallback? onSendProgress,
+        ProgressCallback? onReceiveProgress,
+      }) async {
     try {
       final response = await _dio.post(
         url,
@@ -400,10 +400,12 @@ final class BaseApiConsumer implements ApiConsumer {
     // during the Dio error callback's stack.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final nav = NavigationService.navigatorKey.currentState;
+
       nav?.pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false,
+        LoginScreen.route(),
+            (route) => false,
       );
+
       _redirectingToLogin = false;
     });
   }
