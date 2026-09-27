@@ -132,6 +132,30 @@
   "item_count": "عدد الأصناف",
   "clear_invoice": "مسح",
   "export_excel": "تصدير إلى Excel",
+  "stock_taking": {
+    "title": "جرد المخزون",
+    "select_store": "اختر المخزن",
+    "loading_stores": "جاري تحميل المخازن...",
+    "failed_to_load_stores": "تعذر تحميل المخازن",
+    "retry": "إعادة المحاولة",
+    "no_stores": "لا توجد مخازن",
+    "store_without_name": "مخزن بدون اسم",
+
+    "select_store_first": "من فضلك اختر المخزن أولاً",
+    "save_success": "تم حفظ الجرد بنجاح",
+    "save_error": "حدث خطأ أثناء حفظ الجرد",
+    "add_products_first": "من فضلك أضف أصناف أولاً",
+    "export_excel_first": "يجب تصدير ملف Excel للأصناف أولاً قبل الحفظ",
+    "product_not_found": "لم يتم العثور على المنتج",
+    "no_products_to_export": "لا توجد منتجات لتصديرها",
+    "export_cancelled": "تم إلغاء التصدير",
+    "export_failed": "فشل تصدير الملف: {}",
+    "clear_confirmation": "هل أنت متأكد من مسح الأصناف؟",
+    "invoice_cleared": "تم مسح الأصناف بنجاح",
+
+    "yes": "نعم",
+    "no": "لا"
+  },
   "auth": {
     "welcome_back": "مرحباً بعودتك",
     "shop_easily_and_enjoy_special_offers": "سجّل دخولك للمتابعة",

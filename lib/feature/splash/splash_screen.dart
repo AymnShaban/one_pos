@@ -1,3 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:upgrader/upgrader.dart';
+
 import '../../../core/helper/helper.dart';
 import '../../core/services/service_locator/services_imports.dart';
 import '../auth/bloc/activation_bloc/activation_bloc.dart';
@@ -45,11 +48,11 @@ class _SplashScreenState extends State<SplashScreen> {
       '[Splash] activationCode=$config | hasAppConfig=${appCfg != null} | userId=${cachedUser?.userId}',
     );
 
-   // // ── Case 1: Never activated → open the activation screen directly ───────
-   //  if (config == null && appCfg == null) {
-   //    Navigator.pushReplacement(context, _activationRoute());
-   //    return;
-   //  }
+   //── Case 1: Never activated → open the activation screen directly ───────
+    if (config == null && appCfg == null) {
+      Navigator.pushReplacement(context, _activationRoute());
+      return;
+    }
 
     // ── Case 2: Activated but not logged in ──────────────────────────────────
     if (cachedUser == null) {
@@ -101,7 +104,18 @@ class _SplashScreenState extends State<SplashScreen> {
               create: (_) => getIt<NavBloc>(),
             ),
           ],
-          child: const MainScreen(),
+          child: UpgradeAlert(
+              showIgnore: false,
+              showLater: false,
+
+              barrierDismissible: false,
+              upgrader: Upgrader(
+                debugDisplayAlways: false,
+                debugLogging: true,
+                languageCode: 'ar',
+                countryCode: 'EG',
+                messages: UpgraderMessages(code: context.locale.languageCode),
+              ),child: const MainScreen()),
         ),
       ),
     );

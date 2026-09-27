@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/http/either.dart';
 import '../../../../core/http/failure.dart';
+import '../../../core/helper/logger.dart';
 import '../../../core/local/hive_service_impl.dart';
 import '../../../core/network/cryptography.dart';
 import '../../../core/services/service_locator/services_imports.dart';
@@ -145,6 +146,7 @@ class AuthDataSourceImpl implements AuthDataSource {
     }
   }
 
+  @override
   Future<Either<Failure, void>> checkDeviceActivation({
     required String activationCode,
     required String deviceCode,
@@ -152,18 +154,18 @@ class AuthDataSourceImpl implements AuthDataSource {
     required String deviceModel,
     required String deviceName,
   }) async {
-
     try {
       final bodyMap = {
         'activationCode': activationCode,
-        'deviceCode':     deviceCode,
-        'deviceTypeID':   1,
-        'deviceWifiMAC':  deviceWifiMAC,
-        'deviceModel':    deviceModel,
-        'deviceName':     deviceName,
-        'deviceIMEI':     deviceName,
-        'deviceToken':    'DeviceToken',
+        'deviceCode': deviceCode,
+        'deviceTypeID': 1,
+        'deviceWifiMAC': deviceWifiMAC,
+        'deviceModel': deviceModel,
+        'deviceName': deviceName,
+        'deviceIMEI': deviceName,
+        'deviceToken': 'DeviceToken',
       };
+
       final body = json.encode(bodyMap);
       final signed = signRequest(body);
 
@@ -173,30 +175,57 @@ class AuthDataSourceImpl implements AuthDataSource {
         options: Options(
           headers: {
             'Content-Type': 'application/json',
-            'Accept':       '*/*',
+            'Accept': '*/*',
             ...signed.toMap(),
           },
-
         ),
       );
 
       if (response.statusCode == 200) {
         final raw = response.data;
+
         final Map<String, dynamic> data = raw is Map
             ? Map<String, dynamic>.from(raw)
-            : Map<String, dynamic>.from(json.decode(raw.toString()));
+            : Map<String, dynamic>.from(
+          json.decode(raw.toString()),
+        );
 
         final isSuccess = data['isSuccess'] == true;
-        final value     = data['value'] == true;
+        final value = data['value'] == true;
 
-        if (isSuccess && value) return const Right(null);
-        return Left(ServerFailure(message: 'device_deactivated'));
+        if (isSuccess && value) {
+          return const Right(null);
+        }
+
+        return Left(
+          ServerFailure(message: 'device_deactivated'),
+        );
       }
-      return Left(ServerFailure(message: 'server_error'));
-    } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
-    }
-  }
+
+      return Left(
+        ServerFailure(message: 'server_error'),
+      );
+    } on DioException catch (e) {
+      debugPrint('========== ACTIVATION ERROR ==========');
+      debugPrint('Status Code: ${e.response?.statusCode}');
+      debugPrint('Response Data: ${e.response?.data}');
+      debugPrint('Response Headers: ${e.response?.headers}');
+      debugPrint('Dio Message: ${e.message}');
+      debugPrint('======================================');
+
+      if (e.response?.statusCode == 400 ||
+          e.response?.statusCode == 403) {
+        return Left(
+          ServerFailure(message: 'device_deactivated'),
+        );
+      }
+
+      return Left(
+        ServerFailure(
+          message: e.message ?? 'server_error',
+        ),
+      );
+    }}
 
   @override
   Future<Either<Failure, void>> deactivateDevice({
@@ -218,6 +247,7 @@ class AuthDataSourceImpl implements AuthDataSource {
       if (response.statusCode == 200) return const Right(null);
       return Left(ServerFailure(message: 'deactivation_error'));
     } catch (e) {
+
       return Left(ServerFailure(message: e.toString()));
     }
   }

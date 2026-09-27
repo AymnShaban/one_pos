@@ -46,18 +46,18 @@ class UserSettingsModel extends Equatable {
 }
 
 class SystemInfoModel extends Equatable {
-  final String appVersion;
-  final String buildNumber;
+
+
   final String lastSync;
   final bool isConnected;
 
   const SystemInfoModel({
-    this.appVersion  = 'v2.5.1',
-    this.buildNumber = '20260307',
+
+
     this.lastSync    = '',
     this.isConnected = false,
   });
 
   @override
-  List<Object?> get props => [appVersion, buildNumber, lastSync, isConnected];
+  List<Object?> get props => [  lastSync, isConnected];
 }

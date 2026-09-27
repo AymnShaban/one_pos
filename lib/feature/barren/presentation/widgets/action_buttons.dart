@@ -1,66 +1,142 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:one_pos/core/helper/helper.dart';
 
-/// Action buttons for export and clear invoice
+/// Action buttons for save, export and clear invoice
 class ActionButtons extends StatelessWidget {
+  final VoidCallback onSavePressed;
   final VoidCallback onExportPressed;
   final VoidCallback onClearPressed;
-  final bool isLoading;
+
+  final bool isSaving;
+  final bool isExporting;
 
   const ActionButtons({
     super.key,
+    required this.onSavePressed,
     required this.onExportPressed,
     required this.onClearPressed,
-    this.isLoading = false,
+    this.isSaving = false,
+    this.isExporting = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDisabled = isSaving || isExporting;
+
     return Row(
       children: [
-        // Clear invoice button (outlined red)
+        // Clear
         Expanded(
-          child: OutlinedButton(
-            onPressed: isLoading ? null : onClearPressed,
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Color(0xFFE57373), width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+          child: SizedBox(
+            height: 42.h,
+            child: OutlinedButton.icon(
+              onPressed: isDisabled ? null : onClearPressed,
+              icon: Icon(Icons.delete_outline_rounded, size: 19.sp),
+              label: Text(
+                'clear_invoice'.tr(),
+                style: AppTextTheme.body1.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13.sp,
+                ),
               ),
-            ),
-            child: Text(
-              'clear_invoice'.tr(),
-              style: AppTextTheme.body1,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.red,
+                backgroundColor: AppColors.card,
+                side: BorderSide(
+                  color: AppColors.red.withValues(alpha: 0.65),
+                  width: 1.2,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+              ),
             ),
           ),
         ),
 
-        SizedBox(width: 16.w),
+        SizedBox(width: 8.w),
 
-        // Export Excel button (yellow)
+        // Save
         Expanded(
-          child: ElevatedButton(
-            onPressed: isLoading ? null : onExportPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE8D952),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+          child: SizedBox(
+            height: 42.h,
+            child: OutlinedButton.icon(
+              onPressed: isDisabled ? null : onSavePressed,
+              icon: isSaving
+                  ? SizedBox(
+                      width: 17.w,
+                      height: 17.h,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.brand,
+                        ),
+                      ),
+                    )
+                  : Icon(Icons.save_outlined, size: 19.sp),
+              label: Text(
+                'save'.tr(),
+                style: AppTextTheme.body1.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13.sp,
+                ),
               ),
-              elevation: 0,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.brand,
+                backgroundColor: AppColors.card,
+                side: BorderSide(color: AppColors.brand, width: 1.4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+              ),
             ),
-            child: isLoading
-                ? SizedBox(
-                    width: 20.w,
-                    height: 20.h,
-                    child: const CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
-                    ),
-                  )
-                : Text(
-                    'export_excel'.tr(),
-                    style: AppTextTheme.body1,
-                  ),
+          ),
+        ),
+
+        SizedBox(width: 8.w),
+
+        // Export Excel
+        Expanded(
+          child: SizedBox(
+            height: 42.h,
+            child: OutlinedButton.icon(
+              onPressed: isDisabled ? null : onExportPressed,
+              icon: isExporting
+                  ? SizedBox(
+                      width: 17.w,
+                      height: 17.h,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.greenDark,
+                        ),
+                      ),
+                    )
+                  : Icon(Icons.table_view_outlined, size: 19.sp),
+              label: Text(
+                'export_excel'.tr(),
+                style: AppTextTheme.body1.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13.sp,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.greenDark,
+                backgroundColor: AppColors.card,
+                side: BorderSide(
+                  color: AppColors.greenDark.withValues(alpha: 0.65),
+                  width: 1.2,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+              ),
+            ),
           ),
         ),
       ],

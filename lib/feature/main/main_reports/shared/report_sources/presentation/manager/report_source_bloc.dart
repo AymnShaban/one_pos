@@ -23,10 +23,9 @@ class ReportSourceBloc extends Bloc<ReportSourceEvent, ReportSourceState> {
         ),
       ),
           (items) {
-        // ✅ أول عنصر
+
         final firstId = items.isNotEmpty ? items.first.frmNum : null;
 
-        // ✅ كل الـ IDs
         final allIds = items.map((e) => e.frmNum).toSet();
 
         emit(

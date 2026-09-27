@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:one_pos/feature/auth/presentation/screens/activation_screen.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+// import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../core/helper/helper.dart';
 import '../../../core/services/service_locator/services_imports.dart';

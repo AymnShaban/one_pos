@@ -112,7 +112,7 @@ class EndPoints {
   /// object with the minimal shape `{id, mtName, barcode, sale, qty}`.
   static const String productByBarcode = '/api/Product/by-barcode/';
   static const String getLastInvoiceByPattern =
-      '/api/SalesInvoice/GetLastInvoiceByInvoiceID';
+ '/api/SalesInvoice/GetLastInvoiceByInvoiceID';
   static const String createSalesInvoice = '/api/SalesInvoice/PostInvoice';
   /// Full invoice payload for the details/edit view. Query: `invoiceId` +
   /// `invoiceNo` (both returned by the create response).
@@ -249,6 +249,7 @@ class EndPoints {
   static const String getAllItems = '/api/ProductMnu/GetAllItems';
   static const String getGroups = '/api/Category/Groups';
   static const String getStores = '/api/Store/GetStores';
+  static const addStockItems = '/api/BLI/add';
   // ============================================================
 // Items Movement Report
 // ============================================================
@@ -259,6 +260,8 @@ class EndPoints {
 // ============================================================
 
   static const String itemMovementBalanceReport = '/api/ProductMnu/GetGroupMotion';
+  /// Get Material Group Motion Report Sources
+  static const String getMaterialGroupMotionReportSources = '/api/BSR/GetMaterialGroupMotionReportSources';
 
 
   /// GET /api/Entry/EtsTypes

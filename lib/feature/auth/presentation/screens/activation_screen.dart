@@ -21,7 +21,7 @@ class _ActivationScreenState extends State<ActivationScreen> {
     // Get device info on startup
     context.read<ActivationBloc>().initDevice(context);
   }
-
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<ActivationBloc>();
@@ -35,6 +35,7 @@ class _ActivationScreenState extends State<ActivationScreen> {
             Navigator.pushReplacement(context, LoginScreen.route());
           }
           if (state.status == Status.failure) {
+
             showCustomSnackBar(
               context,
               state.errorMessage?.tr() ?? 'common.error'.tr(),
@@ -92,46 +93,49 @@ class _ActivationScreenState extends State<ActivationScreen> {
                 SizedBox(height: 32.h),
 
                 // 4 key fields
-                Row(
-                  children: [
-                    _KeyField(
-                      controller: bloc.key1Controller,
-                      focusNode:  bloc.focusNode1,
-                      hint:       'KEY 1',
-                      inputFormatters: [_ActivationPasteFormatter()],
-                      onChanged: (v) {
-                        if (v.contains('-')) {
-                          bloc.pasteFullCode(v);
-                        } else {
-                          bloc.moveToNextField(
-                              v, bloc.focusNode1, bloc.focusNode2);
-                        }
-                      },
-                    ),
-                    _Divider(),
-                    _KeyField(
-                      controller: bloc.key2Controller,
-                      focusNode:  bloc.focusNode2,
-                      hint:       'KEY 2',
-                      onChanged: (v) => bloc.moveToNextField(
-                          v, bloc.focusNode2, bloc.focusNode3),
-                    ),
-                    _Divider(),
-                    _KeyField(
-                      controller: bloc.key3Controller,
-                      focusNode:  bloc.focusNode3,
-                      hint:       'KEY 3',
-                      onChanged: (v) => bloc.moveToNextField(
-                          v, bloc.focusNode3, bloc.focusNode4),
-                    ),
-                    _Divider(),
-                    _KeyField(
-                      controller: bloc.key4Controller,
-                      focusNode:  bloc.focusNode4,
-                      hint:       'KEY 4',
-                      onChanged:  (_) {},
-                    ),
-                  ],
+                Form(
+                  key: _formKey,
+                  child: Row(
+                    children: [
+                      _KeyField(
+                        controller: bloc.key1Controller,
+                        focusNode:  bloc.focusNode1,
+                        hint:       'KEY 1',
+                        inputFormatters: [_ActivationPasteFormatter()],
+                        onChanged: (v) {
+                          if (v.contains('-')) {
+                            bloc.pasteFullCode(v);
+                          } else {
+                            bloc.moveToNextField(
+                                v, bloc.focusNode1, bloc.focusNode2);
+                          }
+                        },
+                      ),
+                      _Divider(),
+                      _KeyField(
+                        controller: bloc.key2Controller,
+                        focusNode:  bloc.focusNode2,
+                        hint:       'KEY 2',
+                        onChanged: (v) => bloc.moveToNextField(
+                            v, bloc.focusNode2, bloc.focusNode3),
+                      ),
+                      _Divider(),
+                      _KeyField(
+                        controller: bloc.key3Controller,
+                        focusNode:  bloc.focusNode3,
+                        hint:       'KEY 3',
+                        onChanged: (v) => bloc.moveToNextField(
+                            v, bloc.focusNode3, bloc.focusNode4),
+                      ),
+                      _Divider(),
+                      _KeyField(
+                        controller: bloc.key4Controller,
+                        focusNode:  bloc.focusNode4,
+                        hint:       'KEY 4',
+                        onChanged:  (_) {},
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: 32.h),
 
@@ -148,6 +152,15 @@ class _ActivationScreenState extends State<ActivationScreen> {
                       height: 50.h,
                       child: ElevatedButton(
                         onPressed: () {
+                          if (!_formKey.currentState!.validate()) {
+                            showCustomSnackBar(
+                              context,
+
+                              'auth.enter_activation_code'.tr(),
+                            );
+                            return;
+                          }
+
                           context.read<ActivationBloc>().add(
                             CheckActivationCode(
                               key1: bloc.key1Controller.text.trim(),
@@ -262,13 +275,20 @@ class _KeyField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: TextField(
+      child: TextFormField(
+
         controller:    controller,
         focusNode:     focusNode,
         textAlign:     TextAlign.center,
         maxLength:     inputFormatters == null ? 4 : null,
         inputFormatters: inputFormatters,
         onChanged:     onChanged,
+        validator: (value) {
+          if (value == null || value.trim().length != 4) {
+            return '';
+          }
+          return null;
+        },
         style: AppTextTheme.body2Bold.copyWith(color: AppColors.black),
         decoration: InputDecoration(
           counterText: '',
@@ -278,6 +298,7 @@ class _KeyField extends StatelessWidget {
           filled:      true,
           fillColor:   AppColors.whiteColor,
           isDense:     true,
+
           contentPadding: EdgeInsets.symmetric(
               vertical: 14.h, horizontal: 8.w),
           border: OutlineInputBorder(

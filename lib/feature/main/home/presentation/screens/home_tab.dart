@@ -453,7 +453,7 @@ class _HomeHeader extends StatelessWidget {
                 ),
               ),
 
-
+              SizedBox(width: 2),
 
               Expanded(
                 child: _StatCard(
@@ -466,7 +466,7 @@ class _HomeHeader extends StatelessWidget {
                 ),
               ),
 
-
+              SizedBox(width: 2),
 
               Expanded(
                 child: _StatCard(

@@ -26,8 +26,8 @@ class ItemMovementBalanceScreen extends StatelessWidget {
         BlocProvider<CurrenciesBloc>(
           create: (_) => getIt<CurrenciesBloc>()..add(LoadCurrencies()),
         ),
-        BlocProvider<ReportSourceBloc>(
-          create: (_) => getIt<ReportSourceBloc>()..add(LoadReportSources()),
+        BlocProvider<MaterialGroupMotionReportSourceBloc>(
+          create: (_) => getIt<MaterialGroupMotionReportSourceBloc>()..add(LoadMaterialGroupMotionReportSources()),
         ),
       ],
       child: const ItemMovementBalanceFiltersScreen(),
@@ -54,7 +54,7 @@ class _ItemMovementBalanceFiltersScreenState
   StoreModel? selectedStore;
   CostCenterModel? selectedCostCenter;
   CurrencyModel? selectedCurrency;
-  List<ReportSourceModel> selectedSources = [];
+  List<MaterialGroupMotionReportSourceModel> selectedSources = [];
 
   // ==================== Toggle Switches ====================
   bool arabic = true;
@@ -64,7 +64,7 @@ class _ItemMovementBalanceFiltersScreenState
   bool showEmpty = false;
   bool outputAtCost = true;
   bool lastPeriod = false;
-
+  bool _isReportSourcesExpanded = false;
   @override
   void initState() {
     super.initState();
@@ -99,10 +99,10 @@ class _ItemMovementBalanceFiltersScreenState
   }
 
   void _applyFilters() {
-    if (selectedProduct == null) {
-      context.showErrorMessage('please_select_product'.tr());
-      return;
-    }
+    ///if (selectedProduct == null) {
+    //  context.showErrorMessage('please_select_product'.tr());
+    //  return;
+   // }
 
     final request = ItemMovementBalanceRequestModel.create(
       fromDate: fromDate,
@@ -217,7 +217,7 @@ class _ItemMovementBalanceFiltersScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ==================== 1. التاريخ (جنب بعض) ====================
+
         _buildSectionLabel('period'.tr()),
         Row(
           children: [
@@ -560,16 +560,24 @@ class _ItemMovementBalanceFiltersScreenState
   }
 
   Widget _buildReportSourcesField() {
-    return BlocBuilder<ReportSourceBloc, ReportSourceState>(
+    return BlocBuilder<
+        MaterialGroupMotionReportSourceBloc,
+        MaterialGroupMotionReportSourceState
+    >(
       builder: (context, state) {
         if (state.status == Status.loading) {
           return _buildLoadingField();
         }
+
         if (state.status == Status.failure) {
           return _buildErrorField(
-            message: state.errorMessage ?? 'error_loading_report_sources'.tr(),
-            onRetry: () =>
-                context.read<ReportSourceBloc>().add(LoadReportSources()),
+            message: state.errorMessage ??
+                'error_loading_report_sources'.tr(),
+            onRetry: () => context
+                .read<MaterialGroupMotionReportSourceBloc>()
+                .add(
+              const LoadMaterialGroupMotionReportSources(),
+            ),
           );
         }
 
@@ -586,7 +594,9 @@ class _ItemMovementBalanceFiltersScreenState
           onChanged: (selectedValues) {
             setState(() {
               selectedSources = sources
-                  .where((e) => selectedValues.contains(e.name))
+                  .where(
+                    (e) => selectedValues.contains(e.name),
+              )
                   .toList();
             });
           },
@@ -597,7 +607,6 @@ class _ItemMovementBalanceFiltersScreenState
       },
     );
   }
-
   // ==================== Helper Widgets ====================
 
   Widget _buildSectionLabel(String title) {
@@ -780,8 +789,8 @@ class _ItemMovementBalanceFiltersScreenState
 
   Widget _buildMultiSelectField({
     required String label,
-    required List<ReportSourceModel> selectedItems,
-    required List<ReportSourceModel> allItems,
+    required List<MaterialGroupMotionReportSourceModel> selectedItems,
+    required List<MaterialGroupMotionReportSourceModel> allItems,
     required String placeholder,
     required IconData icon,
     required List<String> options,
@@ -790,99 +799,220 @@ class _ItemMovementBalanceFiltersScreenState
   }) {
     final selectedNames = selectedItems.map((e) => e.name).toList();
 
+    final bool isAllSelected =
+        allItems.isNotEmpty &&
+            selectedItems.length == allItems.length;
+
+    final bool isPartiallySelected =
+        selectedItems.isNotEmpty && !isAllSelected;
+
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16.w,
+        vertical: 12.h,
+      ),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: AppColors.line),
+        border: Border.all(
+          color: AppColors.line,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // =========================
+          // Header
+          // =========================
           Row(
             children: [
-              Icon(
-                icon,
-                color: AppColors.blue,
-                size: 18.sp,
-              ),
-              SizedBox(width: 8.w),
+              // Select All
               Expanded(
-                child: Text(
-                  selectedNames.isEmpty
-                      ? placeholder
-                      : selectedNames.join(', '),
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: selectedNames.isEmpty
-                        ? AppColors.textMuted
-                        : AppColors.textDark,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8.r),
+                  onTap: allItems.isEmpty
+                      ? null
+                      : () {
+                    if (isAllSelected) {
+                      onChanged([]);
+                    } else {
+                      onChanged(
+                        allItems
+                            .map((e) => e.name)
+                            .toList(),
+                      );
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      Checkbox(
+
+                        value: isPartiallySelected
+                            ? null
+                            : isAllSelected,
+                        tristate: true,
+                        onChanged: allItems.isEmpty
+                            ? null
+                            : (value) {
+                          if (isAllSelected) {
+                            onChanged([]);
+                          } else {
+                            onChanged(
+                              allItems
+                                  .map((e) => e.name)
+                                  .toList(),
+                            );
+                          }
+                        },
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'select_all'.tr(),
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: AppColors.textDark,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (onClear != null)
+
+              // Expand / Collapse
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _isReportSourcesExpanded =
+                    !_isReportSourcesExpanded;
+                  });
+                },
+                icon: AnimatedRotation(
+                  turns:
+                  _isReportSourcesExpanded ? 0.5 : 0,
+                  duration: const Duration(
+                    milliseconds: 200,
+                  ),
+                  child: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: AppColors.textMuted,
+                    size: 24.sp,
+                  ),
+                ),
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(
+                  minWidth: 32.w,
+                  minHeight: 32.h,
+                ),
+              ),
+
+              // Clear All
+              if (selectedItems.isNotEmpty)
                 IconButton(
+
+                  onPressed: onClear ?? () => onChanged([]),
                   icon: Icon(
                     Icons.close,
                     color: AppColors.textMuted,
-                    size: 18.sp,
+                    size: 20.sp,
                   ),
-                  onPressed: onClear,
                   padding: EdgeInsets.zero,
                   constraints: BoxConstraints(
-                    minWidth: 28.w,
-                    minHeight: 28.h,
+                    minWidth: 32.w,
+                    minHeight: 32.h,
                   ),
                 ),
             ],
           ),
-          if (options.isNotEmpty)
-            Wrap(
-              spacing: 8.w,
-              runSpacing: 8.h,
-              children: options.map((option) {
-                final isSelected = selectedNames.contains(option);
-                return FilterChip(
-                  label: Text(
-                    option,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: isSelected ? AppColors.white : AppColors.textDark,
-                    ),
-                  ),
-                  selected: isSelected,
-                  onSelected: (_) {
-                    final newSelected = List<String>.from(selectedNames);
-                    if (isSelected) {
-                      newSelected.remove(option);
-                    } else {
-                      newSelected.add(option);
-                    }
-                    onChanged(newSelected);
-                  },
-                  backgroundColor: AppColors.white,
-                  selectedColor: AppColors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6.r),
-                    side: BorderSide(
-                      color: isSelected ? AppColors.blue : AppColors.line,
-                    ),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 4.h,
-                  ),
-                );
-              }).toList(),
+
+
+          AnimatedSize(
+            duration: const Duration(
+              milliseconds: 250,
             ),
+            curve: Curves.easeInOut,
+            child: !_isReportSourcesExpanded
+                ? const SizedBox.shrink()
+                : Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 10.h),
+
+                if (options.isNotEmpty)
+                  Wrap(
+                    spacing: 4.w,
+                    runSpacing: 4.h,
+                    children: options.map((option) {
+                      final bool isSelected =
+                      selectedNames.contains(option);
+
+                      return FilterChip(
+                        label: Text(
+                          option,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: isSelected
+                                ? AppColors.white
+                                : AppColors.textDark,
+                          ),
+                        ),
+                        selected: isSelected,
+                        onSelected: (_) {
+                          final newSelected =
+                          List<String>.from(
+                            selectedNames,
+                          );
+
+                          if (isSelected) {
+                            newSelected.remove(option);
+                          } else {
+                            newSelected.add(option);
+                          }
+
+                          onChanged(newSelected);
+                        },
+                        backgroundColor:
+                        AppColors.white,
+                        selectedColor:
+                        AppColors.blue,
+                        shape:
+                        RoundedRectangleBorder(
+                          borderRadius:
+                          BorderRadius.circular(6.r),
+                          side: BorderSide(
+                            color: isSelected
+                                ? AppColors.blue
+                                : AppColors.line,
+                          ),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 4.h,
+                        ),
+                      );
+                    }).toList(),
+                  )
+                else
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 8.h,
+                    ),
+                    child: Text(
+                      placeholder,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
-
   Widget _buildFloatingActionButton(bool isLoading) {
     return FloatingActionButton.extended(
       onPressed: isLoading ? null : _applyFilters,

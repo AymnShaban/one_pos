@@ -83,8 +83,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    logger('🔥🔥🔥 MainScreen CREATED');
-    logger(StackTrace.current.toString());
+
     context.read<HomeBloc>().add(const InitHome());
     context.read<DailyOperationsBloc>().add(const LoadDailyOperations());
     final topSellingBloc = context.read<TopSellingBloc>();

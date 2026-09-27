@@ -56,8 +56,7 @@ class _SettingsTabState extends State<SettingsTab> {
               ? state.items.first
               : const UserSettingsModel();
           const systemInfo = SystemInfoModel(
-            appVersion: 'v2.5.1',
-            buildNumber: '20260307',
+
             lastSync: 'منذ ٥ دقائق',
             isConnected: true,
           );
@@ -153,18 +152,18 @@ class _SettingsTabState extends State<SettingsTab> {
                       SizedBox(height: 20.h),
 
                       // ── Info section ──
-                      SettingsSection(
-                        title: 'settings.information'.tr(),
-                        tiles: [
-                          SettingsTile(
-                            icon: Icons.info_outline_rounded,
-                            iconColor: AppColors.grey,
-                            title: 'settings.about_app'.tr(),
-                            subtitle: systemInfo.appVersion,
-                            onTap: () {},
-                          ),
-                        ],
-                      ),
+                      // SettingsSection(
+                      //   title: 'settings.information'.tr(),
+                      //   tiles: [
+                      //     SettingsTile(
+                      //       icon: Icons.info_outline_rounded,
+                      //       iconColor: AppColors.grey,
+                      //       title: 'settings.about_app'.tr(),
+                      //       subtitle: systemInfo.appVersion,
+                      //       onTap: () {},
+                      //     ),
+                      //   ],
+                      // ),
                       SizedBox(height: 20.h),
 
                       // ── System info card ──

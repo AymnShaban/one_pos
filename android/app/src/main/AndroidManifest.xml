@@ -25,7 +25,7 @@
          package. -->
 
     <application
-        android:label="TheOne App"
+        android:label="TheOne Ai"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="netProfitsBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#C084FC"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="12" fill="url(#netProfitsBg)"/>
+  
+  <path d="M24,24 L24,8 A16,16 0 1,1 9,34 Z" fill="#FFFFFF" fill-opacity="0.95"/>
+  
+  <path d="M24,24 L9,34 A16,16 0 0,1 24,8 Z" fill="#FFFFFF" fill-opacity="0.45"/>
+  
+  <circle cx="24" cy="24" r="7" fill="url(#netProfitsBg)"/>
+</svg>

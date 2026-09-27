@@ -2,7 +2,11 @@ part of '../../settings_imports.dart';
 
 class SystemInfoCard extends StatelessWidget {
   final SystemInfoModel info;
-  const SystemInfoCard({super.key, required this.info});
+
+  const SystemInfoCard({
+    super.key,
+    required this.info,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,36 +24,57 @@ class SystemInfoCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          _InfoRow(
-            label: 'settings.app_version'.tr(),
-            value: info.appVersion,
-            valueColor: AppColors.black,
-          ),
-          SizedBox(height: 10.h),
-          _InfoRow(
-            label: 'settings.build_number'.tr(),
-            value: info.buildNumber,
-            valueColor: AppColors.black,
-          ),
-          SizedBox(height: 10.h),
-          _InfoRow(
-            label: 'settings.last_sync'.tr(),
-            value: info.lastSync.isEmpty
-                ? 'settings.few_minutes_ago'.tr()
-                : info.lastSync,
-            valueColor: AppColors.green,
-          ),
-          SizedBox(height: 10.h),
-          _InfoRow(
-            label: 'settings.connection_status'.tr(),
-            value: info.isConnected
-                ? 'settings.online'.tr()
-                : 'settings.offline'.tr(),
-            valueColor: info.isConnected ? AppColors.green : AppColors.red,
-          ),
-        ],
+      child: FutureBuilder<PackageInfo>(
+        future: PackageInfo.fromPlatform(),
+        builder: (context, snapshot) {
+          final packageInfo = snapshot.data;
+
+          return Column(
+            children: [
+              // Version
+              _InfoRow(
+                label: 'settings.app_version'.tr(),
+                value: packageInfo != null
+                    ? 'v${packageInfo.version}'
+                    : '...',
+                valueColor: AppColors.black,
+              ),
+
+              SizedBox(height: 10.h),
+
+              // Build Number
+              _InfoRow(
+                label: 'settings.build_number'.tr(),
+                value: packageInfo?.buildNumber ?? '...',
+                valueColor: AppColors.black,
+              ),
+
+              SizedBox(height: 10.h),
+
+              // Last Sync
+              _InfoRow(
+                label: 'settings.last_sync'.tr(),
+                value: info.lastSync.isEmpty
+                    ? 'settings.few_minutes_ago'.tr()
+                    : info.lastSync,
+                valueColor: AppColors.green,
+              ),
+
+              SizedBox(height: 10.h),
+
+              // Connection Status
+              _InfoRow(
+                label: 'settings.connection_status'.tr(),
+                value: info.isConnected
+                    ? 'settings.online'.tr()
+                    : 'settings.offline'.tr(),
+                valueColor: info.isConnected
+                    ? AppColors.green
+                    : AppColors.red,
+              ),
+            ],
+          );
+        },
       ),
     );
   }

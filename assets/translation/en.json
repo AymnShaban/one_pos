@@ -48,7 +48,30 @@
   "item_count": "Item Count",
   "clear_invoice": "Clear",
   "export_excel": "Export to Excel",
+  "stock_taking": {
+    "title": "Stock Taking",
+    "select_store": "Select Store",
+    "loading_stores": "Loading stores...",
+    "failed_to_load_stores": "Failed to load stores",
+    "retry": "Retry",
+    "no_stores": "No stores available",
+    "store_without_name": "Unnamed Store",
+    "product_not_found": "Product not found",
+    "no_products_to_export": "There are no products to export",
+    "export_cancelled": "Export cancelled",
+    "export_failed": "Failed to export file: {}",
+    "select_store_first": "Please select a store first",
+    "save_success": "Stock taking saved successfully",
+    "save_error": "An error occurred while saving stock taking",
+    "add_products_first": "Please add products first",
+    "export_excel_first": "Please export the Excel file for the products before saving",
 
+    "clear_confirmation": "Are you sure you want to clear the products?",
+    "invoice_cleared": "Products cleared successfully",
+
+    "yes": "Yes",
+    "no": "No"
+  },
   "auth": {
     "welcome_back": "Welcome Back",
     "shop_easily_and_enjoy_special_offers": "Sign in to continue",

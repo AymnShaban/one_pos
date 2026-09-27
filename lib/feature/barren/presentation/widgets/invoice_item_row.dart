@@ -3,17 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../core/constant/app_colors.dart';
 import '../../domain/entities/invoice_product.dart';
 
-/// One basket card per scanned product. The card is split into two rows so
-/// the six fields fit comfortably on a phone:
-///
-///   Row 1 (identity): product name | barcode | delete
-///   Row 2 (numbers):  stock  | real qty (editable) | diff (coloured)
-///
-/// `diff = realQuantity - stockQuantity`: green when surplus, red when
-/// shortage, neutral when equal. Editing real-qty commits on focus-loss
-/// (same pattern the basket uses).
 class InvoiceItemRow extends StatefulWidget {
   final InvoiceProduct product;
   final VoidCallback onDelete;
@@ -37,8 +29,11 @@ class _InvoiceItemRowState extends State<InvoiceItemRow> {
   @override
   void initState() {
     super.initState();
-    _qtyController =
-        TextEditingController(text: _fmt(widget.product.realQuantity));
+
+    _qtyController = TextEditingController(
+      text: _fmt(widget.product.realQuantity),
+    );
+
     _focusNode = FocusNode();
     _focusNode.addListener(_onFocusLost);
   }
@@ -46,6 +41,7 @@ class _InvoiceItemRowState extends State<InvoiceItemRow> {
   @override
   void didUpdateWidget(InvoiceItemRow oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     if (oldWidget.product.realQuantity != widget.product.realQuantity &&
         !_focusNode.hasFocus) {
       _qtyController.text = _fmt(widget.product.realQuantity);
@@ -53,11 +49,14 @@ class _InvoiceItemRowState extends State<InvoiceItemRow> {
   }
 
   void _onFocusLost() {
-    if (!_focusNode.hasFocus) _commitValue();
+    if (!_focusNode.hasFocus) {
+      _commitValue();
+    }
   }
 
   void _commitValue() {
     final parsed = double.tryParse(_qtyController.text.trim());
+
     if (parsed != null && parsed > 0) {
       if (parsed != widget.product.realQuantity) {
         widget.onRealQuantityChanged(parsed);
@@ -75,98 +74,119 @@ class _InvoiceItemRowState extends State<InvoiceItemRow> {
     super.dispose();
   }
 
-  /// `green` surplus, `red` shortage, neutral grey when equal.
-  Color _diffColor(num diff) {
-    if (diff > 0) return const Color(0xFF2E7D32);
-    if (diff < 0) return const Color(0xFFC62828);
-    return Colors.black54;
+  String _fmt(num value) {
+    if (value == value.roundToDouble()) {
+      return value.toInt().toString();
+    }
+
+    var text = value.toStringAsFixed(2);
+
+    text = text.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+
+    return text;
   }
 
-  /// Whole numbers print plainly (3), fractions trim trailing zeros (2.5).
-  String _fmt(num v) {
-    if (v == v.roundToDouble()) return v.toInt().toString();
-    var s = v.toStringAsFixed(2);
-    if (s.contains('.')) {
-      s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
-    }
-    return s;
+  Color _diffColor(num diff) {
+    if (diff > 0) return AppColors.greenDark;
+    if (diff < 0) return AppColors.red;
+    return AppColors.textMuted;
   }
 
   @override
   Widget build(BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
-    final p = widget.product;
+
+    final product = widget.product;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+      margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 3.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(color: Colors.grey.shade200, width: 1),
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(
+          color: AppColors.brand.withValues(alpha: 0.55),
+          width: 1.1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ── Row 1: name | barcode | delete ───────────────────────
+          // ======================================================
+          // Product name
+          // ======================================================
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                flex: 5,
                 child: Text(
-                  p.displayName(isAr),
+                  product.displayName(isAr),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ),
-              Expanded(
-                flex: 4,
-                child: Text(
-                  p.barcode,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 13.sp, color: Colors.black54),
+
+              SizedBox(width: 8.w),
+
+              InkWell(
+                onTap: widget.onDelete,
+                borderRadius: BorderRadius.circular(6.r),
+                child: Padding(
+                  padding: EdgeInsets.all(3.w),
+                  child: Icon(
+                    Icons.delete_outline_rounded,
+                    color: AppColors.textMuted,
+                    size: 18.sp,
+                  ),
                 ),
-              ),
-              IconButton(
-                icon: Icon(Icons.delete_outline,
-                    color: const Color(0xFFE57373), size: 22.sp),
-                onPressed: widget.onDelete,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
               ),
             ],
           ),
-          SizedBox(height: 6.h),
-          Divider(height: 1, color: Colors.grey.shade200),
-          SizedBox(height: 6.h),
 
-          // ── Row 2: stock | real qty | diff ───────────────────────
+          SizedBox(height: 3.h),
+
+          // ======================================================
+          // Barcode
+          // ======================================================
+          Text(
+            product.barcode,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 10.5.sp,
+              color: AppColors.textMuted,
+              fontWeight: FontWeight.w500,
+              letterSpacing: .2,
+            ),
+          ),
+
+          SizedBox(height: 7.h),
+
+          Divider(height: 1, thickness: .7, color: AppColors.borderColor),
+
+          SizedBox(height: 7.h),
+
+          // ======================================================
+          // Values
+          // ======================================================
           Row(
             children: [
               Expanded(
-                flex: 2,
                 child: _MetricCell(
                   label: 'stock_quantity'.tr(),
-                  value: _fmt(p.stockQuantity),
-                  valueColor: Colors.black87,
+                  value: _fmt(product.stockQuantity),
+                  valueColor: AppColors.textPrimary,
                 ),
               ),
+
+              Container(width: 1, height: 30.h, color: AppColors.borderColor),
+
               Expanded(
-                flex: 2,
                 child: _EditableMetric(
                   label: 'real_quantity'.tr(),
                   controller: _qtyController,
@@ -174,12 +194,14 @@ class _InvoiceItemRowState extends State<InvoiceItemRow> {
                   onSubmitted: (_) => _commitValue(),
                 ),
               ),
+
+              Container(width: 1, height: 30.h, color: AppColors.borderColor),
+
               Expanded(
-                flex: 2,
                 child: _MetricCell(
                   label: 'result'.tr(),
-                  value: _fmt(p.diff),
-                  valueColor: _diffColor(p.diff),
+                  value: _fmt(product.diff),
+                  valueColor: _diffColor(product.diff),
                 ),
               ),
             ],
@@ -189,6 +211,10 @@ class _InvoiceItemRowState extends State<InvoiceItemRow> {
     );
   }
 }
+
+// ================================================================
+// Metric
+// ================================================================
 
 class _MetricCell extends StatelessWidget {
   final String label;
@@ -208,13 +234,21 @@ class _MetricCell extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 10.sp, color: Colors.black54),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 9.5.sp,
+            color: AppColors.textMuted,
+            fontWeight: FontWeight.w500,
+          ),
         ),
+
         SizedBox(height: 2.h),
+
         Text(
           value,
           style: TextStyle(
-            fontSize: 15.sp,
+            fontSize: 14.sp,
             fontWeight: FontWeight.w700,
             color: valueColor,
           ),
@@ -223,6 +257,10 @@ class _MetricCell extends StatelessWidget {
     );
   }
 }
+
+// ================================================================
+// Editable Real Quantity
+// ================================================================
 
 class _EditableMetric extends StatelessWidget {
   final String label;
@@ -244,37 +282,46 @@ class _EditableMetric extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 10.sp, color: Colors.black54),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 9.5.sp,
+            color: AppColors.textMuted,
+            fontWeight: FontWeight.w500,
+          ),
         ),
+
         SizedBox(height: 2.h),
+
         SizedBox(
-          width: 80.w,
-          height: 32.h,
+          width: 58.w,
+          height: 28.h,
           child: TextFormField(
             controller: controller,
             focusNode: focusNode,
             textAlign: TextAlign.center,
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [_DecimalTextInputFormatter(2)],
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: 13.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.black87,
+              color: AppColors.textPrimary,
             ),
             decoration: InputDecoration(
               isDense: true,
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+              filled: true,
+              fillColor: AppColors.brandLight,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 4.w,
+                vertical: 3.h,
+              ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide:
-                    BorderSide(color: Colors.grey.shade300, width: 1),
+                borderRadius: BorderRadius.circular(6.r),
+                borderSide: BorderSide(color: AppColors.borderColor),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide: const BorderSide(
-                    color: Color(0xFF1976D2), width: 1.5),
+                borderRadius: BorderRadius.circular(6.r),
+                borderSide: BorderSide(color: AppColors.brand, width: 1.2),
               ),
             ),
             onFieldSubmitted: onSubmitted,
@@ -285,9 +332,10 @@ class _EditableMetric extends StatelessWidget {
   }
 }
 
-/// Rejects any edit that puts more than [decimalRange] digits past the dot
-/// — so the real-qty field stays like 35.71, not 35.7133. Same shape as the
-/// formatter used in the basket inline edits.
+// ================================================================
+// Decimal Formatter
+// ================================================================
+
 class _DecimalTextInputFormatter extends TextInputFormatter {
   final int decimalRange;
 
@@ -298,8 +346,12 @@ class _DecimalTextInputFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    if (newValue.text.isEmpty) return newValue;
+    if (newValue.text.isEmpty) {
+      return newValue;
+    }
+
     final regExp = RegExp('^\\d*\\.?\\d{0,$decimalRange}\$');
+
     return regExp.hasMatch(newValue.text) ? newValue : oldValue;
   }
 }

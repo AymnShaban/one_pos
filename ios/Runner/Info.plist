@@ -51,6 +51,17 @@
 		<true/>
 		<key>UILaunchStoryboardName</key>
 		<string>LaunchScreen</string>
+		<key>NSCameraUsageDescription</key>
+        <string>نحتاج إلى استخدام الكاميرا لمسح الباركود والتقاط الصور.</string>
+
+        <key>NSPhotoLibraryUsageDescription</key>
+        <string>نحتاج إلى الوصول إلى الصور لاختيار الصور من الجهاز.</string>
+
+        <key>NSBluetoothAlwaysUsageDescription</key>
+        <string>نحتاج إلى استخدام Bluetooth للاتصال بالطابعات الحرارية.</string>
+
+        <key>NSBluetoothPeripheralUsageDescription</key>
+        <string>نحتاج إلى استخدام Bluetooth للاتصال بالطابعات الحرارية.</string>
 		<key>UIMainStoryboardFile</key>
 		<string>Main</string>
 		<key>UISupportedInterfaceOrientations</key>
